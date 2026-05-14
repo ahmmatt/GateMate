@@ -1,0 +1,397 @@
+/* =========================================
+   1. RESET & GLOBAL VARIABLES
+   ========================================= */
+:root {
+    --bg-body: #050505;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-orange: #f97316; 
+    --accent-green: #22c55e;  
+    --border-color: #2a2a2a;
+    --content-width: 1000px;
+    --edge-spacing: 40px;
+    --content-padding: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #050505; 
+    
+    /* MENGGABUNGKAN 2 GRADIEN (Tumpukan) */
+    background-image: 
+        /* Tumpukan 1 (Paling Atas): Cahaya dari atap memudar ke transparan di ketinggian 25% layar */
+        linear-gradient(to bottom, rgba(30, 40, 55, 0.6) 0%, transparent 25%),
+        
+        /* Tumpukan 2 (Dasar): Gradien radial asli Anda (Tengah ke ujung) */
+        radial-gradient(ellipse at center, #050505 30%, #131722 100%);
+    
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding-top: 80px; 
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* =========================================
+   2. NAVBAR STYLING (DINAMIS)
+   ========================================= */
+.navbar {
+    /* 1. Membuat Navbar Menempel di Atas */
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Tinggi fix diperlukan agar layout stabil */
+    z-index: 1000;
+    /* Background transparan murni dan tanpa garis bawah */
+    background-color: transparent; 
+    border-bottom: 1px solid transparent; 
+    /* PENTING: Efek transisi agar perubahan blur-nya halus (smooth) */
+    transition: background-color 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+    /* Layout */
+    display: flex;
+    align-items: center;
+    padding: 0 var(--edge-spacing); 
+    box-sizing: border-box;
+}
+
+/* B. KONDISI SCROLLED (Saat di-scroll) */
+.navbar.scrolled {
+    /* UBAH: Menggunakan warna RGB dari #131722 dengan transparansi 60% */
+    background-color: rgba(19, 23, 34, 0.6); 
+    
+    /* Efek Kaca (Blur) */
+    backdrop-filter: blur(16px); /* Tingkatkan blur sedikit agar lebih halus */
+    -webkit-backdrop-filter: blur(16px);  
+    
+    /* Garis bawah yang sangat tipis dan elegan */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+    
+    /* Tambahan efek bayangan (shadow) halus untuk memisahkan navbar dan konten */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar Items */
+.left-nav { grid-column: 1; justify-self: start; }
+.left-nav h1 { font-size: 20px; font-weight: 700; color: #e0e0e0; }
+.left-nav span { color:var(--accent-green); font-size:12px; }
+
+/* Gaya Kartu Mengikuti Desain CSS Utama (Glassmorphism + Dark Mode) */
+        .glass-card { 
+            background: rgba(18, 18, 18, 0.6); /* Warna dasar --bg-card (#121212) tembus pandang */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Border sangat halus */
+            border-radius: 20px; 
+            padding: 40px; 
+            max-width: 450px; 
+            margin: 80px auto; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);;
+        }
+        
+        .custom-input { 
+            width: 100%; 
+            padding: 12px 14px; 
+            margin-top: 8px; 
+            border-radius: 8px; 
+            background: rgba(10, 10, 10, 0.8); /* Warna dasar input sangat gelap (#0a0a0a) */
+            border: 1px solid #333; 
+            color: #ffffff; 
+            margin-bottom: 20px; 
+            outline: none; 
+            font-size: 13px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        
+        .custom-input:focus { 
+            border-color: #ffffff; 
+            background-color: #000000;
+        }
+        
+        /* Mencegah background putih autofill browser */
+        .custom-input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #0a0a0a inset !important;
+            -webkit-text-fill-color: white !important;
+        }
+        
+        .btn-primary { 
+            width: 100%; 
+            padding: 14px; 
+            background: #ffffff; /* Tombol warna putih khas desain Anda */
+            color: #000000; 
+            font-weight: 700; 
+            font-size: 14px;
+            border: none; 
+            border-radius: 50px; /* Bentuk Pill */
+            cursor: pointer; 
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary:hover { 
+            background: #d1d1d1; 
+        }
+
+        /* =========================================
+   3. ADMIN AUTH STYLING (LOGIN & REGISTER)
+   ========================================= */
+   
+/* Modifikasi Card Khusus Signup */
+.glass-card.signup-card {
+    margin-top: 20px;
+}
+
+/* Heading Title di dalam Card */
+.glass-card h2 {
+    margin-bottom: 10px;
+    text-align: center;
+    color: #fff;
+}
+
+/* Deskripsi di bawah Title */
+.glass-card-desc {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* Margin bottom khusus untuk halaman signup */
+.glass-card-desc.mb-30 {
+    margin-bottom: 30px;
+}
+
+/* Notifikasi Pesan Error */
+.error-msg {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+/* Label Form */
+.form-label {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ccc; 
+    margin-bottom: 4px;
+}
+
+/* Grid untuk Input Sejajar (Instagram & Tiktok) */
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+.form-col {
+    flex: 1;
+}
+
+/* Ikon Sosial Media */
+.icon-ig {
+    color: #E1306C;
+    margin-right: 4px;
+}
+.icon-tt {
+    color: #00f2ea;
+    margin-right: 4px;
+}
+
+/* Jarak Tambahan Tombol Submit di Signup */
+.btn-submit-signup {
+    margin-top: 10px;
+}
+
+/* Teks Footer (Pindah Halaman) */
+.glass-card-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #888;
+}
+
+/* Link di dalam Footer */
+.glass-card-footer a {
+    text-decoration: none;
+    font-weight: 600;
+}
+.link-blue {
+    color: #3b82f6;
+}
+.link-green {
+    color: var(--accent-green);
+}
+
+/* =========================================
+   4. GLOBAL LIGHT MODE OVERRIDES (ADMIN AUTH)
+   ========================================= */
+html.light-mode body {
+    --bg-body: #f8fafc;
+    --text-primary: #0f172a; 
+    --text-secondary: #475569;
+    --border-color: #cbd5e1;
+    
+    background-color: var(--bg-body);
+    
+    /* PREMIUM LIGHT GRADIENT */
+    background-image: 
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.08) 0%, transparent 25%),
+        radial-gradient(ellipse at center, #ffffff 20%, #e2e8f0 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* Navbar */
+html.light-mode .navbar.scrolled {
+    background-color: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+html.light-mode .left-nav h1, 
+html.light-mode .main-nav div, 
+html.light-mode .right-nav { color: var(--text-primary); }
+html.light-mode .main-nav div:hover { color: #3b82f6; }
+
+/* Card Glassmorphism Light Mode */
+html.light-mode .glass-card {
+    background: rgba(255, 255, 255, 0.7); /* Putih transparan */
+    border: 1px solid rgba(255, 255, 255, 0.8); /* Border putih bercahaya */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); /* Bayangan lembut */
+}
+html.light-mode .glass-card h2 { color: var(--text-primary); }
+html.light-mode .glass-card-desc,
+html.light-mode .glass-card-footer { color: var(--text-secondary); }
+
+/* Labels & Input */
+html.light-mode .form-label { color: var(--text-secondary); }
+html.light-mode .custom-input {
+    background-color: #ffffff; /* Input putih bersih */
+    border-color: #cbd5e1;
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+html.light-mode .custom-input:focus {
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Mencegah background gelap autofill browser di Light Mode */
+html.light-mode .custom-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Button Submit */
+html.light-mode .btn-primary {
+    background-color: #0f172a; /* Tombol jadi gelap (Dark Slate) */
+    color: #ffffff;
+}
+html.light-mode .btn-primary:hover {
+    background-color: #334155;
+}
+
+/* =========================================
+   10. RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================= */
+
+/* A. TABLET VIEW (Maks 768px) */
+@media screen and (max-width: 768px) {
+    .navbar {
+        padding: 0 24px !important;
+        height: 60px !important;
+    }
+    
+    .navbar h1 { font-size: 18px !important; }
+
+    .glass-card {
+        width: 80% !important; /* Card sedikit melebar di tablet */
+        padding: 40px 30px !important;
+    }
+}
+
+/* B. MOBILE VIEW (Maks 480px) - INDEPENDENT SCALING */
+@media screen and (max-width: 480px) {
+    body {
+        padding-top: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* 1. Navbar - Ukuran Title & Span Lebih Proporsional */
+    .navbar { padding: 0 16px !important; height: 50px !important; }
+    .navbar h1 { 
+        font-size: 16px !important; /* Diperbesar sedikit dari 14px agar jelas */
+    }
+    .navbar h1 span { 
+        display: inline !important; 
+        font-size: 10px !important; /* Diperbesar sedikit dari 8px */
+        margin-left: 5px;
+        opacity: 0.9;
+    }
+
+    /* 2. KHUSUS HALAMAN SIGN IN (Login Card) */
+    .login-card {
+        width: 90% !important; /* Lebih lebar dari signup card agar tidak ciut */
+        max-width:      80px !important; 
+        padding: 35px 25px !important; /* Padding lebih tebal agar terlihat gagah */
+        border-radius: 20px !important;
+    }
+
+    /* 3. KHUSUS HALAMAN SIGN UP (Signup Card Tetap Mungil) */
+    .signup-card {
+        width: 85% !important; 
+        max-width: 340px !important; 
+        padding: 24px 20px !important; 
+        border-radius: 16px !important;
+        margin: 15px auto !important;
+    }
+
+    /* 4. Penyesuaian Teks & Konten Global */
+    .glass-card h2 { font-size: 20px !important; margin-bottom: 8px !important; }
+    .glass-card-desc { font-size: 12px !important; margin-bottom: 20px !important; }
+    .form-label { font-size: 12px !important; margin-bottom: 4px !important; }
+
+    /* 5. Input & Tombol */
+    .custom-input {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+        border-radius: 10px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .form-row { flex-direction: column !important; gap: 0 !important; }
+    .form-col { width: 100% !important; }
+
+    .btn-primary {
+        padding: 14px !important;
+        font-size: 14px !important;
+        border-radius: 50px !important;
+        margin-top: 5px !important;
+    }
+
+    .glass-card-footer { font-size: 12px !important; margin-top: 15px !important; }
+}

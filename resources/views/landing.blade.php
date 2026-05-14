@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureGate - The Identity-Based Ticketing</title>
+    <link rel="stylesheet" href="{{ asset('CSS/landing.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="ambient-glow glow-white"></div>
+    <div class="ambient-glow glow-blue"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="left-nav">
+            <h1>SecureGate</h1>
+        </div>
+        <div class="right-nav">
+            <a href="{{ url('/signin') }}" class="nav-btn user-btn"><i class="fa-solid fa-user"></i> Masuk</a>
+            <a href="{{ url('/partner-login') }}" class="nav-btn admin-btn"><i class="fa-solid fa-briefcase"></i> Partner Login</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <section class="hero-section fade-up delay-1">
+            <div class="tagline">Era Baru Manajemen Acara</div>
+            <h1 class="hero-title">Tiket Bukan Sekadar Akses.<br><span class="text-gradient">Ini Identitas Anda.</span></h1>
+            <p class="hero-subtitle">
+                Menggabungkan profil personal dan QR Code dinamis. Mustahil dipalsukan, bebas calo.
+                Satu ekosistem canggih untuk Penyelenggara Acara dan Penikmat Hiburan.
+            </p>
+            <div class="hero-cta">
+                <a href="{{ url('/signup') }}" class="cta-btn cta-primary">Cari Event (User)</a>
+                <a href="{{ url('/partner-register') }}" class="cta-btn cta-secondary">Buat Event (Partner)</a>
+            </div>
+        </section>
+
+        <section class="feature-split">
+            <div class="feature-text fade-right delay-2">
+                <i class="fa-solid fa-fingerprint feature-icon"></i>
+                <h2>Satu Tiket.<br>Satu Identitas.</h2>
+                <p>Ucapkan selamat tinggal pada pemalsuan tiket. Di SecureGate, tiket terikat langsung dengan foto profil dan email Anda. Saat di-scan, wajah Anda adalah bukti kepemilikan sah.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Kode QR Unik</li>
+                    <li><i class="fa-solid fa-check"></i> Verifikasi visual otomatis bagi petugas</li>
+                    <li><i class="fa-solid fa-check"></i> Check-in instan tanpa perlu cetak tiket fisik</li>
+                </ul>
+            </div>
+            <div class="feature-visual fade-left delay-3">
+                <div class="mockup-ticket floating-slow">
+                    <div class="mockup-header">
+                        <div class="mockup-event-name">Konser Musik 2026</div>
+                        <div class="mockup-badge">VIP TICKET</div>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="mockup-profile">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                        <div class="mockup-info">
+                            <h3>Ahmad Mubasysyir</h3>
+                            <p>mubasysyirahmd@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="mockup-footer">
+                        <i class="fa-solid fa-qrcode mockup-qr"></i>
+                        <p>Aman & Terenkripsi</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-split reverse-layout mt-100">
+            <div class="feature-text fade-left delay-2">
+                <i class="fa-solid fa-laptop-code feature-icon text-orange"></i>
+                <h2>Kontrol Penuh<br>di Tangan Kreator.</h2>
+                <p>Sebagai Event Creator, Anda memiliki akses ke Dashboard super canggih. Atur jadwal, jenis tiket, kapasitas, hingga formulir kustom. Pantau pendapatan dan *check-in* secara *real-time*.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Buat halaman Event dengan dukungan 3D/Video</li>
+                    <li><i class="fa-solid fa-check"></i> Sistem approval manual untuk acara eksklusif</li>
+                    <li><i class="fa-solid fa-check"></i> Payout pendapatan yang transparan</li>
+                </ul>
+            </div>
+            <div class="feature-visual fade-right delay-3">
+                <div class="mockup-admin floating-slower">
+                    <div class="admin-header">
+                        <i class="fa-solid fa-video"></i> Kamera Scanner Aktif
+                    </div>
+                    <div class="admin-scan-area">
+                        <div class="scan-frame"></div>
+                    </div>
+                    <div class="admin-result success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <h4>Ahmad Mubasysyir - VIP</h4>
+                            <p>Valid & Approved</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bento-section fade-up delay-1">
+            <div class="bento-grid">
+                <div class="bento-card">
+                    <i class="fa-solid fa-ban bento-icon"></i>
+                    <h3>Anti-Calo System</h3>
+                    <p>Karena tiket adalah identitas wajah, calo tidak bisa memborong dan menjual kembali tiket secara bebas di luar platform.</p>
+                </div>
+                <div class="bento-card">
+                    <i class="fa-solid fa-bolt bento-icon"></i>
+                    <h3>Fast Check-in</h3>
+                    <p>Cukup pindai kode QR dalam hitungan detik. Aplikasi Scanner mendeteksi tiket valid secara instan tanpa internet lemot.</p>
+                </div>
+                <div class="bento-card">
+                    <i class="fa-solid fa-wallet bento-icon"></i>
+                    <h3>Seamless Payout</h3>
+                    <p>Dana penjualan tiket masuk ke sistem dengan aman, dan dapat ditarik langsung oleh Kreator setelah acara selesai.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="landing-footer fade-up delay-2">
+            <div class="footer-brand">
+                <h2>SecureGate</h2>
+                <p>The Future of Event Management.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-x"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </footer>
+
+    </main>
+
+    <script src="{{ asset('JS/landing.js') }}"></script>
+</body>
+</html>
