@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'qr_token',
     'status',
     'vibe_bio',
+    'ig_handle',
     'looking_for_match',
 ])]
 class Attendee extends Model

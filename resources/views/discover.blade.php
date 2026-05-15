@@ -110,11 +110,13 @@
 
         {{-- ─── Active Location ────────────────────────────────────────────── --}}
         <div class="event-location-wrapper">
-            <div class="event-location-now"
-                 onclick="window.location.href='{{ route('discover', ['city' => 'All', 'category' => $selectedCategory]) }}'">
-                <i class="fa-solid fa-location-dot location-icon icon-green-accent"></i>
-                <h3>{{ $selectedCity === 'All' ? 'All Locations' : $selectedCity . ', ID' }}</h3>
-            </div>
+            <a href="{{ route('discover', ['city' => 'All', 'category' => $selectedCategory ?? 'All']) }}" 
+            style="text-decoration: none; color: inherit; display: block;">
+                <div class="event-location-now">
+                    <i class="fa-solid fa-location-dot location-icon icon-green-accent"></i>
+                    <h3>{{ (!isset($selectedCity) || $selectedCity === 'All') ? 'All Locations' : $selectedCity . ', ID' }}</h3>
+                </div>
+            </a>
         </div>
 
         {{-- ─── Category Filter ────────────────────────────────────────────── --}}
@@ -177,7 +179,7 @@
             <div class="upcoming-event">
                 @forelse ($events as $event)
                     <div class="event-card-detail">
-                        <a href="{{ url('/ticket/' . $event->id_event) }}" class="card-link-wrapper">
+                        <a href="{{ route('event.show', $event->id_event) }}" class="card-link-wrapper">
 
                             <div class="card-top-header">
                                 <div class="header-left">
