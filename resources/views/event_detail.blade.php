@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- CSRF token dibaca oleh ticket.js untuk AJAX request ke /checkout --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $event->title }} - SecureGate</title>
     <link rel="stylesheet" href="{{ asset('CSS/ticket.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,70 +17,7 @@
 </head>
 
 <body>
-
-    {{-- ─── Navbar ──────────────────────────────────────────────────────────── --}}
-    <nav class="navbar">
-        <div class="left-nav">
-            <i class="fa-solid fa-bars hamburger-btn" id="hamburger-btn"></i>
-            <h1>SecureGate</h1>
-        </div>
-        <div class="main-nav">
-            <div class="main-nav-discover">
-                <i class="fa-regular fa-compass"></i>
-                <a href="{{ route('discover') }}">Discover</a>
-            </div>
-            <div class="main-nav-event">
-                <i class="fa-solid fa-ticket"></i>
-                <a href="{{ url('/events') }}">My Events</a>
-            </div>
-        </div>
-        <div class="right-nav">
-
-            @php
-            $navName = Auth::user()->full_name;
-            $navInitial = strtoupper(substr($navName, 0, 1));
-            $navPic = Auth::user()->profile_picture;
-            @endphp
-
-            <div id="profile-dropdown-trigger"
-                class="profile-dropdown-trigger"
-                title="{{ $navName }}">
-                @if (!empty($navPic))
-                <img src="{{ asset('Media/uploads/' . $navPic) }}"
-                    alt="Profile" class="profile-pic-small">
-                @else
-                <div class="profile-initial-small">{{ $navInitial }}</div>
-                @endif
-            </div>
-
-            <div id="profile-dropdown-menu" class="profile-dropdown-menu">
-                <div class="dropdown-header">
-                    @if (!empty($navPic))
-                    <img src="{{ asset('Media/uploads/' . $navPic) }}" class="profile-pic-large">
-                    @else
-                    <div class="profile-initial-large">{{ $navInitial }}</div>
-                    @endif
-                    <div class="dropdown-user-info">
-                        <h4 class="dropdown-user-name">{{ $navName }}</h4>
-                        <p class="dropdown-user-role">{{ Auth::user()->role }}</p>
-                    </div>
-                </div>
-                <div class="dropdown-menu-links">
-                    <a href="{{ url('/settings') }}" class="dropdown-link">
-                        <i class="fa-solid fa-gear dropdown-link-icon"></i> Settings
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="dropdown-link logout-link"
-                            style="width:100%; text-align:left; background:none; border:none; cursor:pointer; padding:0;">
-                            <i class="fa-solid fa-arrow-right-from-bracket dropdown-link-icon"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </nav>
+    @include('components.navbar')
 
     {{-- ─── Page Content ─────────────────────────────────────────────────────── --}}
     <div class="page-frame">
@@ -349,6 +288,13 @@
         </div>
     </div>
 
+    {{--
+        Midtrans Snap JS (Sandbox) — harus dimuat SEBELUM ticket.js
+        agar window.snap tersedia saat btnToPayment diklik.
+        Gunakan config() bukan env() agar aman saat config di-cache.
+    --}}
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key="{{ config('services.midtrans.client_key') }}"></script>
     <script src="{{ asset('JS/ticket.js') }}"></script>
 </body>
 

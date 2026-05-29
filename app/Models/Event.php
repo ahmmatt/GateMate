@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'id_admin',
     'title',
     'banner_image',
+    'poster_path',
     'category',
     'location_type',
     'location_details',
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'timezone',
     'description',
     'require_approval',
+    'custom_questions',
     'capacity_type',
     'max_capacity',
     'seat_assignment',
@@ -57,6 +59,7 @@ class Event extends Model
             'end_date'         => 'date',
             'created_at'       => 'datetime',
             'require_approval' => 'boolean',
+            'custom_questions' => 'array',
         ];
     }
 

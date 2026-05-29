@@ -15,12 +15,20 @@ use Laravel\Sanctum\HasApiTokens;
     'full_name',
     'gender',
     'profile_picture',
+    'face_verified_at',
     'email',
     'username',
     'password',
     'role',
+    'id_event',
     'instagram',
     'tiktok',
+    'tiktok_handle',
+    'organization_name',
+    'is_verified_organizer',
+    'wallet_balance',
+    'phone',
+    'ktp_document',
 ])]
 #[Hidden([
     'password',
@@ -48,8 +56,10 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'created_at' => 'datetime',
-            'password'   => 'hashed',
+            'created_at'            => 'datetime',
+            'face_verified_at'      => 'datetime',
+            'password'              => 'hashed',
+            'is_verified_organizer' => 'boolean',
         ];
     }
 
@@ -59,5 +69,29 @@ class User extends Authenticatable
     public function attendees(): HasMany
     {
         return $this->hasMany(Attendee::class, 'id_user', 'id_user');
+    }
+
+    /**
+     * Histori transaksi wallet user.
+     */
+    public function walletTransactions(): HasMany
+    {
+        return $this->hasMany(WalletTransaction::class, 'user_id', 'id_user');
+    }
+
+    /**
+     * Menu kasir tenant milik user ini.
+     */
+    public function tenantMenus(): HasMany
+    {
+        return $this->hasMany(TenantMenu::class, 'user_id', 'id_user');
+    }
+
+    /**
+     * Event di mana user (tenant) ditugaskan.
+     */
+    public function event(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'id_event', 'id_event');
     }
 }

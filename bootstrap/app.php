@@ -12,7 +12,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'organizer.verified' => \App\Http\Middleware\EnsureOrganizerIsVerified::class,
+            'tenant.role'        => \App\Http\Middleware\EnsureTenantRole::class,
+            'superadmin.role'    => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
+            'user.role'          => \App\Http\Middleware\EnsureUserRole::class,
+        ]);
+        
+        // Bypass CSRF for Midtrans Webhook
+        $middleware->validateCsrfTokens(except: [
+            '/webhook/midtrans',
+            '/webhook/midtrans/*',
+            '/webhook/*'
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

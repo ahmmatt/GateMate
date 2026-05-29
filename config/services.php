@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    // Tambahkan ini di bagian bawah file config/services.php
+    'midtrans' => [
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+    ],
+
+    // ── Platform Fee ──────────────────────────────────────────────────────────
+    'platform' => [
+        // Potongan superadmin dari total tiket (persen, e.g. 10 = 10%)
+        'fee_percent'         => (float) env('PLATFORM_FEE_PERCENT', 10),
+        // Persentase bagian penyelenggara dari pendapatan tenant (default 100%)
+        'organizer_tenant_cut' => (float) env('ORGANIZER_TENANT_CUT', 100),
+    ],
+
 ];

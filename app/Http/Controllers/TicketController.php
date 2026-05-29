@@ -16,47 +16,39 @@ class TicketController extends Controller
      */
     public function index(): View
     {
-        $now = now();
-
-        $allTickets = Attendee::with(['event.admin', 'ticketTier'])
-            ->where('id_user', Auth::id())
-            ->latest('created_at')
+        $tickets = \App\Models\Transaction::with(['event', 'ticketTier'])
+            ->where('user_id', auth()->id())
+            ->where('payment_status', 'success')
             ->get();
 
-        // ── Pisahkan upcoming vs past berdasarkan end_date + end_time event ──
-        $upcomingTickets = $allTickets->filter(function ($ticket) use ($now): bool {
-            if (! $ticket->event) {
-                return false;
-            }
+        return view('my_tickets', compact('tickets'));
+    }
 
-            if ($ticket->event->status === 'ended') {
-                return false;
-            }
+    /**
+     * Menampilkan E-Ticket dan QR Code untuk transaksi yang valid.
+     */
+    public function showTicket($id)
+    {
+        $transaction = \App\Models\Transaction::with(['event', 'ticketTier', 'user'])->findOrFail($id);
 
-            $eventEnd = \Carbon\Carbon::parse(
-                $ticket->event->end_date->format('Y-m-d') . ' ' . $ticket->event->end_time
-            );
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this ticket.');
+        }
 
-            return $now->lessThanOrEqualTo($eventEnd);
-        })->values();
+        // ── Networking Hub: Ambil data peserta untuk halaman E-Ticket ──────────
 
-        $pastTickets = $allTickets->filter(function ($ticket) use ($now): bool {
-            if (! $ticket->event) {
-                return true;
-            }
+        // Tiket (Attendee record) milik user ini — untuk tombol AI Match
+        $myAttendee = Attendee::where('id_event', $transaction->event_id)
+            ->where('id_user', auth()->id())
+            ->first();
 
-            if ($ticket->event->status === 'ended') {
-                return true;
-            }
+        // Peserta lain di event yang sama (kecualikan diri sendiri)
+        $otherAttendees = Attendee::with('user')
+            ->where('id_event', $transaction->event_id)
+            ->where('id_user', '!=', auth()->id())
+            ->get();
 
-            $eventEnd = \Carbon\Carbon::parse(
-                $ticket->event->end_date->format('Y-m-d') . ' ' . $ticket->event->end_time
-            );
-
-            return $now->greaterThan($eventEnd);
-        })->values();
-
-        return view('my_tickets', compact('upcomingTickets', 'pastTickets'));
+        return view('tickets.e_ticket', compact('transaction', 'myAttendee', 'otherAttendees'));
     }
 
     /**
@@ -70,16 +62,24 @@ class TicketController extends Controller
             'looking_for_match' => ['nullable', 'boolean'],
         ]);
 
-        // Pastikan tiket ini benar-benar milik user yang sedang login
-        $ticket = Attendee::where('id_attendee', $id)
-            ->where('id_user', Auth::id())
+        // Gunakan Transaction ID untuk mencari Event ID, lalu cari Attendee-nya
+        $transaction = \App\Models\Transaction::where('id', $id)
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        $ticket->update([
-            'vibe_bio'          => $validated['vibe_bio'] ?? null,
-            'ig_handle'         => $validated['ig_handle'] ?? null,
-            'looking_for_match' => $validated['looking_for_match'] ?? false,
-        ]);
+        $ticket = Attendee::where('id_event', $transaction->event_id)
+            ->where('id_user', Auth::id())
+            ->first();
+
+        // Jika belum ada attendee (misal karena tiket belum sepenuhnya lunas), buatkan dummy/draft atau kembalikan error
+        if (!$ticket) {
+            return back()->withErrors(['vibe_bio' => 'Data peserta belum diterbitkan. Pastikan transaksi tiket sudah sukses.']);
+        }
+
+        $ticket->vibe_bio          = $validated['vibe_bio'] ?? null;
+        $ticket->ig_handle         = $validated['ig_handle'] ?? null;
+        $ticket->looking_for_match = $validated['looking_for_match'] ?? false;
+        $ticket->save();
 
         return back()->with('vibe_success_' . $id, 'AI Matchmaking Profile Updated!');
     }

@@ -1,333 +1,175 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureGate - Discover</title>
-    <link rel="stylesheet" href="{{ asset('CSS/discover.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        if (localStorage.getItem('securegate_theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-        }
-    </script>
-</head>
-<body>
+@extends('layouts.app')
 
-    {{-- ─── Navbar ──────────────────────────────────────────────────────────── --}}
-    <nav class="navbar">
-        <div class="left-nav">
-            <i class="fa-solid fa-bars hamburger-btn" id="hamburger-btn"></i>
-            <h1>SecureGate</h1>
+@section('content')
+<div class="flex flex-col gap-10">
+
+    <!-- Hero Section -->
+    <section class="bg-surface-container-low rounded-3xl p-8 md:p-12 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary-fixed/30 to-transparent pointer-events-none"></div>
+        <div class="relative z-10 max-w-2xl">
+            <h1 class="font-headline-lg text-headline-lg md:text-5xl font-bold text-on-surface mb-4">Discover Event</h1>
+            <p class="font-body-lg text-body-lg text-secondary mb-8">Find what's happening nearby, pick your favorite category, or search instantly.</p>
+            
+            <!-- Search Form -->
+            <form action="{{ route('discover') }}" method="GET" class="flex items-center gap-2 bg-surface-container-lowest rounded-full p-2 shadow-sm focus-within:ring-2 ring-primary transition-all">
+                <input type="hidden" name="city" value="{{ $selectedCity ?? 'All' }}">
+                <input type="hidden" name="category" value="{{ $selectedCategory ?? 'All' }}">
+                <span class="material-symbols-outlined text-secondary ml-3">search</span>
+                <input type="text" name="search" placeholder="Search event by title..." value="{{ $searchKeyword ?? '' }}" class="w-full bg-transparent border-none outline-none text-on-surface font-body-md focus:ring-0">
+                <button type="submit" class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2 rounded-full font-label-md font-bold transition-colors">Search</button>
+            </form>
         </div>
-        <div class="main-nav">
-            <div class="main-nav-discover">
-                <i class="fa-regular fa-compass"></i>
-                <a href="{{ route('discover') }}">Discover</a>
-            </div>
-            <div class="main-nav-event">
-                <i class="fa-solid fa-ticket"></i>
-                <a href="{{ url('/events') }}">Event</a>
-            </div>
-        </div>
-        <div class="right-nav">
+    </section>
 
-            @php
-                $navName    = Auth::user()->full_name;
-                $navInitial = strtoupper(substr($navName, 0, 1));
-                $navPic     = Auth::user()->profile_picture;
-            @endphp
+    @php
+    $categories = [
+        'Music Concert' => 'Konser',
+        'Workshop & Training' => 'Workshop',
+        'Sport' => 'Sport',
+        'Festival' => 'Festival',
+        'Exhibition' => 'Pameran',
+        'Tech Seminar' => 'Seminar'
+    ];
+    $selectedCity = $selectedCity ?? 'All';
+    $selectedCategory = $selectedCategory ?? 'All';
+    $searchKeyword = $searchKeyword ?? '';
+    
+    $cities = ['Jakarta', 'Bandung', 'Surabaya', 'Bali', 'Yogyakarta', 'Medan', 'Makassar', 'Semarang'];
+    @endphp
 
-            {{-- Profile Trigger --}}
-            <div id="profile-dropdown-trigger"
-                 class="profile-dropdown-trigger"
-                 title="{{ $navName }}">
-                @if (!empty($navPic))
-                    <img src="{{ asset('Media/uploads/' . $navPic) }}"
-                         alt="Profile"
-                         class="profile-pic-small">
-                @else
-                    <div class="profile-initial-small">{{ $navInitial }}</div>
-                @endif
-            </div>
-
-            {{-- Profile Dropdown --}}
-            <div id="profile-dropdown-menu" class="profile-dropdown-menu">
-                <div class="dropdown-header">
-                    @if (!empty($navPic))
-                        <img src="{{ asset('Media/uploads/' . $navPic) }}"
-                             class="profile-pic-large">
-                    @else
-                        <div class="profile-initial-large">{{ $navInitial }}</div>
-                    @endif
-                    <div class="dropdown-user-info">
-                        <h4 class="dropdown-user-name">{{ $navName }}</h4>
-                        <p class="dropdown-user-role">{{ Auth::user()->role }}</p>
-                    </div>
-                </div>
-
-                <div class="dropdown-menu-links">
-                    <a href="{{ url('/settings') }}" class="dropdown-link">
-                        <i class="fa-solid fa-gear dropdown-link-icon"></i> Settings
-                    </a>
-
-                    {{-- Logout via POST Form --}}
-                    <form method="POST" action="{{ route('logout') }}" id="logout-form">
-                        @csrf
-                        <button type="submit" class="dropdown-link logout-link"
-                                style="width:100%; text-align:left; background:none; border:none; cursor:pointer; padding:0;">
-                            <i class="fa-solid fa-arrow-right-from-bracket dropdown-link-icon"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </nav>
-
-    {{-- ─── Page Content ─────────────────────────────────────────────────────── --}}
-    <div class="page-frame">
-
-        <div class="page-frame-nav">
-            <h1>Discover Event</h1>
-            <p>Find whats happening nearby, pick your favorite category, or search instantly.</p>
-        </div>
-
-        {{-- ─── Search Bar ─────────────────────────────────────────────────── --}}
-        <div class="search-bar-wrapper">
-            <div class="search-bar">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <form action="{{ route('discover') }}" method="GET" style="width:100%; margin:0;">
-                    <input type="hidden" name="city"     value="{{ $selectedCity }}">
-                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
-                    <input type="text"   name="search"
-                           placeholder="Search event by title..."
-                           value="{{ $searchKeyword }}"
-                           style="width:100%; background:transparent; border:none; outline:none; color:#fff;">
-                </form>
-            </div>
-        </div>
-
-        {{-- ─── Active Location ────────────────────────────────────────────── --}}
-        <div class="event-location-wrapper">
-            <a href="{{ route('discover', ['city' => 'All', 'category' => $selectedCategory ?? 'All']) }}" 
-            style="text-decoration: none; color: inherit; display: block;">
-                <div class="event-location-now">
-                    <i class="fa-solid fa-location-dot location-icon icon-green-accent"></i>
-                    <h3>{{ (!isset($selectedCity) || $selectedCity === 'All') ? 'All Locations' : $selectedCity . ', ID' }}</h3>
-                </div>
+    <!-- Filters & Dropdown -->
+    <section class="flex flex-col md:flex-row md:items-center justify-between gap-gap-default mb-8 mt-8">
+        <div class="flex items-center gap-3 overflow-x-auto hide-scrollbar pb-2 md:pb-0">
+            <a href="{{ route('discover', ['category' => 'All', 'city' => $selectedCity, 'search' => $searchKeyword]) }}" 
+               class="whitespace-nowrap px-5 py-2 rounded-full font-label-md text-label-md transition-all active:scale-95 {{ $selectedCategory === 'All' ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-secondary hover:bg-surface-container-high' }}">
+               Semua
             </a>
-        </div>
-
-        {{-- ─── Category Filter ────────────────────────────────────────────── --}}
-        <h3 class="browse">Browse by Category</h3>
-        <div class="category-wrapper">
-
-            @php
-                $categories = [
-                    'Music Concert'      => ['label' => 'Konser',   'icon' => 'fa-music',             'color' => 'icon-yellow'],
-                    'Workshop & Training'=> ['label' => 'Workshop', 'icon' => 'fa-chalkboard-user',    'color' => 'icon-green'],
-                    'Tech Seminar'       => ['label' => 'Seminar',  'icon' => 'fa-microphone-lines',   'color' => 'icon-orange'],
-                ];
-            @endphp
-
-            @foreach ($categories as $catKey => $catMeta)
-                <a href="{{ route('discover', ['category' => $catKey, 'city' => $selectedCity, 'search' => $searchKeyword]) }}"
-                   class="filter-card-link category-card {{ $selectedCategory === $catKey ? 'active-filter' : '' }}">
-                    <div class="category-card-content">
-                        <div class="icon-box {{ $catMeta['color'] }}">
-                            <i class="fa-solid {{ $catMeta['icon'] }}"></i>
-                        </div>
-                        <div class="category-card-info">
-                            <h3>{{ $catMeta['label'] }}</h3>
-                            <div class="number-of-event">
-                                <p>{{ $catCounts->get($catKey, 0) }}</p>
-                                <p>Events</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+            @foreach ($categories as $catKey => $catLabel)
+            <a href="{{ route('discover', ['category' => $catKey, 'city' => $selectedCity, 'search' => $searchKeyword]) }}" 
+               class="whitespace-nowrap px-5 py-2 rounded-full font-label-md text-label-md transition-all active:scale-95 {{ $selectedCategory === $catKey ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-secondary hover:bg-surface-container-high' }}">
+               {{ $catLabel }}
+            </a>
             @endforeach
+        </div>
+        
+        <div class="relative min-w-[160px]">
+            <select onchange="window.location.href=this.value" class="appearance-none w-full bg-surface-container-low border border-outline-variant/30 rounded-[10px] px-4 py-2 font-body-md text-body-md focus:outline-none focus:border-primary cursor-pointer">
+                <option value="{{ route('discover', ['city' => 'All', 'category' => $selectedCategory, 'search' => $searchKeyword]) }}" {{ $selectedCity === 'All' ? 'selected' : '' }}>Semua Kota</option>
+                @foreach($cities as $city)
+                <option value="{{ route('discover', ['city' => $city, 'category' => $selectedCategory, 'search' => $searchKeyword]) }}" {{ $selectedCity === $city ? 'selected' : '' }}>{{ $city }}</option>
+                @endforeach
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary pointer-events-none">expand_more</span>
+        </div>
+    </section>
 
-            <a href="{{ route('discover', ['category' => 'All', 'city' => $selectedCity, 'search' => $searchKeyword]) }}"
-               class="filter-card-link category-card {{ $selectedCategory === 'All' ? 'active-filter' : '' }}">
-                <div class="category-card-content">
-                    <div class="icon-box icon-purple">
-                        <i class="fa-solid fa-layer-group"></i>
-                    </div>
-                    <div class="category-card-info">
-                        <h3>All Events</h3>
-                        <div class="number-of-event">
-                            <p>{{ $catCounts->sum() }}</p>
-                            <p>Events</p>
+    <!-- Events Grid -->
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Recently Added</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @forelse ($events as $event)
+                <a href="{{ route('event.show', $event->id_event) }}" class="group bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden hover:border-primary hover:shadow-lg transition-all flex flex-col h-full">
+                    
+                    <div class="relative h-48 overflow-hidden">
+                        @php
+                        $bannerSrc = !empty($event->banner_image)
+                        ? asset('Media/uploads/' . $event->banner_image)
+                        : asset('Media/09071799-7231-4faa-883e-a1eb2d01ef9b.avif');
+                        @endphp
+                        <img src="{{ $bannerSrc }}" alt="{{ $event->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full text-primary font-label-md font-bold text-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">calendar_month</span>
+                            {{ \Carbon\Carbon::parse($event->start_date)->format('M j') }}
                         </div>
                     </div>
-                </div>
-            </a>
-
-        </div>
-
-        <hr>
-
-        {{-- ─── Event Carousel ─────────────────────────────────────────────── --}}
-        <h3>Recently Added</h3>
-        <div class="carousel-container">
-            <button class="carousel-btn left-btn" id="slide-left">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-
-            <div class="upcoming-event">
-                @forelse ($events as $event)
-                    <div class="event-card-detail">
-                        <a href="{{ route('event.show', $event->id_event) }}" class="card-link-wrapper">
-
-                            <div class="card-top-header">
-                                <div class="header-left">
-                                    <h4>{{ \Carbon\Carbon::parse($event->start_date)->format('M j, l') }}</h4>
-                                </div>
-                                <div class="header-right">
-                                    <h4>{{ \Carbon\Carbon::createFromTimeString($event->start_time)->format('g:i A') }}</h4>
-                                </div>
-                            </div>
-                            <hr class="card-divider">
-
-                            <h2 class="card-title">{{ $event->title }}</h2>
-
-                            <div class="event-card-img">
+                    
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="font-headline-sm font-bold text-on-surface mb-2 line-clamp-2">{{ $event->title }}</h3>
+                        
+                        <div class="flex items-center gap-2 text-secondary font-caption mb-2">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+                            <span class="truncate">
+                                @if ($event->location_type === 'online')
+                                Online Event
+                                @else
+                                {{ (!empty($event->city) ? $event->city . ', ' : '') . $event->location_details }}
+                                @endif
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-secondary font-caption mb-4">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                            <span>{{ \Carbon\Carbon::createFromTimeString($event->start_time)->format('g:i A') }}</span>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 border-t border-outline-variant/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
                                 @php
-                                    $bannerSrc = !empty($event->banner_image)
-                                        ? asset('Media/uploads/' . $event->banner_image)
-                                        : asset('Media/09071799-7231-4faa-883e-a1eb2d01ef9b.avif');
-                                @endphp
-                                <img src="{{ $bannerSrc }}" alt="{{ $event->title }}">
-                            </div>
-
-                            {{-- Author --}}
-                            @php
-                                $authorName    = !empty($event->author_name) ? $event->author_name : 'Unknown Admin';
+                                $authorName = !empty($event->author_name) ? $event->author_name : 'Unknown Admin';
                                 $authorInitial = strtoupper(substr($authorName, 0, 1));
-                            @endphp
-                            <div class="card-author-wrapper author-mb-12">
-                                <div class="card-author-left">
-                                    @if (!empty($event->author_image))
-                                        <img src="{{ asset('Media/uploads/' . $event->author_image) }}"
-                                             alt="Author Logo"
-                                             class="author-img-small">
-                                    @else
-                                        <div class="author-initial-small">{{ $authorInitial }}</div>
-                                    @endif
-                                    <span class="author-name-text">{{ $authorName }}</span>
-                                </div>
+                                @endphp
+                                @if (!empty($event->author_image))
+                                <img src="{{ asset('Media/uploads/' . $event->author_image) }}" alt="Author Logo" class="w-6 h-6 rounded-full object-cover">
+                                @else
+                                <div class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-[10px]">{{ $authorInitial }}</div>
+                                @endif
+                                <span class="font-caption text-secondary truncate max-w-[100px]">{{ $authorName }}</span>
                             </div>
-
-                            {{-- Location & Price --}}
-                            <div class="card-info-blocks info-blocks-compact">
-                                <div class="info-block info-block-expanded">
-                                    <div class="block-icon icon-mt-2">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </div>
-                                    <div class="block-text text-flex-1">
-                                        <h3 class="location-title-small">
-                                            @if ($event->location_type === 'online')
-                                                Online
-                                            @else
-                                                {{ !empty($event->venue_name) ? $event->venue_name : 'Offline' }}
-                                            @endif
-                                        </h3>
-                                        <p class="location-desc-small">
-                                            @if ($event->location_type === 'online')
-                                                Online Event / Virtual Meeting
-                                            @else
-                                                {{ (!empty($event->city) ? $event->city . ', ' : '') . $event->location_details }}
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="price-mini-block price-mt-2">
-                                    <i class="fas fa-tag"></i>
-                                    <span class="price-text-green">
-                                        @if ($event->has_free > 0 || $event->min_price == 0)
-                                            Free
-                                        @else
-                                            Rp {{ number_format($event->min_price, 0, ',', '.') }}
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
-
-                        </a>
-                    </div>
-                @empty
-                    <div class="empty-state">
-                        <i class="fa-solid fa-calendar-xmark"></i>
-                        <h3>No Events Available</h3>
-                        <p>There are no upcoming events at the moment. Please check back later.</p>
-                    </div>
-                @endforelse
-            </div>
-
-            <button class="carousel-btn right-btn" id="slide-right">
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
-
-        <hr>
-
-        {{-- ─── City Explorer ──────────────────────────────────────────────── --}}
-        <h3>Explore Your City</h3>
-        <div class="city-wrapper">
-
-            @php
-                $cityMeta = [
-                    'Jakarta'    => ['color' => 'logo-orange',  'icon' => 'fa-monument'],
-                    'Bali'       => ['color' => 'logo-cyan',    'icon' => 'fa-gopuram'],
-                    'Bandung'    => ['color' => 'logo-green',   'icon' => 'fa-mountain'],
-                    'Surabaya'   => ['color' => 'logo-red',     'icon' => 'fa-city'],
-                    'Yogyakarta' => ['color' => 'logo-yellow',  'icon' => 'fa-landmark'],
-                    'Makassar'   => ['color' => 'logo-blue',    'icon' => 'fa-anchor'],
-                    'Medan'      => ['color' => 'logo-purple',  'icon' => 'fa-map-location-dot'],
-                    'Semarang'   => ['color' => 'logo-pink',    'icon' => 'fa-train-subway'],
-                ];
-            @endphp
-
-            @foreach ($cityMeta as $cityName => $meta)
-                <a href="{{ route('discover', ['city' => $cityName, 'category' => $selectedCategory]) }}"
-                   class="filter-card-link">
-                    <div class="city-card">
-                        <div class="city-card-logo {{ $meta['color'] }}">
-                            <i class="fa-solid {{ $meta['icon'] }}"></i>
-                        </div>
-                        <div class="city-card-info">
-                            <h3>{{ $cityName }}</h3>
-                            <div class="value-city-event">
-                                <p>{{ $cityCounts->get($cityName, 0) }}</p>
-                                <p>Events</p>
+                            
+                            <div class="font-label-md font-bold text-primary">
+                                @if ($event->has_free > 0 || $event->min_price == 0)
+                                Free
+                                @else
+                                Rp {{ number_format($event->min_price, 0, ',', '.') }}
+                                @endif
                             </div>
                         </div>
                     </div>
                 </a>
+            @empty
+                <div class="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-low rounded-2xl border border-outline-variant border-dashed">
+                    <span class="material-symbols-outlined text-secondary-fixed-variant" style="font-size: 48px;">event_busy</span>
+                    <h3 class="mt-4 font-headline-sm font-bold text-on-surface">No Events Available</h3>
+                    <p class="text-secondary font-body-md mt-2 text-center max-w-md">There are no upcoming events at the moment. Please check back later or try adjusting your filters.</p>
+                </div>
+            @endforelse
+        </div>
+    </section>
+
+    <!-- City Explorer -->
+    <section class="mb-16 mt-8">
+        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-6">Cari Event di Kotamu</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            @php
+            $cityMeta = [
+                'Jakarta' => ['color' => 'bg-primary-container text-on-primary-container', 'icon' => 'location_city'],
+                'Bali' => ['color' => 'bg-tertiary-container text-on-tertiary-container', 'icon' => 'holiday_village'],
+                'Bandung' => ['color' => 'bg-secondary-container text-on-secondary-container', 'icon' => 'landscape'],
+                'Surabaya' => ['color' => 'bg-error-container text-on-error-container', 'icon' => 'apartment'],
+                'Yogyakarta' => ['color' => 'bg-surface-variant text-on-surface-variant', 'icon' => 'account_balance'],
+                'Makassar' => ['color' => 'bg-primary-fixed text-on-primary-fixed', 'icon' => 'sailing'],
+                'Medan' => ['color' => 'bg-tertiary-fixed text-on-tertiary-fixed', 'icon' => 'map'],
+                'Semarang' => ['color' => 'bg-secondary-fixed text-on-secondary-fixed', 'icon' => 'train'],
+            ];
+            @endphp
+            
+            @foreach ($cityMeta as $cityName => $meta)
+            <a href="{{ route('discover', ['category' => $selectedCategory, 'city' => $cityName]) }}" 
+               class="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl flex items-center gap-4 hover:shadow-md transition-all cursor-pointer">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center {{ $meta['color'] }}">
+                    <span class="material-symbols-outlined">{{ $meta['icon'] }}</span>
+                </div>
+                <div>
+                    <h4 class="font-headline-sm text-[16px] text-on-surface">{{ $cityName }}</h4>
+                    <p class="font-body-md text-primary">{{ isset($cityCounts) ? $cityCounts->get($cityName, 0) : 0 }} Events</p>
+                </div>
+            </a>
             @endforeach
-
         </div>
+    </section>
 
-        <hr>
-
-        {{-- ─── Footer ─────────────────────────────────────────────────────── --}}
-        <div class="page-footer">
-            <div class="left-footer">
-                <a href="{{ route('discover') }}">Discover</a>
-                <a href="#">Help</a>
-            </div>
-            <div class="right-footer">
-                <a href="#"><i class="fab fa-x"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-
-    </div>
-
-    <script src="{{ asset('JS/discover.js') }}"></script>
-</body>
-</html>
+</div>
+@endsection

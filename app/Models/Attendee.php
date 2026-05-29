@@ -69,4 +69,12 @@ class Attendee extends Model
     {
         return $this->belongsTo(TicketTier::class, 'id_tier', 'id_tier');
     }
+
+    /**
+     * Relasi ke transaksi.
+     */
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
+    }
 }

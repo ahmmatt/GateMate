@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'price',
     'capacity',
     'remaining_seats',
+    'is_unlimited',
 ])]
 class TicketTier extends Model
 {
@@ -40,6 +41,7 @@ class TicketTier extends Model
             'price'           => 'decimal:2',
             'capacity'        => 'integer',
             'remaining_seats' => 'integer',
+            'is_unlimited'    => 'boolean',
         ];
     }
 

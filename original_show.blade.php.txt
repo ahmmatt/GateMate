@@ -1,0 +1,82 @@
+Created At: 2026-05-29T02:45:57Z
+Completed At: 2026-05-29T02:45:57Z
+File Path: `file:///d:/laragon/www/JVC26/gatemate/resources/views/events/show.blade.php`
+Total Lines: 497
+Total Bytes: 19486
+Showing lines 1 to 497
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: <!DOCTYPE html>
+2: <html lang="id">
+3: <head>
+4:     <meta charset="UTF-8">
+5:     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6:     <meta name="csrf-token" content="{{ csrf_token() }}">
+7: 
+8:     {{--
+9:         CSP meta DIHAPUS — biarkan browser/server menggunakan setting default.
+10:         Meta CSP via <meta> tag bisa bentrok dengan ekstensi Lockdown/SES.
+11:         Gunakan HTTP header CSP dari server jika diperlukan di production.
+12:     --}}
+13: 
+14:     <title>{{ $event->title }} – SecureGate</title>
+15: 
+16:     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+17:     <link rel="preconnect" href="https://fonts.googleapis.com">
+18:     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+19: 
+20:     {{--
+21:         ── Midtrans Snap JS (Sandbox) ───────────────────────────────────────────
+22:         Gunakan config() bukan env() agar bekerja saat config di-cache.
+23:         config('services.midtrans.client_key') → membaca dari config/services.php
+24:     --}}
+25:     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+26:             data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+27: 
+28:     <style>
+29:         /* ── Reset & Base ── */
+30:         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+31: 
+32:         :root {
+33:             --b
+<truncated 18308 bytes>
+        // Jika server mendeteksi data wajah tidak fresh, redirect ke halaman verifikasi.
+459:                 if (data.status === 'needs_verification') {
+460:                     window.location.href = data.redirect_url;
+461:                     return;
+462:                 }
+463:                 // ────────────────────────────────────────────────────────────────
+464: 
+465:                 if(data.snap_token) {
+466:                     window.snap.pay(data.snap_token, {
+467:                         onSuccess: function(result) {
+468:                             alert("Transaksi Lunas! Mengalihkan ke tiket Anda...");
+469:                             window.location.replace("{{ url('/my-tickets') }}");
+470:                         },
+471:                         onPending: function(result) {
+472:                             alert("Menunggu Pembayaran! Mengalihkan...");
+473:                             window.location.replace("{{ url('/my-tickets') }}");
+474:                         },
+475:                         onError: function(result) {
+476:                             alert('Pembayaran gagal atau dibatalkan.');
+477:                         },
+478:                         onClose: function() {
+479:                             alert('Anda menutup pop-up sebelum menyelesaikan pembayaran.');
+480:                         }
+481:                     });
+482:                 } else {
+483:                     alert('Gagal memuat token Midtrans.');
+484:                 }
+485:             } catch(err) {
+486:                 console.error(err);
+487:                 alert('Koneksi server terputus.');
+488:             } finally {
+489:                 el.innerHTML = oriText;
+490:                 el.style.pointerEvents = 'auto';
+491:             }
+492:         };
+493:     </script>
+494: 
+495: </body>
+496: </html>
+497: 
+The above content shows the entire, complete file contents of the requested file.

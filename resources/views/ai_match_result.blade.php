@@ -6,19 +6,20 @@
     <title>AI Match Result – SecureGate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* ── Reset & Base ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg: #09090b; /* Very dark zinc */
-            --surface: rgba(24, 24, 27, 0.6); /* Slightly transparent zinc-900 */
-            --text: #f4f4f5;
-            --muted: #a1a1aa;
-            --border: rgba(255, 255, 255, 0.08);
-            --primary: #8b5cf6; /* Violet */
-            --secondary: #3b82f6; /* Blue */
+            --bg: #f8fafc; /* Sangat terang */
+            --surface: rgba(255, 255, 255, 0.85); /* Putih dengan transparansi */
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: rgba(0, 0, 0, 0.06);
+            --primary: #f43f5e; /* Rose / Pinkish red for matchmaking vibe */
+            --secondary: #8b5cf6; /* Violet */
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         body {
@@ -30,7 +31,7 @@
             position: relative;
         }
 
-        /* ── Aurora Background Effects ── */
+        /* ── Bright Aurora Background Effects ── */
         .aurora-bg {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -41,24 +42,24 @@
         .aurora-orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float-orb 20s ease-in-out infinite alternate;
+            filter: blur(90px);
+            opacity: 0.15;
+            animation: float-orb 15s ease-in-out infinite alternate;
         }
         .orb-1 {
-            width: 400px; height: 400px;
+            width: 500px; height: 500px;
             background: var(--primary);
             top: -10%; left: -10%;
         }
         .orb-2 {
-            width: 500px; height: 500px;
+            width: 600px; height: 600px;
             background: var(--secondary);
             bottom: -20%; right: -10%;
             animation-delay: -5s;
         }
         @keyframes float-orb {
             0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(100px, 50px) scale(1.2); }
+            100% { transform: translate(120px, 60px) scale(1.1); }
         }
 
         /* ── LOADING OVERLAY ── */
@@ -66,12 +67,12 @@
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: var(--bg);
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 1s ease, visibility 1s ease;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
         #loading-overlay.fade-out {
             opacity: 0;
@@ -79,50 +80,28 @@
         }
         
         .loading-animation {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin-bottom: 40px;
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: float-heart 2s ease-in-out infinite alternate;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 15px rgba(244, 63, 94, 0.3));
         }
-        .pulse-circle {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            mix-blend-mode: screen;
-            animation: pulse-intersect 3s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
-        }
-        .pulse-1 {
-            background: rgba(139, 92, 246, 0.6);
-            transform-origin: center right;
-            animation-name: pulse-intersect-1;
-        }
-        .pulse-2 {
-            background: rgba(59, 130, 246, 0.6);
-            transform-origin: center left;
-            animation-name: pulse-intersect-2;
-            animation-delay: -1.5s;
-        }
-        @keyframes pulse-intersect-1 {
-            0% { transform: translate(-80%, -50%) scale(0.8); opacity: 0.5; }
-            100% { transform: translate(-30%, -50%) scale(1.2); opacity: 0.9; }
-        }
-        @keyframes pulse-intersect-2 {
-            0% { transform: translate(-20%, -50%) scale(0.8); opacity: 0.5; }
-            100% { transform: translate(-70%, -50%) scale(1.2); opacity: 0.9; }
+        @keyframes float-heart {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-15px) scale(1.1); }
         }
 
         .loading-text {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
-            letter-spacing: 0.02em;
-            animation: text-breathe 2s ease-in-out infinite;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            animation: pulse-text 1.5s ease-in-out infinite alternate;
         }
-        @keyframes text-breathe {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+        @keyframes pulse-text {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
 
         /* ── MAIN CONTENT ── */
@@ -140,19 +119,22 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            height: 64px;
+            height: 70px;
             border-bottom: 1px solid var(--border);
-            background: rgba(9, 9, 11, 0.4);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
         .navbar h1 {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 800;
             letter-spacing: -0.5px;
-            color: #fff;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .nav-back {
             display: inline-flex;
@@ -160,11 +142,11 @@
             gap: 8px;
             color: var(--muted);
             text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
             transition: color 0.2s;
         }
-        .nav-back:hover { color: #fff; }
+        .nav-back:hover { color: var(--text); }
 
         /* ── Page Frame ── */
         .page-frame {
@@ -179,99 +161,121 @@
             margin-bottom: 48px;
         }
         .match-hero h1 {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
             line-height: 1.2;
-            margin-bottom: 12px;
-            color: #fff;
+            margin-bottom: 16px;
+            color: var(--text);
+            letter-spacing: -1px;
         }
+        .match-hero h1 span {
+            display: inline-block;
+            animation: wiggle 2s infinite;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        
         .event-chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #fff;
             border: 1px solid var(--border);
             border-radius: 100px;
-            padding: 6px 16px;
-            font-size: 0.85rem;
+            padding: 8px 20px;
+            font-size: 0.9rem;
             color: var(--muted);
-            font-weight: 500;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
-        /* ── Glassmorphism Card Base ── */
+        /* ── Light Glassmorphism Card Base ── */
         .glass-card {
             background: var(--surface);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.05);
         }
 
         /* ── Vibe Bio Card ── */
         .my-vibe-card {
-            padding: 24px 28px;
+            padding: 28px 32px;
             margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .my-vibe-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--gradient);
         }
         .my-vibe-card .label {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--muted);
-            margin-bottom: 12px;
+            color: var(--primary);
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         .my-vibe-card p {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--text);
             line-height: 1.6;
+            font-weight: 500;
         }
 
         /* ── AI Result Card ── */
         .result-card {
-            padding: 36px 40px;
+            padding: 40px;
         }
         .result-card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
         }
         .ai-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #c4b5fd;
+            gap: 8px;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
         }
         .result-card-header h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text);
         }
 
         /* ── AI Response Formatting ── */
         .ai-response {
             line-height: 1.8;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.05rem;
+            color: #334155;
         }
         .ai-response strong, .ai-response b {
-            color: #fff;
-            font-weight: 600;
+            color: var(--text);
+            font-weight: 700;
         }
         .ai-response h1, .ai-response h2, .ai-response h3 {
-            color: #fff;
-            font-weight: 700;
-            margin: 24px 0 12px;
-            font-size: 1.15rem;
+            color: var(--text);
+            font-weight: 800;
+            margin: 28px 0 16px;
+            font-size: 1.2rem;
         }
         .ai-response p {
             margin-bottom: 16px;
@@ -281,93 +285,106 @@
             margin-bottom: 16px;
         }
         .ai-response li {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         /* ── Connect Section ── */
         .connect-section {
-            margin-top: 48px;
+            margin-top: 56px;
         }
         .connect-section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 24px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 32px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
         
         .contact-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
         }
         
         .contact-card {
-            padding: 28px 20px;
+            padding: 32px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: #ffffff;
         }
         .contact-card:hover {
-            transform: translateY(-5px);
-            background: rgba(39, 39, 42, 0.6);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+            border-color: rgba(244, 63, 94, 0.3);
         }
         
         .contact-avatar {
-            width: 72px;
-            height: 72px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border: 3px solid #fff;
         }
         .contact-initial {
-            width: 72px;
-            height: 72px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             color: #fff;
-            font-size: 1.6rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.3);
+            border: 3px solid #fff;
         }
         
         .contact-name {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 6px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
         }
         
         .contact-ig-text {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--muted);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            font-weight: 500;
         }
         
         .btn-ig {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 700;
             color: #fff;
             text-decoration: none;
             background: linear-gradient(45deg, #e1306c, #833ab4);
             border: none;
-            transition: opacity 0.2s;
+            box-shadow: 0 6px 16px rgba(225, 48, 108, 0.3);
+            transition: all 0.2s;
             width: 100%;
             justify-content: center;
             margin-top: auto;
         }
         .btn-ig:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4);
         }
 
         /* ── Action Buttons ── */
@@ -375,41 +392,42 @@
             display: flex;
             justify-content: center;
             gap: 16px;
-            margin-top: 48px;
+            margin-top: 56px;
         }
         .btn-action {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
+            gap: 10px;
+            padding: 16px 32px;
             border-radius: 100px;
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 700;
             text-decoration: none;
-            transition: transform 0.2s, background 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
         }
         .btn-action:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
         .btn-back {
-            background: rgba(255, 255, 255, 0.05);
+            background: #ffffff;
             border: 1px solid var(--border);
             color: var(--text);
         }
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
         .btn-retry {
-            background: #fff;
-            color: #09090b;
+            background: var(--gradient);
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.3);
+            border: none;
         }
         .btn-retry:hover {
-            background: #f4f4f5;
+            box-shadow: 0 12px 32px rgba(244, 63, 94, 0.4);
         }
 
         @media (max-width: 640px) {
-            .result-card { padding: 24px; }
-            .my-vibe-card { padding: 20px; }
+            .result-card { padding: 32px 24px; }
+            .my-vibe-card { padding: 24px; }
         }
     </style>
 </head>
@@ -423,10 +441,9 @@
     {{-- ══ LOADING OVERLAY ══════════════════════════════════════════════════════ --}}
     <div id="loading-overlay">
         <div class="loading-animation">
-            <div class="pulse-circle pulse-1"></div>
-            <div class="pulse-circle pulse-2"></div>
+            <i class="fa-solid fa-heart-pulse"></i>
         </div>
-        <p class="loading-text">Finding your vibe connection...</p>
+        <p class="loading-text">Finding your perfect match... 🚀</p>
     </div>
 
     {{-- ══ MAIN CONTENT (revealed after loading) ══════════════════════════════ --}}
@@ -442,24 +459,24 @@
         <div class="page-frame">
             {{-- Hero --}}
             <div class="match-hero">
-                <h1>The Vibe Match</h1>
+                <h1>It's a Match! <span>🎉</span></h1>
                 <div class="event-chip">
-                    <i class="fa-solid fa-calendar-check"></i>
+                    <i class="fa-solid fa-calendar-check" style="color:var(--primary)"></i>
                     {{ $myTicket->event->title }}
                 </div>
             </div>
 
             {{-- My Vibe Bio --}}
             <div class="glass-card my-vibe-card">
-                <div class="label"><i class="fa-regular fa-user"></i> Your Vibe</div>
-                <p>{{ $myTicket->vibe_bio }}</p>
+                <div class="label"><i class="fa-solid fa-face-smile-wink"></i> Your Vibe</div>
+                <p>"{{ $myTicket->vibe_bio }}"</p>
             </div>
 
             {{-- AI Result Card --}}
             <div class="glass-card result-card">
                 <div class="result-card-header">
                     <span class="ai-badge">
-                        <i class="fa-solid fa-sparkles"></i> AI Analysis
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Analysis
                     </span>
                     <h2>Match Recommendations</h2>
                 </div>
@@ -470,7 +487,10 @@
 
             {{-- Connect Section --}}
             <div class="connect-section">
-                <h3 class="connect-section-title">Connect with your matches</h3>
+                <h3 class="connect-section-title">
+                    <i class="fa-solid fa-handshake-angle" style="color:var(--primary)"></i> 
+                    Connect with your matches
+                </h3>
 
                 <div class="contact-grid">
                     @foreach ($otherAttendees as $attendee)
@@ -496,8 +516,8 @@
 
                             <a href="https://instagram.com/{{ $igHandle ?? 'gatemate.id' }}"
                                target="_blank" rel="noopener noreferrer" class="btn-ig">
-                                <i class="fa-brands fa-instagram"></i>
-                                Connect
+                                <i class="fa-brands fa-instagram" style="font-size:1.1rem"></i>
+                                Say Hello! 👋
                             </a>
                         </div>
                     @endforeach
@@ -507,10 +527,10 @@
             {{-- Action Buttons --}}
             <div class="result-actions">
                 <a href="{{ route('my-tickets') }}" class="btn-action btn-back">
-                    <i class="fa-solid fa-arrow-left"></i> Back
+                    <i class="fa-solid fa-arrow-left"></i> Back to Tickets
                 </a>
                 <a href="{{ route('ticket.match', $myTicket->id_attendee) }}" class="btn-action btn-retry">
-                    <i class="fa-solid fa-rotate-right"></i> Reroll Match
+                    <i class="fa-solid fa-rotate-right"></i> Reroll Match ✨
                 </a>
             </div>
         </div>
@@ -530,7 +550,7 @@
                 // Remove from DOM after fade out completes
                 setTimeout(() => {
                     overlay.style.display = 'none';
-                }, 1000);
+                }, 800);
             }, 2500);
         });
     </script>

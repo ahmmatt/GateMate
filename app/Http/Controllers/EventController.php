@@ -16,6 +16,6 @@ class EventController extends Controller
         $event = Event::with(['ticketTiers', 'admin', 'customQuestions'])
             ->findOrFail($id);
 
-        return view('event_detail', compact('event'));
+        return view('events.show', compact('event'));
     }
 }
