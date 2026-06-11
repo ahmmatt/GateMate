@@ -1,7 +1,7 @@
 <!DOCTYPE html><html class="light" lang="id" style=""><head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Masuk - SecureGate</title>
+<title>Masuk - GateMate</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
@@ -129,11 +129,11 @@
 <header class="w-full top-0 sticky bg-surface/80 backdrop-blur-md border-b border-outline-variant z-50">
 <nav class="flex justify-between items-center h-16 px-container-padding max-w-[1280px] mx-auto">
 <div class="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">
-                SecureGate
+                GateMate
             </div>
 <div class="hidden md:flex gap-gap-default">
-<a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="#">Explore</a>
-<a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="#">Support</a>
+
+
 </div>
 <div class="flex items-center gap-4">
 <a href="{{ route('signup') }}" class="font-body-md text-body-md text-primary font-bold">Daftar Sekarang</a>
@@ -157,7 +157,7 @@
                     </p>
 </div>
 <div class="relative w-full aspect-square max-w-[400px] rounded-[32px] overflow-hidden border border-outline-variant shadow-sm">
-<img class="w-full h-full object-cover" alt="SecureGate Branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM">
+<img class="w-full h-full object-cover" alt="GateMate Branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM">
 </div>
 </div>
 <!-- Right Side: Login Card -->
@@ -227,7 +227,7 @@
 <!-- Footer -->
 <footer class="w-full mt-auto bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant">
 <div class="flex flex-col md:flex-row justify-between items-center py-8 px-container-padding max-w-[1280px] mx-auto gap-4">
-<div class="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</div>
+<div class="font-headline-sm text-headline-sm font-bold text-primary">GateMate</div>
 <div class="flex flex-wrap justify-center gap-6">
 <a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
 <a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
@@ -235,7 +235,7 @@
 <a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Us</a>
 </div>
 <div class="font-caption text-caption text-on-surface-variant opacity-70">
-                © 2024 SecureGate. All rights reserved.
+                © 2024 GateMate. All rights reserved.
             </div>
 </div>
 </footer>

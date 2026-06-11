@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'SecureGate | E-Ticket')
+@section('title', 'GateMate | E-Ticket')
 
 @section('styles')
 <style>
@@ -298,7 +298,7 @@
         <nav class="w-full top-0 sticky z-50 bg-white/80 backdrop-blur-[16px] border-b border-outline-variant">
             <div class="flex justify-between items-center h-16 px-container-padding max-w-[1280px] mx-auto">
                 <div class="font-headline-md text-headline-md font-extrabold text-primary cursor-pointer">
-                    SecureGate
+                    GateMate
                 </div>
                 <div class="flex items-center gap-4">
                     <button onclick="closeMatchmakingResultModal()" class="material-symbols-outlined text-secondary cursor-pointer hover:text-primary transition-colors text-2xl">close</button>
@@ -396,7 +396,7 @@
         <!-- TopAppBar Execution -->
         <header class="bg-surface border-b-[0.5px] border-outline-variant flex justify-between items-center w-full px-container-padding h-16 sticky top-0 z-50">
             <div class="flex items-center gap-8">
-                <span class="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
+                <span class="font-headline-md text-headline-md font-bold text-primary">GateMate</span>
                 <nav class="hidden md:flex gap-6">
                     <button onclick="closeChatModal()" class="text-secondary hover:bg-surface-container-low transition-colors duration-200 font-label-md text-label-md px-3 py-2 rounded-lg flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Matches</button>
                     <a class="text-primary font-bold transition-all font-label-md text-label-md px-3 py-2 rounded-lg bg-surface-container-low" href="#">Chat</a>
@@ -486,7 +486,7 @@
                             <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">send</span>
                         </button>
                     </div>
-                    <p class="text-[11px] text-center text-outline mt-3 font-medium">End-to-end encrypted by SecureGate Protocol</p>
+                    <p class="text-[11px] text-center text-outline mt-3 font-medium">End-to-end encrypted by GateMate Protocol</p>
                 </footer>
             </section>
         </main>

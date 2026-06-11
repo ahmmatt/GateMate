@@ -63,14 +63,14 @@ class WalletController extends Controller
                 ],
                 'customer_details' => [
                     'first_name' => $user->full_name ?? 'User',
-                    'email'      => $user->email ?? 'user@securegate.com',
+                    'email'      => $user->email ?? 'user@gatemate.com',
                 ],
                 'item_details' => [
                     [
                         'id' => 'TOPUP',
                         'price' => $amount,
                         'quantity' => 1,
-                        'name' => 'Top-up Saldo SecureGate'
+                        'name' => 'Top-up Saldo GateMate'
                     ]
                 ]
             ];

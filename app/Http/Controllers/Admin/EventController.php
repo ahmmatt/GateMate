@@ -23,12 +23,21 @@ class EventController extends Controller
      * Daftar semua event milik admin yang sedang login.
      * (Digunakan jika ingin halaman dedicated — saat ini dashboard sudah menampilkan ini)
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $events = Event::with(['ticketTiers', 'attendees'])
-            ->where('id_admin', Auth::id())
-            ->orderByDesc('created_at')
-            ->paginate(12);
+        $query = Event::with(['ticketTiers', 'attendees'])
+            ->where('id_admin', Auth::id());
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('status') && in_array($request->status, ['active', 'ended'])) {
+            $query->where('status', $request->status);
+        }
+
+        $events = $query->orderByDesc('created_at')->paginate(12);
+        $events->appends($request->all());
 
         return view('admin.events.index', compact('events'));
     }
@@ -54,7 +63,11 @@ class EventController extends Controller
             'location_details' => ['required', 'string', 'max:500'],
             'venue_name'     => ['nullable', 'string', 'max:255'],
             'city'           => ['nullable', 'string', 'max:100'],
-            'maps_link'      => ['nullable', 'url'],
+            'maps_link'      => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if (strpos($value, '<iframe') === false && strpos($value, '/embed/') === false) {
+                    $fail('Tautan lokasi harus berupa kode Iframe (Embed) dari Google Maps.');
+                }
+            }],
             'start_date'     => ['required', 'date'],
             'start_time'     => ['required', 'date_format:H:i'],
             'end_date'       => ['required', 'date', 'after_or_equal:start_date'],
@@ -62,6 +75,7 @@ class EventController extends Controller
             'timezone'       => ['nullable', 'string', 'max:50'],
             'capacity_type'  => ['required', 'in:unlimited,limited'],
             'max_capacity'   => ['nullable', 'integer', 'min:1'],
+            'seat_assignment'=> ['nullable', 'string', 'in:bebas,pilih'],
             'require_approval' => ['sometimes', 'boolean'],
             'banner_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'poster_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
@@ -137,6 +151,9 @@ class EventController extends Controller
                 'capacity_type'    => $validated['capacity_type'],
                 'max_capacity'     => $validated['capacity_type'] === 'limited'
                                         ? ($validated['max_capacity'] ?? null)
+                                        : null,
+                'seat_assignment'  => $validated['capacity_type'] === 'limited'
+                                        ? ($validated['seat_assignment'] ?? null)
                                         : null,
                 'status'           => 'active',
             ]);
@@ -264,6 +281,68 @@ class EventController extends Controller
     /**
      * Buat akun Tenant baru dan ikat ke event tertentu.
      */
+    public function storeTier(Request $request, int $id): RedirectResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($id);
+
+        $validated = $request->validate([
+            'tier_name' => ['required', 'string', 'max:100'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'quota' => ['required', 'integer', 'min:1'],
+        ]);
+
+        TicketTier::create([
+            'id_event' => $event->id_event,
+            'tier_name' => $validated['tier_name'],
+            'price' => $validated['price'],
+            'capacity' => $validated['quota'],
+            'remaining_seats' => $validated['quota'],
+            'is_unlimited' => false,
+        ]);
+
+        return redirect()->back()->with('success', 'Tier tiket berhasil ditambahkan!');
+    }
+
+    public function updateTier(Request $request, int $event_id, int $tier_id): RedirectResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($event_id);
+        $tier = TicketTier::where('id_event', $event->id_event)->findOrFail($tier_id);
+
+        $validated = $request->validate([
+            'tier_name' => ['required', 'string', 'max:100'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'quota' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $sold = \App\Models\Transaction::where('ticket_tier_id', $tier->id_tier)->where('payment_status', 'success')->count();
+        if ($validated['quota'] < $sold) {
+            return redirect()->back()->withErrors(['quota' => 'Kuota tidak boleh kurang dari jumlah tiket yang sudah terjual ('.$sold.').']);
+        }
+
+        $tier->update([
+            'tier_name' => $validated['tier_name'],
+            'price' => $validated['price'],
+            'capacity' => $validated['quota'],
+            'remaining_seats' => $validated['quota'] - $sold,
+        ]);
+
+        return redirect()->back()->with('success', 'Tier tiket berhasil diperbarui!');
+    }
+
+    public function destroyTier(int $event_id, int $tier_id): RedirectResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($event_id);
+        $tier = TicketTier::where('id_event', $event->id_event)->findOrFail($tier_id);
+
+        $sold = \App\Models\Transaction::where('ticket_tier_id', $tier->id_tier)->whereIn('payment_status', ['success', 'pending'])->count();
+        if ($sold > 0) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus tier tiket yang sudah memiliki transaksi (terjual/pending).');
+        }
+
+        $tier->delete();
+        return redirect()->back()->with('success', 'Tier tiket berhasil dihapus!');
+    }
+
     public function storeTenant(Request $request, int $id): RedirectResponse
     {
         $event = Event::where('id_admin', Auth::id())->findOrFail($id);
@@ -284,6 +363,42 @@ class EventController extends Controller
         ]);
 
         return back()->with('tenant_success', 'Akun Tenant "' . $request->full_name . '" berhasil dibuat dan ditautkan ke event ini!');
+    }
+
+    public function updateTenant(Request $request, int $event_id, int $tenant_id): RedirectResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($event_id);
+        $tenant = User::where('role', 'tenant')->where('id_event', $event->id_event)->findOrFail($tenant_id);
+
+        $request->validate([
+            'full_name' => ['required', 'string', 'max:100'],
+            'email'     => ['required', 'email', 'unique:users,email,'.$tenant->id_user.',id_user'],
+            'password'  => ['nullable', 'string', 'min:8'],
+        ]);
+
+        $tenant->full_name = $request->full_name;
+        $tenant->email = $request->email;
+        if ($request->filled('password')) {
+            $tenant->password = Hash::make($request->password);
+        }
+        $tenant->save();
+
+        return back()->with('tenant_success', 'Data Tenant berhasil diperbarui!');
+    }
+
+    public function destroyTenant(int $event_id, int $tenant_id): RedirectResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($event_id);
+        $tenant = User::where('role', 'tenant')->where('id_event', $event->id_event)->findOrFail($tenant_id);
+
+        // Optional: you can check if tenant has sales before deleting, for safety
+        $salesCount = \App\Models\WalletTransaction::where('meta->tenant_id', $tenant->id_user)->count();
+        if ($salesCount > 0) {
+            return back()->with('error', 'Tidak dapat menghapus tenant yang sudah memiliki transaksi penjualan.');
+        }
+
+        $tenant->delete();
+        return back()->with('tenant_success', 'Tenant berhasil dihapus!');
     }
 
     /**
@@ -471,7 +586,7 @@ class EventController extends Controller
         }
 
         $event->delete();
-        return redirect()->route('admin.dashboard')->with('success', 'Event berhasil dihapus secara permanen.');
+        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus secara permanen.');
     }
 
     /**
@@ -554,5 +669,19 @@ class EventController extends Controller
             \Illuminate\Support\Facades\Log::error('Refund Error: ' . $e->getMessage());
             return back()->withErrors(['withdraw_error' => 'Gagal memproses refund: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Mengaktifkan atau menonaktifkan event (ubah status).
+     */
+    public function toggleStatus($id)
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($id);
+        
+        $event->status = $event->status === 'active' ? 'ended' : 'active';
+        $event->save();
+        
+        $msg = $event->status === 'active' ? 'Event berhasil diaktifkan.' : 'Event berhasil dinonaktifkan.';
+        return back()->with('success', $msg);
     }
 }

@@ -71,7 +71,11 @@
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @forelse ($events as $event)
+@if (auth()->check())
                 <a href="{{ route('event.show', $event->id_event) }}" class="group bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden hover:border-primary hover:shadow-lg transition-all flex flex-col h-full">
+@else
+                <a href="{{ route('login') }}" class="group bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden hover:border-primary hover:shadow-lg transition-all flex flex-col h-full" title="Login untuk membeli tiket">
+@endif
                     
                     <div class="relative h-48 overflow-hidden">
                         @php

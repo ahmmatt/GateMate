@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureGate - The Identity-Based Ticketing</title>
+    <title>GateMate - The Identity-Based Ticketing</title>
     <link rel="stylesheet" href="{{ asset('CSS/landing.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,7 +14,7 @@
 
     <nav class="navbar" id="navbar">
         <div class="left-nav">
-            <h1>SecureGate</h1>
+            <h1>GateMate</h1>
         </div>
         <div class="right-nav">
             <a href="{{ url('/signin') }}" class="nav-btn user-btn"><i class="fa-solid fa-user"></i> Masuk</a>
@@ -41,7 +41,7 @@
             <div class="feature-text fade-right delay-2">
                 <i class="fa-solid fa-fingerprint feature-icon"></i>
                 <h2>Satu Tiket.<br>Satu Identitas.</h2>
-                <p>Ucapkan selamat tinggal pada pemalsuan tiket. Di SecureGate, tiket terikat langsung dengan foto profil dan email Anda. Saat di-scan, wajah Anda adalah bukti kepemilikan sah.</p>
+                <p>Ucapkan selamat tinggal pada pemalsuan tiket. Di GateMate, tiket terikat langsung dengan foto profil dan email Anda. Saat di-scan, wajah Anda adalah bukti kepemilikan sah.</p>
                 <ul class="feature-list">
                     <li><i class="fa-solid fa-check"></i> Kode QR Unik</li>
                     <li><i class="fa-solid fa-check"></i> Verifikasi visual otomatis bagi petugas</li>
@@ -123,7 +123,7 @@
 
         <footer class="landing-footer fade-up delay-2">
             <div class="footer-brand">
-                <h2>SecureGate</h2>
+                <h2>GateMate</h2>
                 <p>The Future of Event Management.</p>
             </div>
             <div class="footer-links">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SecureGate Organizer Dashboard</title>
+    <title>GateMate Organizer Dashboard</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -127,7 +127,7 @@
 
 <!-- Mobile Top NavBar -->
 <header class="flex justify-between items-center px-page-padding h-16 w-full fixed top-0 bg-surface border-b-[0.5px] border-outline-variant z-50 md:hidden">
-    <h1 class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</h1>
+    <h1 class="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</h1>
     <button class="active:scale-95 transition-transform">
         <span class="material-symbols-outlined text-primary">menu</span>
     </button>
@@ -136,11 +136,10 @@
 <!-- Side Navigation (Desktop) -->
 <aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
     <div class="px-6 mb-10">
-        <h2 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h2>
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
         <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
     <nav class="flex-1 space-y-1">
-        <!-- Active Item -->
         <a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer" href="{{ route('admin.dashboard') }}">
             <span class="material-symbols-outlined mr-3">dashboard</span>
             <span class="font-body-sm text-body-sm">Dashboard</span>
@@ -157,10 +156,6 @@
             <span class="material-symbols-outlined mr-3">payments</span>
             <span class="font-body-sm text-body-sm">Keuangan</span>
         </a>
-        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="#">
-            <span class="material-symbols-outlined mr-3">settings</span>
-            <span class="font-body-sm text-body-sm">Pengaturan</span>
-        </a>
     </nav>
     <div class="px-6 mt-auto space-y-1">
         <a class="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
@@ -169,14 +164,14 @@
         </a>
         <div class="pt-4 border-t border-outline-variant flex items-center justify-between">
             <div class="flex items-center">
-                @if (!empty($navPic))
-                    <img alt="Organizer Profile" class="w-8 h-8 rounded-full object-cover bg-surface-container-high" src="{{ asset('Media/uploads/' . $navPic) }}"/>
+                @if (!empty(auth()->user()->profile_picture))
+                    <img alt="Organizer Profile" class="w-8 h-8 rounded-full object-cover bg-surface-container-high" src="{{ asset('Media/uploads/' . auth()->user()->profile_picture) }}"/>
                 @else
-                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{{ $navInitial }}</div>
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->full_name ?? 'O', 0, 1)) }}</div>
                 @endif
                 <div class="ml-2 overflow-hidden">
-                    <p class="font-label-md text-label-md font-bold truncate">{{ $adminName }}</p>
-                    <p class="font-caption text-caption text-secondary">ID: SG-{{ $adminId }}</p>
+                    <p class="font-label-md text-label-md font-bold truncate">{{ auth()->user()->full_name ?? 'Organizer' }}</p>
+                    <p class="font-caption text-caption text-secondary">ID: SG-{{ auth()->user()->id_user ?? '1' }}</p>
                 </div>
             </div>
             <form action="{{ route('logout') }}" method="POST" class="inline">

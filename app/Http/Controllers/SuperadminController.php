@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\WalletTransaction;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -38,7 +39,13 @@ class SuperadminController extends Controller
         $totalOrganizers = User::where('role', 'admin')->count();
 
         // Total tiket terjual platform-wide
-        $totalTicketsSold = \App\Models\Transaction::where('payment_status', 'success')->count();
+        $totalTicketsSold = Transaction::where('payment_status', 'success')->count();
+
+        // Total transaksi pembelian tiket (order) di seluruh platform
+        $totalTransactions = Transaction::where('payment_status', 'success')->count();
+
+        // Total pengguna aktif dengan peran 'user'
+        $totalActiveUsers = User::where('role', 'user')->count();
 
         // Antrean Penyelenggara yang belum KYC
         $pendingOrganizers = User::where('role', 'admin')
@@ -52,7 +59,9 @@ class SuperadminController extends Controller
             'totalPendingAmount',
             'totalOrganizers',
             'totalTicketsSold',
-            'pendingOrganizers'
+            'pendingOrganizers',
+            'totalTransactions',
+            'totalActiveUsers'
         ));
     }
 
@@ -112,5 +121,66 @@ class SuperadminController extends Controller
         $user->delete();
         
         return back()->with('success', 'Akun penyelenggara ditolak dan dihapus dari sistem.');
+    }
+
+    /**
+     * Tampilkan halaman khusus Penarikan Dana Superadmin
+     */
+    public function withdrawals(): View
+    {
+        $withdrawals = WalletTransaction::with('user.event')
+            ->where('type', 'withdrawal')
+            ->orderByRaw("FIELD(status, 'pending_superadmin') DESC")
+            ->latest()
+            ->paginate(10); // Adjust pagination as needed
+
+        // Total dana yang sudah berhasil dicairkan
+        $totalWithdrawnSuccess = WalletTransaction::where('type', 'withdrawal')
+            ->where('status', 'success')
+            ->sum('amount');
+
+        // Jumlah penarikan tertunda
+        $pendingCount = WalletTransaction::where('type', 'withdrawal')
+            ->where('status', 'pending_superadmin')
+            ->count();
+
+        return view('superadmin.withdrawals', compact('withdrawals', 'totalWithdrawnSuccess', 'pendingCount'));
+    }
+
+    /**
+     * Tolak pencairan dana
+     */
+    public function rejectWithdrawal(Request $request, $id): RedirectResponse
+    {
+        DB::beginTransaction();
+        try {
+            $transaction = WalletTransaction::findOrFail($id);
+
+            if ($transaction->status !== 'pending_superadmin') {
+                return back()->withErrors(['withdraw_error' => 'Transaksi tidak valid atau sudah diproses.']);
+            }
+
+            // Kembalikan dana ke saldo event (jika ada sistem saldo) atau cukup update status jadi failed
+            $transaction->update(['status' => 'failed']);
+
+            DB::commit();
+            return back()->with('success', 'Penarikan dana berhasil ditolak.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['withdraw_error' => 'Gagal: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Tampilkan halaman khusus Manajemen Organizer
+     */
+    public function organizers(): View
+    {
+        $organizers = User::where('role', 'admin')
+            ->orderByRaw("FIELD(is_verified_organizer, 0) DESC") // Show pending first
+            ->latest()
+            ->paginate(10);
+
+        return view('superadmin.organizers', compact('organizers'));
     }
 }

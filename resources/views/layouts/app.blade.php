@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SecureGate')</title>
+    <title>@yield('title', 'GateMate')</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
@@ -115,7 +115,7 @@
 <header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/50">
 <div class="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
 <div class="flex items-center gap-8">
-<a href="/" class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">SecureGate</a>
+<a href="/" class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">GateMate</a>
 <nav class="hidden md:flex gap-6 items-center">
     @guest
         <a class="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="{{ route('landing') }}">Explore</a>
@@ -185,8 +185,8 @@
 <footer class="w-full bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant/20 mb-16 md:mb-0">
 <div class="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
 <div class="flex flex-col items-center md:items-start gap-2">
-<span class="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
-<p class="font-caption text-caption text-secondary-fixed-variant">© 2026 SecureGate. All rights reserved.</p>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">GateMate</span>
+<p class="font-caption text-caption text-secondary-fixed-variant">© 2026 GateMate. All rights reserved.</p>
 </div>
 <div class="flex flex-wrap justify-center gap-6">
 <a class="font-caption text-caption text-secondary-fixed-variant hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">Privacy Policy</a>

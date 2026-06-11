@@ -10,7 +10,10 @@ class PublicEventController extends Controller
     public function index()
     {
         // Ambil semua event aktif
-        $events = Event::where('status', 'active')->orderBy('start_date', 'asc')->get();
+        $events = Event::where('status', 'active')
+            ->whereDate('end_date', '>=', now()->toDateString())
+            ->orderBy('start_date', 'asc')
+            ->get();
         return view('welcome', compact('events'));
     }
 

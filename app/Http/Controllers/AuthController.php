@@ -18,6 +18,9 @@ class AuthController extends Controller
     public function showSignIn(): View|RedirectResponse
     {
         if (Auth::check()) {
+            if (Auth::user()->role === 'superadmin') {
+                return redirect()->intended(route('superadmin.dashboard'));
+            }
             return redirect()->intended('/discover');
         }
 
@@ -31,6 +34,9 @@ class AuthController extends Controller
     public function showSignUp(): View|RedirectResponse
     {
         if (Auth::check()) {
+            if (Auth::user()->role === 'superadmin') {
+                return redirect()->intended(route('superadmin.dashboard'));
+            }
             return redirect()->intended('/discover');
         }
 
@@ -49,7 +55,16 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
+            $user = Auth::user();
+            
+            if ($user->role === 'superadmin') {
+                return redirect()->intended(route('superadmin.dashboard'));
+            }
+            
+            if (in_array($user->role, ['admin', 'organizer'])) {
+                return redirect()->intended('/admin/dashboard');
+            }
+            
             return redirect()->intended('/discover');
         }
 

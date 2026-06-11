@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-secondary font-sans antialiased;
+    background-image: radial-gradient(circle at top right, rgba(244, 63, 94, 0.05), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(244, 63, 94, 0.05), transparent 40%);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-glass;
+  }
+  
+  .glass-dark {
+    @apply bg-secondary/80 backdrop-blur-md border border-white/10 shadow-glass-dark text-white;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-coral-500 to-orange-400;
+  }
+}

@@ -31,7 +31,7 @@ class ETicketMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $eventTitle = $this->transaction->event->title ?? 'Event SecureGate';
+        $eventTitle = $this->transaction->event->title ?? 'Event GateMate';
 
         return new Envelope(
             subject: "🎟️ E-Ticket Anda: {$eventTitle}",

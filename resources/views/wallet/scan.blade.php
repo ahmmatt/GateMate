@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Scan &amp; Pay — SecureGate Wallet</title>
+    <title>Scan &amp; Pay — GateMate Wallet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -110,7 +110,7 @@
                 window.location.href = redirectUrl;
 
             } catch (e) {
-                setStatus('error', 'Format QR tidak dikenali. Pastikan memindai QR SecureGate yang valid.');
+                setStatus('error', 'Format QR tidak dikenali. Pastikan memindai QR GateMate yang valid.');
             }
         }
 

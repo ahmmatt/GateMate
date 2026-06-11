@@ -1,7 +1,7 @@
 <nav class="navbar">
     <div class="left-nav">
         <i class="fa-solid fa-bars hamburger-btn" id="hamburger-btn"></i>
-        <h1>SecureGate</h1>
+        <h1>GateMate</h1>
     </div>
     
     <div class="main-nav">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner – SecureGate</title>
+    <title>QR Scanner – GateMate</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -301,7 +301,7 @@
 <body>
     {{-- ─── Navbar ──────────────────────────────────────────────────────────── --}}
     <nav class="navbar">
-        <span class="navbar-brand">SecureGate</span>
+        <span class="navbar-brand">GateMate</span>
         <span class="navbar-role-badge">
             <i class="fa-solid fa-shield-halved"></i>
             {{ ucwords(Auth::user()->role) }}

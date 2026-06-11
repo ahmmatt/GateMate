@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Match Result – SecureGate</title>
+    <title>AI Match Result – GateMate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -450,7 +450,7 @@
     <div id="main-content">
         {{-- Navbar --}}
         <nav class="navbar">
-            <h1>SecureGate</h1>
+            <h1>GateMate</h1>
             <a href="{{ route('my-tickets') }}" class="nav-back">
                 <i class="fa-solid fa-arrow-left"></i> My Tickets
             </a>

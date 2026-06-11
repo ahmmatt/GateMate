@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{-- CSRF token dibaca oleh ticket.js untuk AJAX request ke /checkout --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $event->title }} - SecureGate</title>
+    <title>{{ $event->title }} - GateMate</title>
     <link rel="stylesheet" href="{{ asset('CSS/ticket.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        if (localStorage.getItem('securegate_theme') === 'light') {
+        if (localStorage.getItem('gatemate_theme') === 'light') {
             document.documentElement.classList.add('light-mode');
         }
     </script>
@@ -38,7 +38,7 @@
 
                 {{-- Organizer Card --}}
                 @php
-                $adminName = $event->admin?->full_name ?? 'SecureGate User';
+                $adminName = $event->admin?->full_name ?? 'GateMate User';
                 $adminInitial = strtoupper(substr($adminName, 0, 1));
                 $adminPic = $event->admin?->profile_picture;
                 @endphp

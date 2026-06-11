@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'SecureGate - Temukan Event Terbaikmu')
+@section('title', 'GateMate - Temukan Event Terbaikmu')
 
 @section('styles')
 <style>
@@ -211,7 +211,7 @@
         <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div class="max-w-2xl">
                 <h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">Kelola Event dengan Lebih Aman &amp; Transparan</h2>
-                <p class="font-body-lg text-body-lg text-secondary">Bergabunglah sebagai mitra penyelenggara SecureGate dan nikmati kemudahan manajemen tiket dengan sistem keamanan berlapis.</p>
+                <p class="font-body-lg text-body-lg text-secondary">Bergabunglah sebagai mitra penyelenggara GateMate dan nikmati kemudahan manajemen tiket dengan sistem keamanan berlapis.</p>
             </div>
             <a href="{{ route('organizer.register') }}" class="coral-pill px-8 py-3 border-2 border-primary text-primary font-body-md text-body-md hover:bg-primary hover:text-on-primary transition-all font-bold text-center">
                 Daftar Jadi Penyelenggara
@@ -251,7 +251,7 @@
     <div class="bg-primary-container/20 rounded-3xl p-12 flex flex-col items-center text-center gap-6 border border-primary/10">
         <h2 class="font-headline-lg text-headline-lg text-primary">Siap untuk Pengalaman Baru?</h2>
         <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-            Gabung dengan ribuan pengguna lainnya yang telah mempercayakan SecureGate untuk urusan tiket mereka. Cepat, Aman, dan Tanpa Ribet.
+            Gabung dengan ribuan pengguna lainnya yang telah mempercayakan GateMate untuk urusan tiket mereka. Cepat, Aman, dan Tanpa Ribet.
         </p>
         <div class="flex gap-4">
             <a href="{{ route('discover') }}" class="coral-pill px-8 py-3 bg-primary text-on-primary font-body-md text-body-md hover:bg-primary/90 transition-all text-center">

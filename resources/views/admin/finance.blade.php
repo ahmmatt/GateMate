@@ -2,7 +2,7 @@
 <html class="light" lang="id"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>SecureGate - Keuangan</title>
+<title>GateMate - Keuangan</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -132,44 +132,52 @@
 <body class="bg-background text-on-surface">
 
 <!-- Sidebar Navigation -->
-<aside class="fixed left-0 top-0 h-full w-[240px] z-30 bg-surface-container-lowest border-r-[0.5px] border-outline-variant hidden lg:flex flex-col py-stack-lg">
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
     <div class="px-6 mb-10">
-        <h1 class="font-h2 text-h2 font-bold text-primary">SecureGate</h1>
-        <p class="font-label-md text-label-md text-on-surface-variant">Organizer Portal</p>
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
+        <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
-    <nav class="flex-1">
-        <ul class="space-y-1">
-            <li>
-                <a class="flex items-center px-6 py-3 text-on-surface-variant hover:bg-secondary-container transition-colors font-label-md text-label-md" href="{{ route('admin.dashboard') }}">
-                    <span class="material-symbols-outlined mr-3">dashboard</span> Dashboard
-                </a>
-            </li>
-            <li>
-                <a class="flex items-center px-6 py-3 text-on-surface-variant hover:bg-secondary-container transition-colors font-label-md text-label-md" href="{{ route('admin.events.index') }}">
-                    <span class="material-symbols-outlined mr-3">event</span> Events Saya
-                </a>
-            </li>
-            <li>
-                <a class="flex items-center px-6 py-3 sidebar-active font-label-md text-label-md" href="{{ route('admin.finance') }}">
-                    <span class="material-symbols-outlined mr-3">payments</span> Keuangan
-                </a>
-            </li>
-            <li>
-                <a class="flex items-center px-6 py-3 text-on-surface-variant hover:bg-secondary-container transition-colors font-label-md text-label-md" href="{{ route('admin.scanner') }}">
-                    <span class="material-symbols-outlined mr-3">qr_code_scanner</span> Scanner
-                </a>
-            </li>
-        </ul>
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.dashboard') }}">
+            <span class="material-symbols-outlined mr-3">dashboard</span>
+            <span class="font-body-sm text-body-sm">Dashboard</span>
+        </a>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.events.index') }}">
+            <span class="material-symbols-outlined mr-3">event</span>
+            <span class="font-body-sm text-body-sm">Event Saya</span>
+        </a>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.scanner') }}">
+            <span class="material-symbols-outlined mr-3">qr_code_scanner</span>
+            <span class="font-body-sm text-body-sm">Scanner</span>
+        </a>
+        <a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer" href="{{ route('admin.finance') }}">
+            <span class="material-symbols-outlined mr-3">payments</span>
+            <span class="font-body-sm text-body-sm">Keuangan</span>
+        </a>
     </nav>
-    <div class="px-6 mt-auto">
-        <div class="flex items-center gap-3 p-3 bg-surface-container rounded-lg">
-            <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">
-                {{ strtoupper(substr(auth()->user()->full_name ?? 'O', 0, 1)) }}
+    <div class="px-6 mt-auto space-y-1">
+        <a class="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
+            <span class="material-symbols-outlined mr-3">help</span>
+            <span class="font-body-sm text-body-sm">Bantuan</span>
+        </a>
+        <div class="pt-4 border-t border-outline-variant flex items-center justify-between">
+            <div class="flex items-center">
+                @if (!empty(auth()->user()->profile_picture))
+                    <img alt="Organizer Profile" class="w-8 h-8 rounded-full object-cover bg-surface-container-high" src="{{ asset('Media/uploads/' . auth()->user()->profile_picture) }}"/>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->full_name ?? 'O', 0, 1)) }}</div>
+                @endif
+                <div class="ml-2 overflow-hidden">
+                    <p class="font-label-md text-label-md font-bold truncate">{{ auth()->user()->full_name ?? 'Organizer' }}</p>
+                    <p class="font-caption text-caption text-secondary">ID: SG-{{ auth()->user()->id_user ?? '1' }}</p>
+                </div>
             </div>
-            <div class="overflow-hidden">
-                <p class="font-label-md text-label-md truncate font-bold">{{ auth()->user()->full_name ?? 'Organizer Profile' }}</p>
-                <p class="text-[10px] text-on-surface-variant">Admin Mode</p>
-            </div>
+            <form action="{{ route('logout') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="text-primary active:opacity-70 mt-1">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                </button>
+            </form>
         </div>
     </div>
 </aside>
@@ -402,18 +410,24 @@
 </main>
 
 <!-- Bottom Navigation Bar (Mobile) -->
-<nav class="fixed bottom-0 w-full z-50 lg:hidden bg-surface-container-lowest border-t-[0.5px] border-outline-variant flex justify-around items-center h-16">
-    <a class="flex flex-col items-center text-on-surface-variant active:bg-secondary-container transition-all scale-95 duration-100" href="{{ route('admin.dashboard') }}">
-        <span class="material-symbols-outlined">home</span>
-        <span class="font-label-md text-[10px]">Home</span>
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.dashboard') }}">
+        <span class="material-symbols-outlined">grid_view</span>
+        <span class="font-label-md text-label-md">Dashboard</span>
     </a>
-    <a class="flex flex-col items-center text-primary active:bg-secondary-container transition-all scale-95 duration-100" href="{{ route('admin.finance') }}">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
-        <span class="font-label-md text-[10px]">Keuangan</span>
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.events.index') }}">
+        <span class="material-symbols-outlined">confirmation_number</span>
+        <span class="font-label-md text-label-md">Events</span>
     </a>
-    <a class="flex flex-col items-center text-on-surface-variant active:bg-secondary-container transition-all scale-95 duration-100" href="{{ route('admin.scanner') }}">
-        <span class="material-symbols-outlined">qr_code_scanner</span>
-        <span class="font-label-md text-[10px]">Scanner</span>
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.scanner') }}">
+        <div class="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
+            <span class="material-symbols-outlined">center_focus_weak</span>
+        </div>
+        <span class="font-label-md text-label-md mt-1">Scan</span>
+    </a>
+    <a class="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.finance') }}">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="font-label-md text-label-md">Finance</span>
     </a>
 </nav>
 

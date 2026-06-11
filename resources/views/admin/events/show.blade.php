@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SecureGate - Kelola Event</title>
+    <title>GateMate - Kelola Event</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -131,65 +131,60 @@
 
 <!-- Mobile Top Bar -->
 <header class="md:hidden flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant sticky top-0 z-40">
-    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
+    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</span>
     <button class="active:scale-95 transition-transform">
         <span class="material-symbols-outlined text-on-surface">menu</span>
     </button>
 </header>
 
 <!-- Desktop Side Navigation -->
-<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant py-page-padding hidden md:flex flex-col z-40">
-    <div class="px-6 mb-8">
-        <h1 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h1>
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
+    <div class="px-6 mb-10">
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
         <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
-    <nav class="flex-grow">
-        <ul class="space-y-1">
-            <li class="px-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded text-secondary hover:bg-surface-container-low transition-colors group" href="{{ route('admin.dashboard') }}">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span class="font-body-sm text-body-sm">Dashboard</span>
-                </a>
-            </li>
-            <li class="px-2">
-                <!-- Active State: Event Saya -->
-                <a class="flex items-center gap-3 px-4 py-3 rounded border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors" href="{{ route('admin.events.index') }}">
-                    <span class="material-symbols-outlined">event</span>
-                    <span class="font-body-sm text-body-sm">Event Saya</span>
-                </a>
-            </li>
-            <li class="px-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded text-secondary hover:bg-surface-container-low transition-colors" href="{{ route('admin.scanner') }}">
-                    <span class="material-symbols-outlined">qr_code_scanner</span>
-                    <span class="font-body-sm text-body-sm">Scanner</span>
-                </a>
-            </li>
-            <li class="px-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded text-secondary hover:bg-surface-container-low transition-colors" href="{{ route('admin.finance') }}">
-                    <span class="material-symbols-outlined">payments</span>
-                    <span class="font-body-sm text-body-sm">Keuangan</span>
-                </a>
-            </li>
-            <li class="px-2">
-                <a class="flex items-center gap-3 px-4 py-3 rounded text-secondary hover:bg-surface-container-low transition-colors" href="#">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span class="font-body-sm text-body-sm">Pengaturan</span>
-                </a>
-            </li>
-        </ul>
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.dashboard') }}">
+            <span class="material-symbols-outlined mr-3">dashboard</span>
+            <span class="font-body-sm text-body-sm">Dashboard</span>
+        </a>
+        <a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer" href="{{ route('admin.events.index') }}">
+            <span class="material-symbols-outlined mr-3">event</span>
+            <span class="font-body-sm text-body-sm">Event Saya</span>
+        </a>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.scanner') }}">
+            <span class="material-symbols-outlined mr-3">qr_code_scanner</span>
+            <span class="font-body-sm text-body-sm">Scanner</span>
+        </a>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.finance') }}">
+            <span class="material-symbols-outlined mr-3">payments</span>
+            <span class="font-body-sm text-body-sm">Keuangan</span>
+        </a>
     </nav>
-    <div class="mt-auto px-2">
-        <a class="flex items-center gap-3 px-4 py-3 rounded text-secondary hover:bg-surface-container-low transition-colors" href="#">
-            <span class="material-symbols-outlined">help</span>
+    <div class="px-6 mt-auto space-y-1">
+        <a class="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
+            <span class="material-symbols-outlined mr-3">help</span>
             <span class="font-body-sm text-body-sm">Bantuan</span>
         </a>
-        <form action="{{ route('logout') }}" method="POST" style="display:inline-block; width:100%;">
-            @csrf
-            <button type="submit" class="w-full text-left flex items-center gap-3 px-4 py-3 text-error mt-2 cursor-pointer active:opacity-80 rounded hover:bg-error-container/20 transition-colors">
-                <span class="material-symbols-outlined">logout</span>
-                <span class="font-body-sm text-body-sm">Keluar</span>
-            </button>
-        </form>
+        <div class="pt-4 border-t border-outline-variant flex items-center justify-between">
+            <div class="flex items-center">
+                @if (!empty(auth()->user()->profile_picture))
+                    <img alt="Organizer Profile" class="w-8 h-8 rounded-full object-cover bg-surface-container-high" src="{{ asset('Media/uploads/' . auth()->user()->profile_picture) }}"/>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->full_name ?? 'O', 0, 1)) }}</div>
+                @endif
+                <div class="ml-2 overflow-hidden">
+                    <p class="font-label-md text-label-md font-bold truncate">{{ auth()->user()->full_name ?? 'Organizer' }}</p>
+                    <p class="font-caption text-caption text-secondary">ID: SG-{{ auth()->user()->id_user ?? '1' }}</p>
+                </div>
+            </div>
+            <form action="{{ route('logout') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="text-primary active:opacity-70 mt-1">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 </aside>
 
@@ -240,15 +235,17 @@
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <a href="{{ route('event.show', $event->id_event) }}" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-surface border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-low transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">share</span>
-                    <span class="font-label-md text-label-md">Public</span>
-                </a>
-                <a href="{{ route('admin.events.edit', $event->id_event) }}" class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-lg font-bold active:scale-95 transition-transform">
-                    <span class="material-symbols-outlined text-[20px]">edit</span>
-                    <span class="font-label-md text-label-md">Edit Event</span>
-                </a>
+            
+            <div class="flex items-center gap-4">
+                <form action="{{ route('admin.events.toggle-status', $event->id_event) }}" method="POST">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Apakah Anda yakin ingin mengubah status event ini?');" class="bg-surface-container-highest hover:bg-surface-variant text-on-surface px-4 py-2 rounded-full font-label-md flex items-center gap-2 transition-colors border border-outline-variant">
+                        <span class="material-symbols-outlined text-[18px]">
+                            {{ $event->status === 'active' ? 'power_settings_new' : 'play_arrow' }}
+                        </span>
+                        {{ $event->status === 'active' ? 'Nonaktifkan Event' : 'Aktifkan Event' }}
+                    </button>
+                </form>
             </div>
         </div>
     </section>
@@ -286,13 +283,17 @@
                             <h3 class="font-h3 text-h3 text-on-surface">{{ $tier->tier_name }}</h3>
                             <p class="font-caption text-caption text-secondary mt-1">Tier capacity: {{ $tier->capacity ?: 'Unlimited' }}</p>
                         </div>
-                        <div class="flex gap-1">
-                            <button class="p-2 text-secondary hover:text-primary transition-colors">
+                        <div class="flex gap-1 items-center">
+                            <button type="button" onclick="openEditTierModal({{ $tier->id_tier }}, '{{ htmlspecialchars($tier->tier_name, ENT_QUOTES) }}', {{ $tier->price }}, {{ $tier->capacity }})" class="p-2 text-secondary hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </button>
-                            <button class="p-2 text-secondary hover:text-error transition-colors">
-                                <span class="material-symbols-outlined text-[20px]">delete</span>
-                            </button>
+                            <form action="{{ route('admin.events.tiers.destroy', [$event->id_event, $tier->id_tier]) }}" method="POST" class="m-0" onsubmit="return confirm('Peringatan: Apakah Anda yakin ingin menghapus tier tiket ini? Tindakan ini tidak dapat dibatalkan.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-secondary hover:text-error transition-colors flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                     <div class="flex items-baseline gap-1 mb-6">
@@ -319,7 +320,7 @@
                 @endforeach
 
                 <!-- Add New Ticket Tier Button -->
-                <button class="col-span-1 md:col-span-2 lg:col-span-3 mt-4 py-8 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center gap-2 text-primary hover:bg-primary-fixed/30 hover:border-primary transition-all group">
+                <button type="button" onclick="openAddTierModal()" class="col-span-1 md:col-span-2 lg:col-span-3 mt-4 py-8 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center gap-2 text-primary hover:bg-primary-fixed/30 hover:border-primary transition-all group">
                     <div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center group-active:scale-90 transition-transform">
                         <span class="material-symbols-outlined">add</span>
                     </div>
@@ -453,7 +454,7 @@
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
                     <input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-[0.5px] border-outline-variant rounded-xl focus:outline-none focus:border-primary transition-colors text-body-sm" placeholder="Cari nama tenant..." type="text"/>
                 </div>
-                <button class="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-xl font-body-sm hover:opacity-90 transition-opacity">
+                <button type="button" onclick="openAddTenantModal()" class="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-xl font-body-sm hover:opacity-90 transition-opacity">
                     <span class="material-symbols-outlined" data-icon="add">add</span>
                     Tambah Tenant
                 </button>
@@ -526,9 +527,18 @@
                                                 <button type="submit" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg text-caption font-bold hover:opacity-90 active:scale-95 transition-all">Setujui Withdrawal</button>
                                             </form>
                                         @else
-                                            <button class="text-secondary hover:text-primary transition-colors">
-                                                <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
-                                            </button>
+                                            <div class="flex justify-end gap-1 items-center">
+                                                <button type="button" onclick="openEditTenantModal({{ $tenant->id_user }}, '{{ htmlspecialchars($tenant->full_name, ENT_QUOTES) }}', '{{ htmlspecialchars($tenant->email, ENT_QUOTES) }}')" class="p-2 text-secondary hover:text-primary transition-colors">
+                                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                                </button>
+                                                <form action="{{ route('admin.events.tenants.destroy', [$event->id_event, $tenant->id_user]) }}" method="POST" class="m-0 inline" onsubmit="return confirm('Peringatan: Apakah Anda yakin ingin menghapus tenant ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="p-2 text-secondary hover:text-error transition-colors flex items-center justify-center">
+                                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>
@@ -554,6 +564,12 @@
 
 
         <!-- Keuangan Tab Content -->
+        @php
+            $endDateOnly = \Carbon\Carbon::parse($event->end_date)->format('Y-m-d');
+            $endDateTimeStr = $endDateOnly . ' ' . ($event->end_time ?? '23:59:00');
+            $endDateTime = \Carbon\Carbon::parse($endDateTimeStr, 'Asia/Makassar');
+            $isEventEnded = ($event->status === 'ended') || now('Asia/Makassar')->gt($endDateTime);
+        @endphp
         <div id="tab-keuangan" class="tab-content hidden">
             <!-- Bento Grid Financial Layout -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -594,10 +610,17 @@
                         </div>
                     </div>
                     @if($sisaBisaDitarik > 0)
-                    <button class="w-full mt-8 bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="openWithdrawalModal()">
-                        <span class="material-symbols-outlined text-lg" data-icon="account_balance_wallet">account_balance_wallet</span>
-                        Ajukan Penarikan
-                    </button>
+                        @if($isEventEnded)
+                        <button class="w-full mt-8 bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="openWithdrawalModal()">
+                            <span class="material-symbols-outlined text-lg" data-icon="account_balance_wallet">account_balance_wallet</span>
+                            Ajukan Penarikan
+                        </button>
+                        @else
+                        <button class="w-full mt-8 bg-surface-container text-secondary py-3 rounded-lg font-bold cursor-not-allowed flex items-center justify-center gap-2" disabled title="Penarikan hanya dapat dilakukan setelah event berakhir">
+                            <span class="material-symbols-outlined text-lg" data-icon="account_balance_wallet">account_balance_wallet</span>
+                            Belum Berakhir
+                        </button>
+                        @endif
                     @else
                     <button class="w-full mt-8 bg-surface-container text-secondary py-3 rounded-lg font-bold cursor-not-allowed flex items-center justify-center gap-2" disabled>
                         <span class="material-symbols-outlined text-lg" data-icon="account_balance_wallet">account_balance_wallet</span>
@@ -660,23 +683,23 @@
 </main>
 
 <!-- Mobile Bottom Navigation -->
-<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-    <a class="flex flex-col items-center gap-1 text-secondary" href="{{ route('admin.dashboard') }}">
-        <span class="material-symbols-outlined text-[24px]">grid_view</span>
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.dashboard') }}">
+        <span class="material-symbols-outlined">grid_view</span>
         <span class="font-label-md text-label-md">Dashboard</span>
     </a>
-    <a class="flex flex-col items-center gap-1 text-primary font-bold" href="{{ route('admin.events.index') }}">
-        <span class="material-symbols-outlined text-[24px]">confirmation_number</span>
+    <a class="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.events.index') }}">
+        <span class="material-symbols-outlined">confirmation_number</span>
         <span class="font-label-md text-label-md">Events</span>
     </a>
-    <a class="flex flex-col items-center gap-1 text-secondary" href="{{ route('admin.scanner') }}">
-        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center -translate-y-4 shadow-lg border-4 border-surface">
-            <span class="material-symbols-outlined text-on-primary text-[24px]">center_focus_weak</span>
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.scanner') }}">
+        <div class="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
+            <span class="material-symbols-outlined">center_focus_weak</span>
         </div>
-        <span class="font-label-md text-label-md -translate-y-3">Scan</span>
+        <span class="font-label-md text-label-md mt-1">Scan</span>
     </a>
-    <a class="flex flex-col items-center gap-1 text-secondary" href="{{ route('admin.finance') }}">
-        <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.finance') }}">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
         <span class="font-label-md text-label-md">Finance</span>
     </a>
 </nav>
@@ -782,39 +805,91 @@
 
 <!-- Withdrawal Modal Overlay -->
 <div class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-on-background/40 backdrop-blur-[2px] p-4" id="withdrawalModal">
-    <div class="bg-white w-full max-w-md rounded-xl border border-outline-variant overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-h3 text-h3 text-on-surface">Ajukan Penarikan</h3>
-                <button class="text-secondary hover:text-on-surface" onclick="closeWithdrawalModal()">
+    <div class="bg-surface w-full max-w-md rounded-2xl border border-outline-variant overflow-hidden animate-in fade-in zoom-in duration-200 shadow-2xl">
+        <div class="p-6 pb-2 border-b-0 flex justify-between items-center mb-2">
+            <h3 class="font-h3 text-[22px] font-bold text-on-surface">Tarik Dana</h3>
+            <button type="button" class="text-secondary hover:text-on-surface transition-colors" onclick="closeWithdrawalModal()">
+                <span class="material-symbols-outlined" data-icon="close">close</span>
+            </button>
+        </div>
+        <form action="{{ route('admin.events.withdraw.event', $event->id_event) }}" method="POST" class="p-6 pt-2">
+            @csrf
+            
+            <div class="mb-5">
+                <label class="block font-label-md text-label-md text-secondary mb-1">Nominal (Rp)</label>
+                <input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-body-md" 
+                       type="number" 
+                       name="amount" 
+                       max="{{ $sisaBisaDitarik }}" 
+                       placeholder="Misal: 1500000" 
+                       required />
+                <p class="text-caption text-secondary mt-1">Maksimal: Rp {{ number_format($sisaBisaDitarik, 0, ',', '.') }}</p>
+            </div>
+
+            <div class="mb-5">
+                <label class="block font-label-md text-label-md text-secondary mb-1">Nama Bank / E-Wallet</label>
+                <input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-body-md" 
+                       type="text" 
+                       name="bank_name" 
+                       placeholder="Misal: Bank BCA / GoPay" 
+                       required />
+            </div>
+
+            <div class="mb-8">
+                <label class="block font-label-md text-label-md text-secondary mb-1">Nomor Rekening</label>
+                <input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-body-md" 
+                       type="text" 
+                       name="account_number" 
+                       placeholder="0123456789" 
+                       required />
+            </div>
+            
+            <div class="flex gap-3">
+                <button type="button" class="w-1/2 bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeWithdrawalModal()">
+                    Batal
+                </button>
+                <button type="submit" class="w-1/2 bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                    Konfirmasi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Add Tier Modal -->
+<div id="addTierModal" class="fixed inset-0 z-[100] hidden bg-on-surface/50 backdrop-blur-sm transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-surface rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="addTierModalContent">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="text-h3 font-h3 font-bold text-on-surface">Tambah Tier Tiket Baru</h3>
+                <button type="button" class="text-secondary hover:bg-surface-container-high p-2 rounded-full transition-colors" onclick="closeAddTierModal()">
                     <span class="material-symbols-outlined" data-icon="close">close</span>
                 </button>
             </div>
-            <form action="{{ route('admin.events.withdraw.event', $event->id_event) }}" method="POST">
+            
+            <form action="{{ route('admin.events.tiers.store', $event->id_event) }}" method="POST" class="p-6">
                 @csrf
-                <input type="hidden" name="bank_name" value="BCA">
-                <input type="hidden" name="account_number" value="8829000000">
-                <input type="hidden" name="amount" value="{{ $sisaBisaDitarik }}">
-
-                <div class="mb-6">
-                    <label class="block text-caption font-bold text-secondary uppercase mb-2">Jumlah Penarikan</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface font-bold">Rp</span>
-                        <input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg py-3 pl-12 pr-4 text-h3 font-bold focus:outline-none focus:border-primary transition-colors" readonly="" type="text" value="{{ number_format($sisaBisaDitarik, 0, ',', '.') }}"/>
+                <div class="space-y-4 mb-8">
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Nama Tier</label>
+                        <input name="tier_name" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: VIP, Early Bird" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Harga (IDR)</label>
+                        <input name="price" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: 250000" type="number" min="0"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Kuota / Stok Tiket</label>
+                        <input name="quota" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: 100" type="number" min="1"/>
                     </div>
                 </div>
-                <div class="bg-blue-50 border-[0.5px] border-blue-200 rounded-lg p-4 mb-8 flex items-start gap-3">
-                    <span class="material-symbols-outlined text-blue-600 mt-0.5" data-icon="info">info</span>
-                    <p class="text-body-sm text-blue-800">
-                        Dana akan ditransfer ke rekening terdaftar: <br/>
-                        <strong class="font-bold">BCA - 8829 **** **** (A.N. SECURE ENT)</strong>
-                    </p>
-                </div>
+                
                 <div class="flex flex-col gap-3">
                     <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all">
-                        Konfirmasi Pengajuan
+                        Simpan Tier
                     </button>
-                    <button type="button" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeWithdrawalModal()">
+                    <button type="button" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeAddTierModal()">
                         Batal
                     </button>
                 </div>
@@ -822,6 +897,264 @@
         </div>
     </div>
 </div>
+
+<script>
+    function openAddTierModal() {
+        const modal = document.getElementById('addTierModal');
+        const content = document.getElementById('addTierModalContent');
+        modal.classList.remove('hidden');
+        // trigger reflow
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }
+
+    function closeAddTierModal() {
+        const modal = document.getElementById('addTierModal');
+        const content = document.getElementById('addTierModalContent');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
+
+
+<!-- Edit Tier Modal -->
+<div id="editTierModal" class="fixed inset-0 z-[100] hidden bg-on-surface/50 backdrop-blur-sm transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-surface rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="editTierModalContent">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="text-h3 font-h3 font-bold text-on-surface">Edit Tier Tiket</h3>
+                <button type="button" class="text-secondary hover:bg-surface-container-high p-2 rounded-full transition-colors" onclick="closeEditTierModal()">
+                    <span class="material-symbols-outlined" data-icon="close">close</span>
+                </button>
+            </div>
+            
+            <form id="editTierForm" action="" method="POST" class="p-6">
+                @csrf
+                @method('PUT')
+                <div class="space-y-4 mb-8">
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Nama Tier</label>
+                        <input id="edit_tier_name" name="tier_name" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: VIP" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Harga (IDR)</label>
+                        <input id="edit_price" name="price" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: 250000" type="number" min="0"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Kuota / Stok Tiket</label>
+                        <input id="edit_quota" name="quota" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: 100" type="number" min="1"/>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                        Simpan Perubahan
+                    </button>
+                    <button type="button" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeEditTierModal()">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditTierModal(tierId, tierName, price, capacity) {
+        const modal = document.getElementById('editTierModal');
+        const content = document.getElementById('editTierModalContent');
+        const form = document.getElementById('editTierForm');
+        
+        // Populate fields
+        document.getElementById('edit_tier_name').value = tierName;
+        document.getElementById('edit_price').value = price;
+        document.getElementById('edit_quota').value = capacity;
+        
+        // Update form action dynamically
+        form.action = `/admin/events/{{ $event->id_event }}/tiers/${tierId}`;
+
+        modal.classList.remove('hidden');
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }
+
+    function closeEditTierModal() {
+        const modal = document.getElementById('editTierModal');
+        const content = document.getElementById('editTierModalContent');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
+
+
+<!-- Add Tenant Modal -->
+<div id="addTenantModal" class="fixed inset-0 z-[100] hidden bg-on-surface/50 backdrop-blur-sm transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-surface rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="addTenantModalContent">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="text-h3 font-h3 font-bold text-on-surface">Tambah Akun Tenant</h3>
+                <button type="button" class="text-secondary hover:bg-surface-container-high p-2 rounded-full transition-colors" onclick="closeAddTenantModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form action="{{ route('admin.events.tenants.store', $event->id_event) }}" method="POST" class="p-6">
+                @csrf
+                <div class="space-y-4 mb-8">
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Nama Tenant (Usaha)</label>
+                        <input name="full_name" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: Kedai Kopi" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Email</label>
+                        <input name="email" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="email@contoh.com" type="email"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Password</label>
+                        <input name="password" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Minimal 8 karakter" type="password" minlength="8"/>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                        Simpan Tenant
+                    </button>
+                    <button type="button" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeAddTenantModal()">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Tenant Modal -->
+<div id="editTenantModal" class="fixed inset-0 z-[100] hidden bg-on-surface/50 backdrop-blur-sm transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-surface rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="editTenantModalContent">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="text-h3 font-h3 font-bold text-on-surface">Edit Tenant</h3>
+                <button type="button" class="text-secondary hover:bg-surface-container-high p-2 rounded-full transition-colors" onclick="closeEditTenantModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="editTenantForm" action="" method="POST" class="p-6">
+                @csrf
+                @method('PUT')
+                <div class="space-y-4 mb-8">
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Nama Tenant (Usaha)</label>
+                        <input id="edit_tenant_name" name="full_name" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Email</label>
+                        <input id="edit_tenant_email" name="email" required class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" type="email"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-secondary mb-1">Password Baru (Opsional)</label>
+                        <input id="edit_tenant_password" name="password" class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors" placeholder="Kosongkan jika tidak ingin mengubah password" type="password" minlength="8"/>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-3">
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                        Simpan Perubahan
+                    </button>
+                    <button type="button" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="closeEditTenantModal()">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Withdrawal Modal Functions
+    function openWithdrawalModal() {
+        const modal = document.getElementById('withdrawalModal');
+        modal.classList.remove('hidden');
+        // If there's an animation class to reset, do it here. The current HTML uses CSS fade-in
+    }
+
+    function closeWithdrawalModal() {
+        const modal = document.getElementById('withdrawalModal');
+        modal.classList.add('hidden');
+    }
+
+    // Add Tenant Modal Functions
+    function openAddTenantModal() {
+        const modal = document.getElementById('addTenantModal');
+        const content = document.getElementById('addTenantModalContent');
+        modal.classList.remove('hidden');
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }
+
+    function closeAddTenantModal() {
+        const modal = document.getElementById('addTenantModal');
+        const content = document.getElementById('addTenantModalContent');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // Edit Tenant Modal Functions
+    function openEditTenantModal(tenantId, tenantName, tenantEmail) {
+        const modal = document.getElementById('editTenantModal');
+        const content = document.getElementById('editTenantModalContent');
+        const form = document.getElementById('editTenantForm');
+        
+        document.getElementById('edit_tenant_name').value = tenantName;
+        document.getElementById('edit_tenant_email').value = tenantEmail;
+        document.getElementById('edit_tenant_password').value = ''; // Reset password field
+        
+        form.action = `/admin/events/{{ $event->id_event }}/tenants/${tenantId}`;
+
+        modal.classList.remove('hidden');
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }
+
+    function closeEditTenantModal() {
+        const modal = document.getElementById('editTenantModal');
+        const content = document.getElementById('editTenantModalContent');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
 
 </body>
 </html>

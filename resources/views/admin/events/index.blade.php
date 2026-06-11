@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SecureGate - Event Saya</title>
+    <title>GateMate - Event Saya</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -124,56 +124,57 @@
 
 <!-- Mobile Top Bar -->
 <header class="flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant md:hidden fixed top-0 z-[60]">
-    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
+    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</span>
     <button class="active:scale-95 transition-transform">
         <span class="material-symbols-outlined text-primary">menu</span>
     </button>
 </header>
 
 <!-- Side Navigation (Desktop) -->
-<aside class="w-sidebar-width h-screen fixed left-0 top-0 hidden md:flex flex-col py-page-padding bg-surface border-r-[0.5px] border-outline-variant z-50">
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
     <div class="px-6 mb-10">
-        <h1 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h1>
-        <p class="font-label-md text-label-md text-secondary">Organizer</p>
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
+        <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
-    <nav class="flex-grow flex flex-col">
-        <!-- Dashboard Tab -->
-        <a class="flex items-center px-6 py-3 space-x-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.dashboard') }}">
-            <span class="material-symbols-outlined">dashboard</span>
+    <nav class="flex-1 space-y-1">
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.dashboard') }}">
+            <span class="material-symbols-outlined mr-3">dashboard</span>
             <span class="font-body-sm text-body-sm">Dashboard</span>
         </a>
-        <!-- Event Saya Tab (ACTIVE) -->
-        <a class="flex items-center px-6 py-3 space-x-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.events.index') }}">
-            <span class="material-symbols-outlined">event</span>
+        <a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer" href="{{ route('admin.events.index') }}">
+            <span class="material-symbols-outlined mr-3">event</span>
             <span class="font-body-sm text-body-sm">Event Saya</span>
         </a>
-        <!-- Scanner Tab -->
-        <a class="flex items-center px-6 py-3 space-x-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.scanner') }}">
-            <span class="material-symbols-outlined">qr_code_scanner</span>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.scanner') }}">
+            <span class="material-symbols-outlined mr-3">qr_code_scanner</span>
             <span class="font-body-sm text-body-sm">Scanner</span>
         </a>
-        <!-- Keuangan Tab -->
-        <a class="flex items-center px-6 py-3 space-x-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.finance') }}">
-            <span class="material-symbols-outlined">payments</span>
+        <a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="{{ route('admin.finance') }}">
+            <span class="material-symbols-outlined mr-3">payments</span>
             <span class="font-body-sm text-body-sm">Keuangan</span>
         </a>
-        <!-- Pengaturan Tab -->
-        <a class="flex items-center px-6 py-3 space-x-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80" href="#">
-            <span class="material-symbols-outlined">settings</span>
-            <span class="font-body-sm text-body-sm">Pengaturan</span>
-        </a>
     </nav>
-    <div class="mt-auto border-t-[0.5px] border-outline-variant pt-4">
-        <a class="flex items-center px-6 py-3 space-x-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer" href="#">
-            <span class="material-symbols-outlined">help</span>
+    <div class="px-6 mt-auto space-y-1">
+        <a class="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
+            <span class="material-symbols-outlined mr-3">help</span>
             <span class="font-body-sm text-body-sm">Bantuan</span>
         </a>
-        <div class="px-6 mt-4">
-            <form action="{{ route('logout') }}" method="POST">
+        <div class="pt-4 border-t border-outline-variant flex items-center justify-between">
+            <div class="flex items-center">
+                @if (!empty(auth()->user()->profile_picture))
+                    <img alt="Organizer Profile" class="w-8 h-8 rounded-full object-cover bg-surface-container-high" src="{{ asset('Media/uploads/' . auth()->user()->profile_picture) }}"/>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{{ strtoupper(substr(auth()->user()->full_name ?? 'O', 0, 1)) }}</div>
+                @endif
+                <div class="ml-2 overflow-hidden">
+                    <p class="font-label-md text-label-md font-bold truncate">{{ auth()->user()->full_name ?? 'Organizer' }}</p>
+                    <p class="font-caption text-caption text-secondary">ID: SG-{{ auth()->user()->id_user ?? '1' }}</p>
+                </div>
+            </div>
+            <form action="{{ route('logout') }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="w-full flex items-center justify-center space-x-2 bg-surface-container-low border-[0.5px] border-outline-variant py-2 px-4 rounded-lg hover:bg-error-container hover:text-error transition-all group">
+                <button type="submit" class="text-primary active:opacity-70 mt-1">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
-                    <span class="font-label-md text-label-md">Keluar</span>
                 </button>
             </form>
         </div>
@@ -201,9 +202,9 @@
                 <h2 class="font-h1 text-h1 text-on-surface">Event Saya</h2>
                 <p class="font-body-sm text-body-sm text-secondary">Kelola semua tiket dan jadwal acara Anda di sini.</p>
             </div>
-            <a href="{{ route('admin.events.create') }}" class="inline-flex items-center justify-center space-x-2 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-none">
-                <span class="material-symbols-outlined font-bold">add</span>
-                <span class="font-label-md text-label-md font-bold uppercase tracking-wider">+ Buat Event Baru</span>
+            <a href="{{ route('admin.events.create') }}" class="inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-none">
+                <span class="material-symbols-outlined font-bold text-[20px]">add</span>
+                <span class="font-label-lg text-label-lg font-normal">Event Baru</span>
             </a>
         </div>
 
@@ -218,7 +219,7 @@
             <div class="flex space-x-2 overflow-x-auto pb-1">
                 <a href="{{ route('admin.events.index') }}" class="px-4 py-2 {{ !request('status') ? 'bg-primary text-on-primary' : 'bg-surface border-[0.5px] border-outline-variant text-secondary hover:bg-surface-container' }} rounded-lg text-label-md shrink-0 transition-colors">Semua</a>
                 <a href="{{ route('admin.events.index', ['status' => 'active']) }}" class="px-4 py-2 {{ request('status') === 'active' ? 'bg-primary text-on-primary' : 'bg-surface border-[0.5px] border-outline-variant text-secondary hover:bg-surface-container' }} rounded-lg text-label-md shrink-0 transition-colors">Active</a>
-                <a href="{{ route('admin.events.index', ['status' => 'ended']) }}" class="px-4 py-2 {{ request('status') === 'ended' ? 'bg-primary text-on-primary' : 'bg-surface border-[0.5px] border-outline-variant text-secondary hover:bg-surface-container' }} rounded-lg text-label-md shrink-0 transition-colors">Selesai</a>
+                <a href="{{ route('admin.events.index', ['status' => 'ended']) }}" class="px-4 py-2 {{ request('status') === 'ended' ? 'bg-primary text-on-primary' : 'bg-surface border-[0.5px] border-outline-variant text-secondary hover:bg-surface-container' }} rounded-lg text-label-md shrink-0 transition-colors">Ended</a>
             </div>
         </div>
 
@@ -286,9 +287,7 @@
                                 <a href="{{ route('admin.events.show', $event->id_event) }}" class="p-2 text-primary hover:bg-primary-fixed rounded transition-colors" title="Detail">
                                     <span class="material-symbols-outlined text-[18px]">visibility</span>
                                 </a>
-                                <a href="{{ route('admin.events.edit', $event->id_event) }}" class="p-2 text-primary hover:bg-primary-fixed rounded transition-colors" title="Edit">
-                                    <span class="material-symbols-outlined text-[18px]">edit</span>
-                                </a>
+
                                 <form action="{{ route('admin.events.destroy', $event->id_event) }}" method="POST" class="inline" onsubmit="return confirm('Hapus event ini? Tindakan ini tidak bisa dibatalkan.')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2 text-error hover:bg-error-container rounded transition-colors" title="Hapus">
@@ -345,20 +344,22 @@
 </main>
 
 <!-- Mobile Bottom Navigation -->
-<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe shadow-lg">
-    <a class="flex flex-col items-center justify-center space-y-1 text-secondary" href="{{ route('admin.dashboard') }}">
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.dashboard') }}">
         <span class="material-symbols-outlined">grid_view</span>
         <span class="font-label-md text-label-md">Dashboard</span>
     </a>
-    <a class="flex flex-col items-center justify-center space-y-1 text-primary font-bold" href="{{ route('admin.events.index') }}">
+    <a class="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.events.index') }}">
         <span class="material-symbols-outlined">confirmation_number</span>
         <span class="font-label-md text-label-md">Events</span>
     </a>
-    <a class="flex flex-col items-center justify-center space-y-1 text-secondary" href="{{ route('admin.scanner') }}">
-        <span class="material-symbols-outlined">center_focus_weak</span>
-        <span class="font-label-md text-label-md">Scan</span>
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.scanner') }}">
+        <div class="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
+            <span class="material-symbols-outlined">center_focus_weak</span>
+        </div>
+        <span class="font-label-md text-label-md mt-1">Scan</span>
     </a>
-    <a class="flex flex-col items-center justify-center space-y-1 text-secondary" href="{{ route('admin.finance') }}">
+    <a class="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors" href="{{ route('admin.finance') }}">
         <span class="material-symbols-outlined">account_balance_wallet</span>
         <span class="font-label-md text-label-md">Finance</span>
     </a>

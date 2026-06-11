@@ -34,6 +34,7 @@ class PageController extends Controller
             ->selectRaw('(SELECT COUNT(*) FROM ticket_tiers WHERE ticket_tiers.id_event = events.id_event AND price = 0) as has_free')
             ->leftJoin('users as u', 'events.id_admin', '=', 'u.id_user')
             ->where('events.status', 'active')
+            ->whereDate('events.end_date', '>=', now()->toDateString())
             ->when($selectedCategory !== 'All', fn ($q) => $q->where('events.category', $selectedCategory))
             ->when($selectedCity !== 'All',     fn ($q) => $q->where('events.city', $selectedCity))
             ->when($searchKeyword !== '',        fn ($q) => $q->where('events.title', 'LIKE', "%{$searchKeyword}%"))
@@ -43,6 +44,7 @@ class PageController extends Controller
 
         // ── Hitung Jumlah Event per Kategori ──────────────────────────────────
         $catCounts = Event::where('status', 'active')
+            ->whereDate('end_date', '>=', now()->toDateString())
             ->selectRaw('category, COUNT(*) as cnt')
             ->groupBy('category')
             ->pluck('cnt', 'category');
@@ -51,6 +53,7 @@ class PageController extends Controller
         $citiesList = ['Jakarta', 'Bali', 'Bandung', 'Surabaya', 'Yogyakarta', 'Makassar', 'Medan', 'Semarang'];
 
         $cityCounts = Event::where('status', 'active')
+            ->whereDate('end_date', '>=', now()->toDateString())
             ->whereIn('city', $citiesList)
             ->selectRaw('city, COUNT(*) as cnt')
             ->groupBy('city')
