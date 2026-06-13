@@ -85,6 +85,19 @@ class CheckoutController extends Controller
                 ], 422);
             }
 
+            // ── Anti-Calo: Cek apakah user sudah punya tiket ───────────────────────
+            $hasTicket = Transaction::where('event_id', $eventId)
+                ->where('user_id', $user->id_user ?? $user->id)
+                ->whereIn('payment_status', ['success', 'pending'])
+                ->exists();
+
+            if ($hasTicket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sistem anti-calo aktif: Anda hanya dapat membeli 1 tiket per akun untuk event ini.',
+                ], 422);
+            }
+
             // ── Cek Saldo Wallet ───────────────────────────────────────────────
             if ($user->wallet_balance < $grossAmount) {
                 return response()->json([

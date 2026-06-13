@@ -60,9 +60,19 @@ class EventController extends Controller
             ->where('status', 'active')
             ->findOrFail($id);
 
+        $hasPurchased = false;
+        if (\Illuminate\Support\Facades\Auth::guard('sanctum')->check()) {
+            $user = \Illuminate\Support\Facades\Auth::guard('sanctum')->user();
+            $hasPurchased = \App\Models\Transaction::where('event_id', $id)
+                ->where('user_id', $user->id_user ?? $user->id)
+                ->whereIn('payment_status', ['success', 'pending'])
+                ->exists();
+        }
+
         return response()->json([
-            'success' => true,
-            'data'    => new EventResource($event),
+            'success'       => true,
+            'data'          => new EventResource($event),
+            'has_purchased' => $hasPurchased,
         ]);
     }
 }

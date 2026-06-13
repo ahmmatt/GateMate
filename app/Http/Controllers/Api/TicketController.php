@@ -37,11 +37,15 @@ class TicketController extends Controller
         $now = now();
 
         $upcoming = $tickets->filter(function ($t) use ($now) {
-            return $t->event && $now->lt(\Carbon\Carbon::parse($t->event->end_date . ' ' . $t->event->end_time));
+            if (!$t->event) return false;
+            $dateStr = $t->event->end_date instanceof \Carbon\Carbon ? $t->event->end_date->format('Y-m-d') : $t->event->end_date;
+            return $now->lt(\Carbon\Carbon::parse($dateStr . ' ' . $t->event->end_time));
         })->values();
 
         $past = $tickets->filter(function ($t) use ($now) {
-            return !$t->event || $now->gte(\Carbon\Carbon::parse($t->event->end_date . ' ' . $t->event->end_time));
+            if (!$t->event) return true;
+            $dateStr = $t->event->end_date instanceof \Carbon\Carbon ? $t->event->end_date->format('Y-m-d') : $t->event->end_date;
+            return $now->gte(\Carbon\Carbon::parse($dateStr . ' ' . $t->event->end_time));
         })->values();
 
         return response()->json([

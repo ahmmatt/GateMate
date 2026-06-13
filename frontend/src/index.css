@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,23 +7,18 @@
 
 @layer base {
   body {
-    @apply bg-background text-secondary font-sans antialiased;
-    background-image: radial-gradient(circle at top right, rgba(244, 63, 94, 0.05), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(244, 63, 94, 0.05), transparent 40%);
-    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
   }
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-glass;
-  }
-  
-  .glass-dark {
-    @apply bg-secondary/80 backdrop-blur-md border border-white/10 shadow-glass-dark text-white;
-  }
-
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-coral-500 to-orange-400;
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .coral-pill { border-radius: 22px; }
+  .card-shadow { border: 0.5px solid #EBEBEB; }
 }
