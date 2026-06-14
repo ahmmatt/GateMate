@@ -19,6 +19,44 @@ export default function AdminEventCreatePage() {
   });
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState('');
+  
+  // Seat Configuration Modal State
+  const [seatModalOpen, setSeatModalOpen] = useState(false);
+  const [seatNumbers, setSeatNumbers] = useState([]);
+  const [seatPrefix, setSeatPrefix] = useState('');
+  const [seatStart, setSeatStart] = useState('');
+  const [seatEnd, setSeatEnd] = useState('');
+
+  const generateSeats = () => {
+    if (!seatPrefix || !seatStart || !seatEnd) {
+      alert('Mohon lengkapi awalan (Prefix), mulai, dan sampai.');
+      return;
+    }
+    const start = parseInt(seatStart);
+    const end = parseInt(seatEnd);
+    if (start > end) {
+      alert('Nilai awal tidak boleh lebih besar dari nilai akhir.');
+      return;
+    }
+    
+    const newSeats = [];
+    for (let i = start; i <= end; i++) {
+      newSeats.push(`${seatPrefix}${i}`);
+    }
+    
+    setSeatNumbers(prev => {
+      const combined = [...new Set([...prev, ...newSeats])];
+      return combined.sort();
+    });
+    
+    setSeatPrefix('');
+    setSeatStart('');
+    setSeatEnd('');
+  };
+
+  const removeSeat = (seat) => {
+    setSeatNumbers(prev => prev.filter(s => s !== seat));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -45,6 +83,10 @@ export default function AdminEventCreatePage() {
       }
     });
     if (bannerFile) payload.append('banner_image', bannerFile);
+    
+    if (formData.capacity_type === 'limited' && formData.seat_assignment === 'pilih') {
+      payload.append('seat_numbers', JSON.stringify(seatNumbers));
+    }
 
     try {
       const res = await api.post('/admin/events', payload, {
@@ -61,39 +103,39 @@ export default function AdminEventCreatePage() {
 
   return (
     <div className="bg-surface font-body-lg text-on-surface min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Side Navigation Bar */}
-      <nav className="fixed left-0 top-0 h-screen w-[240px] hidden md:flex flex-col py-stack-lg border-r border-outline-variant bg-surface z-40">
-        <div className="px-gutter mb-10">
+      {/* Side Navigation (Desktop) */}
+      <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
+        <div className="px-6 mb-10">
           <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
-        <ul className="flex-1 space-y-1">
-          <li>
-            <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-              <span className="material-symbols-outlined mr-3">dashboard</span>
-              <span className="font-body-sm text-body-sm">Dashboard</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/admin/events" className="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer">
-              <span className="material-symbols-outlined mr-3">event</span>
-              <span className="font-body-sm text-body-sm">Event Saya</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/admin/scanner" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-              <span className="material-symbols-outlined mr-3">qr_code_scanner</span>
-              <span className="font-body-sm text-body-sm">Scanner</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-              <span className="material-symbols-outlined mr-3">payments</span>
-              <span className="font-body-sm text-body-sm">Keuangan</span>
-            </Link>
-          </li>
-        </ul>
-        <div className="px-gutter mt-auto space-y-1">
+        <nav className="flex-1 space-y-1">
+          <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">dashboard</span>
+            <span className="font-body-sm text-body-sm">Dashboard</span>
+          </Link>
+          <Link to="/admin/events" className="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer">
+            <span className="material-symbols-outlined mr-3">event</span>
+            <span className="font-body-sm text-body-sm">Event Saya</span>
+          </Link>
+          <Link to="/admin/scanner" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">qr_code_scanner</span>
+            <span className="font-body-sm text-body-sm">Scanner</span>
+          </Link>
+          <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">payments</span>
+            <span className="font-body-sm text-body-sm">Keuangan</span>
+          </Link>
+          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">settings</span>
+            <span className="font-body-sm text-body-sm">Pengaturan</span>
+          </Link>
+        </nav>
+        <div className="px-6 mt-auto space-y-1">
+          <a className="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
+            <span className="material-symbols-outlined mr-3">help</span>
+            <span className="font-body-sm text-body-sm">Bantuan</span>
+          </a>
           <div className="pt-4 border-t border-outline-variant flex items-center justify-between">
             <div className="flex items-center">
               {user?.profile_picture ? (
@@ -113,10 +155,10 @@ export default function AdminEventCreatePage() {
             </button>
           </div>
         </div>
-      </nav>
+      </aside>
 
-      {/* Bottom Navigation Mobile */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+      {/* Bottom Navigation (Mobile) */}
+      <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
         <Link to="/admin/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">grid_view</span>
           <span className="font-label-md text-label-md">Dashboard</span>
@@ -138,25 +180,22 @@ export default function AdminEventCreatePage() {
       </nav>
 
       {/* Top App Bar */}
-      <header className="fixed top-0 right-0 left-0 md:left-[240px] h-16 flex justify-between items-center px-gutter bg-surface border-b border-outline-variant z-40">
+      <header className="flex justify-between items-center h-16 px-gutter fixed top-0 left-0 right-0 md:ml-sidebar-width bg-surface border-b border-outline-variant z-30">
         <div className="flex items-center gap-4">
           <button className="md:hidden p-2 text-secondary">
             <span className="material-symbols-outlined">menu</span>
           </button>
-          <h2 className="font-h3 text-h3 text-on-surface">Buat Event Baru</h2>
+          <h1 className="font-h3 text-h3 text-on-surface">Buat Event Baru</h1>
         </div>
-        <div className="flex items-center gap-stack-md">
-          <button className="hover:bg-surface-container-low rounded-full p-2 transition-all">
+        <div className="flex items-center gap-2">
+          <button className="hover:bg-surface-container-low rounded-full p-2 text-secondary transition-all">
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm hidden sm:flex">
-            {(user?.full_name || 'O').charAt(0).toUpperCase()}
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 md:ml-[240px] min-h-screen">
+      <main className="pt-20 pb-24 md:ml-sidebar-width min-h-screen">
         <form onSubmit={handleSubmit} className="w-full">
           {error && (
             <div className="max-w-[800px] mx-auto px-gutter mb-4">
@@ -350,11 +389,19 @@ export default function AdminEventCreatePage() {
                               <span className="text-caption text-secondary">User selects their own seat from a map</span>
                             </label>
                             <label className={`relative flex flex-col p-4 border rounded-lg cursor-pointer transition-colors ${formData.seat_assignment === 'pilih' ? 'border-primary bg-primary-fixed/30' : 'border-outline-variant hover:border-primary'}`}>
-                              <input checked={formData.seat_assignment === 'pilih'} onChange={handleChange} className="absolute top-4 right-4 text-primary accent-primary" name="seat_assignment" type="radio" value="pilih"/>
+                              <input checked={formData.seat_assignment === 'pilih'} onChange={(e) => { handleChange(e); setSeatModalOpen(true); }} className="absolute top-4 right-4 text-primary accent-primary" name="seat_assignment" type="radio" value="pilih"/>
                               <span className={`material-symbols-outlined mb-2 ${formData.seat_assignment === 'pilih' ? 'text-primary' : 'text-secondary'}`}>edit_square</span>
                               <span className="font-label-md font-bold">Input Pengaturan Seat</span>
                               <span className="text-caption text-secondary">Organizer manually inputs seat numbers</span>
                             </label>
+                            {formData.seat_assignment === 'pilih' && (
+                              <div className="col-span-1 md:col-span-2 mt-2">
+                                <button type="button" onClick={() => setSeatModalOpen(true)} className="flex items-center gap-2 text-primary font-bold hover:bg-primary-fixed/30 px-4 py-2 rounded-lg border border-primary transition-colors w-max">
+                                  <span className="material-symbols-outlined">settings</span>
+                                  Atur Kursi Sekarang ({seatNumbers.length} Kursi)
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div>
@@ -406,6 +453,84 @@ export default function AdminEventCreatePage() {
           </footer>
         </form>
       </main>
+      
+      {/* Seat Config Modal */}
+      {seatModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-on-background/40 backdrop-blur-[2px] p-4">
+          <div className="bg-surface-container-lowest w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-outline-variant flex justify-between items-center">
+              <div>
+                <h3 className="font-h3 text-[20px] font-black text-on-surface">Pengaturan Nomor Kursi</h3>
+                <p className="font-body-sm text-secondary">Generate daftar nomor kursi yang bisa dipilih pembeli.</p>
+              </div>
+              <button onClick={() => setSeatModalOpen(false)} className="p-2 rounded-full hover:bg-surface-container text-on-surface">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="bg-surface-container rounded-xl p-4 mb-6 border border-outline-variant">
+                <h4 className="font-label-md font-bold mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">add_box</span>
+                  Generate Kursi Otomatis
+                </h4>
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="w-full md:w-1/3">
+                    <label className="block font-caption text-secondary mb-1">Prefix (Misal: A, VIP-)</label>
+                    <input type="text" value={seatPrefix} onChange={(e) => setSeatPrefix(e.target.value.toUpperCase())} placeholder="A" className="w-full bg-surface-container-lowest border-[0.5px] border-outline-variant rounded px-3 py-2 text-sm focus:border-primary focus:outline-none"/>
+                  </div>
+                  <div className="w-full md:w-1/4">
+                    <label className="block font-caption text-secondary mb-1">Mulai Angka</label>
+                    <input type="number" min="1" value={seatStart} onChange={(e) => setSeatStart(e.target.value)} placeholder="1" className="w-full bg-surface-container-lowest border-[0.5px] border-outline-variant rounded px-3 py-2 text-sm focus:border-primary focus:outline-none"/>
+                  </div>
+                  <div className="w-full md:w-1/4">
+                    <label className="block font-caption text-secondary mb-1">Sampai Angka</label>
+                    <input type="number" min="1" value={seatEnd} onChange={(e) => setSeatEnd(e.target.value)} placeholder="10" className="w-full bg-surface-container-lowest border-[0.5px] border-outline-variant rounded px-3 py-2 text-sm focus:border-primary focus:outline-none"/>
+                  </div>
+                  <div className="w-full md:w-auto">
+                    <button type="button" onClick={generateSeats} className="w-full bg-primary text-on-primary font-bold px-4 py-2 rounded shadow-sm active:scale-95 transition-transform whitespace-nowrap">
+                      Tambah
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-label-md font-bold">Daftar Kursi ({seatNumbers.length})</h4>
+                  {seatNumbers.length > 0 && (
+                    <button type="button" onClick={() => setSeatNumbers([])} className="text-error text-sm font-bold hover:underline">Hapus Semua</button>
+                  )}
+                </div>
+                
+                <div className="bg-surface-container-low border border-outline-variant rounded-lg p-4 h-64 overflow-y-auto flex flex-wrap gap-2 content-start">
+                  {seatNumbers.length === 0 ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-secondary">
+                      <span className="material-symbols-outlined text-[48px] mb-2 opacity-50">event_seat</span>
+                      <p className="font-body-sm text-center">Belum ada kursi yang di-generate.<br/>Gunakan form di atas untuk membuat kursi.</p>
+                    </div>
+                  ) : (
+                    seatNumbers.map((seat, idx) => (
+                      <div key={idx} className="bg-surface-container-highest border border-outline px-3 py-1.5 rounded-md flex items-center gap-2 group">
+                        <span className="font-body-sm font-bold">{seat}</span>
+                        <button type="button" onClick={() => removeSeat(seat)} className="text-secondary hover:text-error transition-colors flex items-center">
+                          <span className="material-symbols-outlined text-[16px]">close</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-surface-container-low border-t border-outline-variant flex justify-end gap-3 rounded-b-2xl">
+              <button onClick={() => setSeatModalOpen(false)} className="px-6 py-2 rounded-lg font-bold text-on-surface hover:bg-surface-container-highest transition-colors">
+                Simpan & Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

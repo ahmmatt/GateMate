@@ -56,7 +56,28 @@ class AuthController extends Controller
             default       => ['user'],
         };
 
-        $token = $user->createToken('auth_token', $abilities)->plainTextToken;
+        $tokenObj = $user->createToken('auth_token', $abilities);
+        $accessToken = $tokenObj->accessToken;
+        
+        $ip = $request->ip();
+        $accessToken->ip_address = $ip;
+        $accessToken->user_agent = $request->userAgent();
+        
+        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=city,countryCode,status");
+                if ($res->successful() && $res->json('status') === 'success') {
+                    $accessToken->location = $res->json('city') . ', ' . $res->json('countryCode');
+                }
+            } catch (\Exception $e) {
+                // Ignore
+            }
+        } else {
+            $accessToken->location = 'Localhost';
+        }
+        $accessToken->save();
+
+        $token = $tokenObj->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -97,7 +118,28 @@ class AuthController extends Controller
             'role'      => 'user',
         ]);
 
-        $token = $user->createToken('auth_token', ['user'])->plainTextToken;
+        $tokenObj = $user->createToken('auth_token', ['user']);
+        $accessToken = $tokenObj->accessToken;
+        
+        $ip = $request->ip();
+        $accessToken->ip_address = $ip;
+        $accessToken->user_agent = $request->userAgent();
+        
+        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=city,countryCode,status");
+                if ($res->successful() && $res->json('status') === 'success') {
+                    $accessToken->location = $res->json('city') . ', ' . $res->json('countryCode');
+                }
+            } catch (\Exception $e) {
+                // Ignore
+            }
+        } else {
+            $accessToken->location = 'Localhost';
+        }
+        $accessToken->save();
+
+        $token = $tokenObj->plainTextToken;
 
         return response()->json([
             'success' => true,

@@ -29,14 +29,21 @@ export default function AdminScannerPage() {
 
   const handleScan = async (qrCode) => {
     try {
-      const res = await api.post(`/admin/events/${selectedEventId}/scan`, { qr_code: qrCode });
-      const data = res.data.data;
-      setScanResult({ type: 'success', data });
-      addLog({ name: data.buyer_name || 'Guest', status: 'Approved', type: 'success' });
+      const res = await api.post('/admin/scanner/verify', { order_id: qrCode });
+      
+      if (res.data.success) {
+        const data = res.data.data;
+        setScanResult({ type: 'success', data });
+        addLog({ name: data.holder_name || 'Guest', status: 'Approved', type: 'success' });
+      } else {
+        const message = res.data.message || 'Tiket tidak valid';
+        setScanResult({ type: 'error', message, details: res.data.scanned_at ? `Di-scan pada: ${res.data.scanned_at}` : '' });
+        addLog({ name: qrCode || 'Manual ID', status: 'Denied', type: 'error' });
+      }
     } catch (err) {
-      const message = err.response?.data?.message || 'Tiket tidak valid';
+      const message = err.response?.data?.message || 'Terjadi kesalahan sistem / rute tidak ditemukan';
       setScanResult({ type: 'error', message });
-      addLog({ name: qrCode || 'Manual ID', status: 'Denied', type: 'error' });
+      addLog({ name: qrCode || 'Manual ID', status: 'Error', type: 'error' });
     }
   };
 
@@ -52,22 +59,26 @@ export default function AdminScannerPage() {
     
     setIsScanning(true);
     setScanResult(null);
-    try {
-      scannerRef.current = new Html5Qrcode("reader");
-      await scannerRef.current.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        async (decodedText) => {
-          await handleScan(decodedText);
-          stopScanner();
-        },
-        (error) => {}
-      );
-    } catch (err) {
-      console.error(err);
-      setIsScanning(false);
-      alert('Gagal mengakses kamera');
-    }
+
+    // Gunakan setTimeout agar React sempat merender <div id="reader"> terlebih dahulu
+    setTimeout(async () => {
+      try {
+        scannerRef.current = new Html5Qrcode("reader");
+        await scannerRef.current.start(
+          { facingMode: "environment" },
+          { fps: 10 },
+          async (decodedText) => {
+            await handleScan(decodedText);
+            stopScanner();
+          },
+          (error) => {}
+        );
+      } catch (err) {
+        console.error(err);
+        setIsScanning(false);
+        alert('Gagal mengakses kamera: ' + (err?.message || err));
+      }
+    }, 150);
   };
 
   const stopScanner = () => {
@@ -125,13 +136,14 @@ export default function AdminScannerPage() {
             0%, 100% { top: 10%; }
             50% { top: 90%; }
         }
-        #reader video { object-fit: cover; }
+        #reader { width: 100% !important; height: 100% !important; border: none !important; }
+        #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
       `}} />
 
       {/* Side Navigation (Desktop) */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">
@@ -150,6 +162,10 @@ export default function AdminScannerPage() {
           <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
             <span className="material-symbols-outlined mr-3">payments</span>
             <span className="font-body-sm text-body-sm">Keuangan</span>
+          </Link>
+          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">settings</span>
+            <span className="font-body-sm text-body-sm">Pengaturan</span>
           </Link>
         </nav>
         <div className="px-6 mt-auto space-y-1">
@@ -181,7 +197,7 @@ export default function AdminScannerPage() {
       {/* Top App Bar */}
       <header className="flex justify-between items-center h-16 px-gutter fixed top-0 left-0 right-0 md:ml-sidebar-width bg-surface border-b border-outline-variant z-30">
         <div className="flex items-center gap-4">
-          <h1 className="font-h3 text-h3 font-black text-primary md:hidden">SecureGate</h1>
+          <h1 className="font-h3 text-[24px] font-black text-primary md:hidden tracking-tight">GateMate</h1>
           <div className="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant focus-within:border-primary transition-all w-80">
             <span className="material-symbols-outlined text-secondary text-[20px]">search</span>
             <input className="bg-transparent border-none focus:ring-0 text-body-sm font-body-sm w-full ml-2" placeholder="Cari tiket, nama, atau ID..." type="text"/>
@@ -251,8 +267,10 @@ export default function AdminScannerPage() {
                     </div>
                   ) : (
                     <>
-                      <div id="reader" className="absolute inset-0 w-full h-full z-10"></div>
-                      <div className="scanner-viewport relative w-64 h-64 md:w-80 md:h-80 z-20 pointer-events-none">
+                      <div className="absolute inset-0 w-full h-full z-10 overflow-hidden bg-black flex items-center justify-center">
+                        <div id="reader" className="w-full h-full"></div>
+                      </div>
+                      <div className="scanner-viewport absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 z-20 pointer-events-none">
                         <div className="scanner-line"></div>
                       </div>
                       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
@@ -342,19 +360,28 @@ export default function AdminScannerPage() {
                         </button>
                       </div>
                     </>
-                  ) : (
-                    <div className="flex-grow flex flex-col items-center justify-center text-center animate-in zoom-in duration-300">
-                      <div className="w-24 h-24 rounded-full bg-error-container flex items-center justify-center text-error mb-4 border-[0.5px] border-error">
-                        <span className="material-symbols-outlined text-[48px]">cancel</span>
+                  ) : scanResult.type === 'error' ? (
+                    <div className="flex-grow flex flex-col items-center justify-center text-center animate-fade-in">
+                      <div className="w-24 h-24 rounded-full bg-error/10 flex items-center justify-center mb-6 border border-error">
+                        <span className="material-symbols-outlined text-[48px] text-error">cancel</span>
                       </div>
-                      <h2 className="text-[24px] text-error font-black leading-8 mb-2">Tiket Ditolak</h2>
-                      <p className="text-body-md text-on-surface-variant mb-6">{scanResult.message}</p>
+                      <h3 className="font-h2 text-[28px] font-black text-error mb-2">Tiket Ditolak</h3>
+                      <p className="text-body-lg text-secondary max-w-md">{scanResult.message}</p>
                       
-                      <button onClick={() => setScanResult(null)} className="w-full mt-auto py-3 bg-surface-container-low text-on-surface hover:bg-surface-variant rounded-xl transition-all font-label-md font-bold">
-                        Kembali
+                      {scanResult.details && (
+                        <div className="mt-4 bg-surface-container rounded-lg p-3 border border-outline-variant inline-block">
+                          <p className="text-body-sm font-bold text-on-surface-variant flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">info</span>
+                            {scanResult.details}
+                          </p>
+                        </div>
+                      )}
+                      
+                      <button onClick={() => setScanResult(null)} className="mt-8 bg-surface-container-high text-on-surface px-8 py-3 rounded-lg font-bold hover:bg-surface-container-highest transition-colors w-full max-w-[200px]">
+                        Scan Ulang
                       </button>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>

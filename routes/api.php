@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardControll
 use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\Admin\ScannerController as AdminScannerController;
 use App\Http\Controllers\Api\Admin\FinanceController as AdminFinanceController;
+use App\Http\Controllers\Api\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Api\SuperadminController;
 
 // ─── Health Check / Ping ─────────────────────────────────────────────────────
@@ -110,6 +111,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('finance')->name('finance.')->group(function () {
             Route::get('/', [AdminFinanceController::class, 'index'])->name('index');
             Route::post('/withdraw', [AdminFinanceController::class, 'withdraw'])->name('withdraw');
+        });
+
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [AdminSettingsController::class, 'index'])->name('index');
+            Route::post('/profile', [AdminSettingsController::class, 'updateProfile'])->name('profile.update');
+            Route::post('/security', [AdminSettingsController::class, 'updateSecurity'])->name('security.update');
+            Route::post('/photo', [AdminSettingsController::class, 'uploadPhoto'])->name('photo.upload');
+            Route::get('/sessions', [AdminSettingsController::class, 'getSessions'])->name('sessions.index');
+            Route::delete('/sessions/all', [AdminSettingsController::class, 'deleteAllSessions'])->name('sessions.delete-all');
+            Route::delete('/sessions/{id}', [AdminSettingsController::class, 'deleteSession'])->name('sessions.delete');
         });
     });
 

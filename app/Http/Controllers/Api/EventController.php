@@ -69,10 +69,16 @@ class EventController extends Controller
                 ->exists();
         }
 
+        $takenSeats = \App\Models\Transaction::where('event_id', $id)
+            ->whereIn('payment_status', ['success', 'pending'])
+            ->whereNotNull('seat_number')
+            ->pluck('seat_number');
+
         return response()->json([
             'success'       => true,
             'data'          => new EventResource($event),
             'has_purchased' => $hasPurchased,
+            'taken_seats'   => $takenSeats,
         ]);
     }
 }

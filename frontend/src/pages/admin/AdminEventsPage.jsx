@@ -78,7 +78,7 @@ export default function AdminEventsPage() {
       {/* Side Navigation (Desktop) */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">
@@ -97,6 +97,10 @@ export default function AdminEventsPage() {
           <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
             <span className="material-symbols-outlined mr-3">payments</span>
             <span className="font-body-sm text-body-sm">Keuangan</span>
+          </Link>
+          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+            <span className="material-symbols-outlined mr-3">settings</span>
+            <span className="font-body-sm text-body-sm">Pengaturan</span>
           </Link>
         </nav>
         <div className="px-6 mt-auto space-y-1">

@@ -11,9 +11,11 @@ export default function EventDetailPage() {
   const { user } = useAuthStore();
   const [event, setEvent] = useState(null);
   const [hasPurchased, setHasPurchased] = useState(false);
+  const [takenSeats, setTakenSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedTier, setSelectedTier] = useState(null);
+  const [selectedSeat, setSelectedSeat] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function EventDetailPage() {
       .then(res => {
         setEvent(res.data.data);
         setHasPurchased(res.data.has_purchased || false);
+        setTakenSeats(res.data.taken_seats || []);
       })
       .catch(() => navigate('/discover'))
       .finally(() => setLoading(false));
@@ -36,9 +39,17 @@ export default function EventDetailPage() {
 
   const handleCheckout = async () => {
     if (!selectedTier) { alert('Pilih tier tiket terlebih dahulu.'); return; }
+    if (event.seat_assignment === 'pilih' && !selectedSeat) {
+      alert('Silakan pilih kursi terlebih dahulu.');
+      return;
+    }
     setCheckoutLoading(true);
     try {
-      const res = await api.post('/checkout', { event_id: event.id_event, tier_id: selectedTier.id_tier });
+      const payload = { event_id: event.id_event, tier_id: selectedTier.id_tier };
+      if (event.seat_assignment === 'pilih' && selectedSeat) {
+        payload.seat_number = selectedSeat;
+      }
+      const res = await api.post('/checkout', payload);
       const snapToken = res.data.data?.snap_token;
       if (snapToken && window.snap) {
         window.snap.pay(snapToken, {
@@ -230,7 +241,35 @@ export default function EventDetailPage() {
                   </button>
                 ))}
               </div>
-              <button onClick={handleCheckout} disabled={!selectedTier || checkoutLoading}
+
+              {event.seat_assignment === 'pilih' && event.seat_numbers && event.seat_numbers.length > 0 && (
+                <div className="mt-4">
+                  <p className="font-body-md text-body-md text-secondary mb-2">Pilih Kursi Anda:</p>
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-outline-variant rounded-xl bg-surface-container-lowest">
+                    {event.seat_numbers.map((seat) => {
+                      const isTaken = takenSeats.includes(seat);
+                      return (
+                        <button
+                          key={seat}
+                          disabled={isTaken}
+                          onClick={() => setSelectedSeat(seat)}
+                          className={`px-3 py-2 border rounded-lg text-sm font-bold transition-all ${
+                            isTaken 
+                              ? 'bg-surface-container-highest border-outline text-outline cursor-not-allowed opacity-50' 
+                              : selectedSeat === seat 
+                                ? 'bg-primary text-white border-primary shadow-md' 
+                                : 'bg-surface border-outline-variant hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {seat}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <button onClick={handleCheckout} disabled={!selectedTier || (event.seat_assignment === 'pilih' && !selectedSeat) || checkoutLoading}
                 className="w-full mt-4 bg-[#F04E37] text-white py-4 rounded-full font-headline-sm text-headline-sm hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">payment</span>
                 {checkoutLoading ? 'Memproses...' : 'Proceed to Payment'}

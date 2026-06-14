@@ -31,6 +31,7 @@ export default function AdminDashboardPage() {
     { key: 'events', icon: 'event', label: 'Event Saya', to: '/admin/events' },
     { key: 'scanner', icon: 'qr_code_scanner', label: 'Scanner', to: '/admin/scanner' },
     { key: 'finance', icon: 'payments', label: 'Keuangan', to: '/admin/finance' },
+    { key: 'settings', icon: 'settings', label: 'Pengaturan', to: '/admin/settings' },
   ];
 
   return (
@@ -38,7 +39,7 @@ export default function AdminDashboardPage() {
       {/* Sidebar (Desktop) */}
       <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant hidden md:flex flex-col py-6 z-40" style={{ borderRightWidth: '0.5px' }}>
         <div className="px-6 mb-10">
-          <h2 className="text-[24px] font-black text-on-surface leading-8">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">

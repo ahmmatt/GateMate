@@ -6,6 +6,7 @@ import useAuthStore from './store/useAuthStore';
 import LandingPage    from './pages/LandingPage';
 import LoginPage      from './pages/auth/LoginPage';
 import RegisterPage   from './pages/auth/RegisterPage';
+import OrganizerRegisterPage from './pages/auth/OrganizerRegisterPage';
 
 // AppLayout (shared nav/footer)
 import AppLayout      from './layouts/AppLayout';
@@ -23,9 +24,12 @@ import AdminEventsPage from './pages/admin/AdminEventsPage';
 import AdminEventCreatePage from './pages/admin/AdminEventCreatePage';
 import AdminEventShowPage from './pages/admin/AdminEventShowPage';
 import AdminFinancePage from './pages/admin/AdminFinancePage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 import TenantDashboardPage from './pages/tenant/TenantDashboardPage';
 import SuperadminDashboardPage from './pages/superadmin/SuperadminDashboardPage';
+import SuperadminOrganizerVerificationPage from './pages/superadmin/SuperadminOrganizerVerificationPage';
+import SuperadminWithdrawalPage from './pages/superadmin/SuperadminWithdrawalPage';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -54,6 +58,7 @@ export default function App() {
         <Route path="/"          element={<LandingPage />} />
         <Route path="/login"     element={<LoginPage />} />
         <Route path="/register"  element={<RegisterPage />} />
+        <Route path="/organizer-register" element={<OrganizerRegisterPage />} />
 
         {/* Public pages using AppLayout */}
         <Route element={<AppLayout />}>
@@ -78,11 +83,14 @@ export default function App() {
           <Route path="/admin/events/create" element={<AdminEventCreatePage />} />
           <Route path="/admin/events/:id" element={<AdminEventShowPage />} />
           <Route path="/admin/finance"   element={<AdminFinancePage />} />
+          <Route path="/admin/settings"  element={<AdminSettingsPage />} />
           
           {/* Tenant */}
           <Route path="/tenant/dashboard" element={<TenantDashboardPage />} />
           {/* Superadmin */}
           <Route path="/superadmin/dashboard" element={<SuperadminDashboardPage />} />
+          <Route path="/superadmin/verifikasi-organizer" element={<SuperadminOrganizerVerificationPage />} />
+          <Route path="/superadmin/penarikan-dana" element={<SuperadminWithdrawalPage />} />
         </Route>
 
         {/* Fallback */}

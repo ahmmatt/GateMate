@@ -37,7 +37,6 @@ export default function LandingPage() {
             <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
             <div className="hidden md:flex gap-6 ml-8">
               <a className="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Explore</a>
-              <a className="font-body-md text-body-md text-secondary hover:text-primary transition-colors" href="#">Partners</a>
             </div>
           </div>
           <div className="flex items-center gap-4">

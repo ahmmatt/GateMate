@@ -33,17 +33,20 @@ class CheckoutController extends Controller
     public function process(Request $request): JsonResponse
     {
         $request->validate([
-            'event_id' => ['required', 'integer'],
-            'tier_id'  => ['required', 'integer'],
+            'event_id'    => ['required', 'integer'],
+            'tier_id'     => ['required', 'integer'],
+            'seat_number' => ['nullable', 'string'],
         ]);
 
         try {
-            $eventId = $request->event_id;
-            $tierId  = $request->tier_id;
+            $eventId    = $request->event_id;
+            $tierId     = $request->tier_id;
+            $seatNumber = $request->seat_number;
 
             Log::info('=== API CHECKOUT DITEKAN (WALLET) ===', [
-                'event_id' => $eventId,
-                'tier_id'  => $tierId,
+                'event_id'    => $eventId,
+                'tier_id'     => $tierId,
+                'seat_number' => $seatNumber,
             ]);
 
             /** @var \App\Models\User $user */
@@ -77,11 +80,31 @@ class CheckoutController extends Controller
 
             $grossAmount = (float) $tier->price;
 
-            // ── Cek Ketersediaan Kursi ─────────────────────────────────────────
+            // ── Cek Ketersediaan Kursi (Total Tier) ────────────────────────────
             if (!$tier->is_unlimited && $tier->remaining_seats <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Maaf, tiket untuk tier ini sudah habis.',
+                ], 422);
+            }
+
+            // ── Cek Ketersediaan Nomor Kursi Spesifik ──────────────────────────
+            if ($event->seat_assignment === 'pilih' && $seatNumber) {
+                $isSeatTaken = Transaction::where('event_id', $eventId)
+                    ->where('seat_number', $seatNumber)
+                    ->whereIn('payment_status', ['success', 'pending'])
+                    ->exists();
+
+                if ($isSeatTaken) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maaf, kursi ' . $seatNumber . ' sudah dipesan oleh orang lain. Silakan pilih kursi lain.',
+                    ], 422);
+                }
+            } else if ($event->seat_assignment === 'pilih' && !$seatNumber) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Silakan pilih nomor kursi terlebih dahulu.',
                 ], 422);
             }
 
@@ -122,6 +145,7 @@ class CheckoutController extends Controller
                     'user_id'        => $user->id_user,
                     'event_id'       => $event->id_event,
                     'ticket_tier_id' => $tier->id_tier,
+                    'seat_number'    => $seatNumber,
                     'order_id'       => $orderId,
                     'gross_amount'   => $grossAmount,
                     'payment_status' => 'success',

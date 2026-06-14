@@ -109,24 +109,44 @@ class SuperadminController extends Controller
 
     // ── Withdrawal Management ─────────────────────────────────────────────────
 
-    public function pendingWithdrawals(): JsonResponse
+    public function pendingWithdrawals(Request $request): JsonResponse
     {
-        $withdrawals = WalletTransaction::with('user')
-            ->where('type', 'withdrawal')
-            ->where('status', 'pending_superadmin')
-            ->orderByDesc('created_at')
+        $query = WalletTransaction::with(['user.event'])->where('type', 'withdrawal');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->query('status'));
+        }
+
+        $withdrawals = $query->orderByDesc('created_at')
             ->get()
-            ->map(fn ($w) => [
-                'id'             => $w->id,
-                'order_id'       => $w->order_id,
-                'amount'         => (float) $w->amount,
-                'status'         => $w->status,
-                'meta'           => $w->meta,
-                'created_at'     => $w->created_at?->toIso8601String(),
-                'admin_name'     => $w->user?->full_name,
-                'admin_email'    => $w->user?->email,
-                'organization'   => $w->user?->organization_name,
-            ]);
+            ->map(function ($w) {
+                $userRole = $w->user?->role;
+                $eventName = 'Tidak Diketahui';
+
+                if ($userRole === 'admin') {
+                    if (isset($w->meta['is_global_withdrawal']) && $w->meta['is_global_withdrawal']) {
+                        $eventName = 'Semua Event (Global)';
+                    } else if (isset($w->meta['event_name'])) {
+                        $eventName = $w->meta['event_name'];
+                    }
+                } else if ($userRole === 'tenant') {
+                    $eventName = $w->user?->event?->title ?? 'Tidak Diketahui';
+                }
+
+                return [
+                    'id'             => $w->id,
+                    'order_id'       => $w->order_id,
+                    'amount'         => (float) $w->amount,
+                    'status'         => $w->status,
+                    'meta'           => $w->meta,
+                    'created_at'     => $w->created_at?->toIso8601String(),
+                    'user_role'      => $userRole,
+                    'event_name'     => $eventName,
+                    'admin_name'     => $w->user?->full_name,
+                    'admin_email'    => $w->user?->email,
+                    'organization'   => $w->user?->organization_name,
+                ];
+            });
 
         return response()->json([
             'success' => true,

@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'capacity_type',
     'max_capacity',
     'seat_assignment',
+    'seat_numbers',
     'status',
 ])]
 class Event extends Model
@@ -60,6 +61,7 @@ class Event extends Model
             'created_at'       => 'datetime',
             'require_approval' => 'boolean',
             'custom_questions' => 'array',
+            'seat_numbers'     => 'array',
         ];
     }
 

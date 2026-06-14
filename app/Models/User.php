@@ -29,6 +29,17 @@ use Laravel\Sanctum\HasApiTokens;
     'wallet_balance',
     'phone',
     'ktp_document',
+    'organization_type',
+    'organization_description',
+    'organization_website',
+    'organization_instagram',
+    'bank_name',
+    'bank_account_number',
+    'bank_account_name',
+    'notification_prefs',
+    'organization_address',
+    'organization_tiktok',
+    'organization_twitter',
 ])]
 #[Hidden([
     'password',
@@ -60,6 +71,7 @@ class User extends Authenticatable
             'face_verified_at'      => 'datetime',
             'password'              => 'hashed',
             'is_verified_organizer' => 'boolean',
+            'notification_prefs'    => 'array',
         ];
     }
 

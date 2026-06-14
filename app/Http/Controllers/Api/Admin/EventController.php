@@ -94,6 +94,7 @@ class EventController extends Controller
             'capacity_type'    => ['required', 'in:unlimited,limited'],
             'max_capacity'     => ['nullable', 'integer', 'min:1'],
             'seat_assignment'  => ['nullable', 'string', 'in:bebas,pilih'],
+            'seat_numbers'     => ['nullable', 'string'],
             'require_approval' => ['sometimes', 'boolean'],
             'banner_image'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'poster_image'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
@@ -154,6 +155,7 @@ class EventController extends Controller
                                        ? ($validated['max_capacity'] ?? null) : null,
                 'seat_assignment'  => $validated['capacity_type'] === 'limited'
                                        ? ($validated['seat_assignment'] ?? null) : null,
+                'seat_numbers'     => isset($validated['seat_numbers']) ? json_decode($validated['seat_numbers']) : null,
                 'status'           => 'active',
             ]);
 

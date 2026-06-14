@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
+import SuperadminSidebar from '../../layouts/SuperadminSidebar';
 
 export default function SuperadminDashboardPage() {
   const { user, logout } = useAuthStore();
@@ -15,19 +16,65 @@ export default function SuperadminDashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Mock data fetch
-    setTimeout(() => {
+  const fetchData = async () => {
+    try {
+      const [dashRes, wdRes, orgRes] = await Promise.all([
+        api.get('/superadmin/dashboard'),
+        api.get('/superadmin/withdrawals?status=pending_superadmin'),
+        api.get('/superadmin/organizers?pending=true')
+      ]);
+
+      const dashData = dashRes.data.data;
       setData({
-        totalTransactions: 1250,
-        totalWithdrawnSuccess: 145000000,
-        totalActiveUsers: 340,
-        pendingWithdrawals: [{ id: 1, amount: 2500000, user: { full_name: 'Tenant A' }, meta: { event_title: 'Tech Fest', bank_name: 'BCA', account_number: '12345678' }, created_at: new Date().toISOString() }],
-        pendingOrganizers: [{ id: 1, full_name: 'Budi Santoso', email: 'budi@event.com', organization_name: 'Budi Events', phone: '0812345678', profile_image: 'https://ui-avatars.com/api/?name=Budi', ktp_document: 'ktp.pdf' }]
+        totalTransactions: dashData.total_tickets || 0,
+        totalWithdrawnSuccess: dashData.total_revenue || 0,
+        totalActiveUsers: dashData.total_users || 0,
+        pendingWithdrawals: wdRes.data.data || [],
+        pendingOrganizers: orgRes.data.data || []
       });
+    } catch (error) {
+      console.error('Error fetching dashboard data', error);
+      alert('Gagal mengambil data dashboard superadmin');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  const handleApproveOrganizer = async (id) => {
+    try {
+      await api.post(`/superadmin/organizers/${id}/approve`);
+      fetchData();
+      alert('Organizer berhasil disetujui');
+    } catch (err) {
+      alert('Gagal menyetujui organizer: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRejectOrganizer = async (id) => {
+    if(!confirm('Yakin ingin menolak dan menghapus organizer ini?')) return;
+    try {
+      await api.post(`/superadmin/organizers/${id}/reject`);
+      fetchData();
+      alert('Organizer berhasil ditolak');
+    } catch (err) {
+      alert('Gagal menolak organizer: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleExecuteWithdrawal = async (id, amount, bankName, accountNumber) => {
+    if(!confirm(`Eksekusi transfer ${formatRp(amount)} ke ${bankName} ${accountNumber}?`)) return;
+    try {
+      await api.post(`/superadmin/withdrawals/${id}/execute`);
+      fetchData();
+      alert('Withdrawal berhasil dieksekusi');
+    } catch (err) {
+      alert('Gagal mengeksekusi withdrawal: ' + (err.response?.data?.message || err.message));
+    }
+  };
 
   const handleLogout = async () => {
     try { await api.post('/auth/logout'); } catch (_) {}
@@ -47,30 +94,7 @@ export default function SuperadminDashboardPage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface flex" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-[240px] border-r border-outline-variant bg-surface-container-lowest flex flex-col justify-between py-8 z-50">
-        <div className="flex flex-col">
-          <div className="px-6 mb-10">
-            <span className="font-headline-md font-bold text-primary">GateMate</span>
-            <p className="font-label-md text-secondary mt-1">Superadmin</p>
-          </div>
-          <nav className="flex flex-col space-y-1">
-            <Link to="/superadmin/dashboard" className="flex items-center gap-3 px-6 py-3 border-l-4 border-primary bg-surface-container text-primary font-medium transition-colors">
-              <span className="material-symbols-outlined">dashboard</span> <span className="font-body-md">Dashboard</span>
-            </Link>
-            <Link to="/superadmin/dashboard" className="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined">verified_user</span> <span className="font-body-md">Verifikasi Organizer</span>
-            </Link>
-            <Link to="/superadmin/dashboard" className="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined">account_balance_wallet</span> <span className="font-body-md">Penarikan Dana</span>
-            </Link>
-          </nav>
-        </div>
-        <div className="px-6">
-          <button onClick={handleLogout} className="flex items-center justify-center gap-3 text-primary w-full py-3 px-4 border border-primary hover:bg-primary-fixed transition-colors rounded-full font-medium">
-            <span className="material-symbols-outlined">logout</span> <span className="font-body-md">Keluar</span>
-          </button>
-        </div>
-      </aside>
+      <SuperadminSidebar />
 
       {/* Main Content */}
       <div className="ml-[240px] flex-1 flex flex-col">
@@ -151,8 +175,8 @@ export default function SuperadminDashboardPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button className="bg-primary text-white px-4 py-1.5 rounded-full font-bold text-[12px] hover:brightness-110 shadow-sm active:scale-95 transition-all">Approve</button>
-                            <button className="border border-outline-variant text-secondary px-4 py-1.5 rounded-full font-bold text-[12px] hover:bg-surface-container transition-colors">Reject</button>
+                            <button onClick={() => handleApproveOrganizer(org.id)} className="bg-primary text-white px-4 py-1.5 rounded-full font-bold text-[12px] hover:brightness-110 shadow-sm active:scale-95 transition-all">Approve</button>
+                            <button onClick={() => handleRejectOrganizer(org.id)} className="border border-outline-variant text-secondary px-4 py-1.5 rounded-full font-bold text-[12px] hover:bg-surface-container transition-colors">Reject</button>
                           </div>
                         </td>
                       </tr>
@@ -193,16 +217,16 @@ export default function SuperadminDashboardPage() {
                           <div className="text-caption text-secondary">{formatTime(wd.created_at)}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-bold text-body-md text-on-surface">{wd.user.full_name}</div>
-                          <div className="text-caption text-secondary">{wd.meta.event_title}</div>
+                          <div className="font-bold text-body-md text-on-surface">{wd.admin_name || wd.user?.full_name}</div>
+                          <div className="text-caption text-secondary">{wd.meta?.event_title || '-'}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-bold text-body-md text-on-surface">{wd.meta.bank_name}</div>
-                          <div className="text-caption text-secondary">{wd.meta.account_number}</div>
+                          <div className="font-bold text-body-md text-on-surface">{wd.meta?.bank_name || '-'}</div>
+                          <div className="text-caption text-secondary">{wd.meta?.account_number || '-'}</div>
                         </td>
                         <td className="px-6 py-4 text-primary font-bold text-[16px]">{formatRp(wd.amount)}</td>
                         <td className="px-6 py-4 text-right">
-                          <button onClick={() => confirm(`Eksekusi transfer ${formatRp(wd.amount)} ke ${wd.meta.bank_name} ${wd.meta.account_number}?`)} className="bg-primary text-white px-4 py-2 rounded-full font-bold text-label-md flex items-center justify-center gap-1.5 ml-auto hover:brightness-110 shadow-sm active:scale-95 transition-all">
+                          <button onClick={() => handleExecuteWithdrawal(wd.id, wd.amount, wd.meta?.bank_name, wd.meta?.account_number)} className="bg-primary text-white px-4 py-2 rounded-full font-bold text-label-md flex items-center justify-center gap-1.5 ml-auto hover:brightness-110 shadow-sm active:scale-95 transition-all">
                             <span className="material-symbols-outlined text-[16px]">payments</span> Eksekusi
                           </button>
                         </td>

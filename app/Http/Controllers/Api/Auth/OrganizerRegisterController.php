@@ -32,7 +32,7 @@ class OrganizerRegisterController extends Controller
             'password'          => ['required', 'string', 'min:8', 'confirmed'],
             'organization_name' => ['required', 'string', 'max:255'],
             'phone'             => ['required', 'string', 'max:20'],
-            'ktp_document'      => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'ktp_document'      => ['required', 'file', 'mimes:zip', 'max:10240'],
             'ig_handle'         => ['required', 'string', 'max:255', 'regex:/^@?[\w.]+$/'],
             'tiktok_handle'     => ['required', 'string', 'max:255', 'regex:/^@?[\w.]+$/'],
         ], [
@@ -44,8 +44,8 @@ class OrganizerRegisterController extends Controller
             'organization_name.required' => 'Nama organisasi wajib diisi.',
             'phone.required'             => 'Nomor telepon wajib diisi.',
             'ktp_document.required'      => 'Dokumen KTP/Legalitas wajib diunggah.',
-            'ktp_document.mimes'         => 'Format file harus JPG, PNG, atau PDF.',
-            'ktp_document.max'           => 'Ukuran maksimal file 2MB.',
+            'ktp_document.mimes'         => 'Satukan semua file dalam bentuk ekstensi .zip',
+            'ktp_document.max'           => 'Ukuran maksimal file ZIP 10MB.',
             'ig_handle.regex'            => 'Format handle Instagram tidak valid.',
             'tiktok_handle.regex'        => 'Format handle TikTok tidak valid.',
         ]);
