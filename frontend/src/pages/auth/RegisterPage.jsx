@@ -1,10 +1,21 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ full_name: '', email: '', gender: '', password: '', password_confirmation: '' });
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const emailParam = searchParams.get('email');
+  const nameParam = searchParams.get('name');
+
+  const [form, setForm] = useState({ 
+    full_name: nameParam || '', 
+    email: emailParam || location.state?.email || '', 
+    gender: '', 
+    password: '', 
+    password_confirmation: '' 
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);

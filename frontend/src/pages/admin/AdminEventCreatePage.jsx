@@ -7,7 +7,8 @@ export default function AdminEventCreatePage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // Keep for backward compatibility if needed
+  const [statusModal, setStatusModal] = useState({ show: false, type: '', message: '' });
   const [activeTab, setActiveTab] = useState('tab-info');
 
   const [formData, setFormData] = useState({
@@ -26,6 +27,22 @@ export default function AdminEventCreatePage() {
   const [seatPrefix, setSeatPrefix] = useState('');
   const [seatStart, setSeatStart] = useState('');
   const [seatEnd, setSeatEnd] = useState('');
+
+  // Custom Questions State
+  const [customQuestions, setCustomQuestions] = useState([]);
+  const [newQuestion, setNewQuestion] = useState('');
+
+  const handleAddQuestion = () => {
+    if (newQuestion.trim()) {
+      setCustomQuestions(prev => [...prev, newQuestion.trim()]);
+      setNewQuestion('');
+    }
+  };
+
+  const handleRemoveQuestion = (idx) => {
+    setCustomQuestions(prev => prev.filter((_, i) => i !== idx));
+  };
+
 
   const generateSeats = () => {
     if (!seatPrefix || !seatStart || !seatEnd) {
@@ -78,7 +95,9 @@ export default function AdminEventCreatePage() {
 
     const payload = new FormData();
     Object.keys(formData).forEach(key => {
-      if (formData[key] !== '' || typeof formData[key] === 'boolean') {
+      if (typeof formData[key] === 'boolean') {
+        payload.append(key, formData[key] ? 1 : 0);
+      } else if (formData[key] !== '') {
         payload.append(key, formData[key]);
       }
     });
@@ -88,14 +107,29 @@ export default function AdminEventCreatePage() {
       payload.append('seat_numbers', JSON.stringify(seatNumbers));
     }
 
+    if (customQuestions.length > 0) {
+      customQuestions.forEach(q => {
+        payload.append('custom_questions[]', q);
+      });
+    }
+
     try {
       const res = await api.post('/admin/events', payload, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      alert('Event berhasil dibuat!');
-      navigate(`/admin/events/${res.data.data.id_event}`);
+      setStatusModal({ show: true, type: 'success', message: 'Event berhasil dipublikasikan!' });
+      setTimeout(() => {
+        navigate(`/admin/events/${res.data.data.id_event}`);
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal membuat event. Periksa kembali input Anda.');
+      let errMsg = 'Gagal membuat event. Periksa kembali input Anda.';
+      if (err.response?.data?.errors) {
+        // Extract the first validation error message
+        errMsg = Object.values(err.response.data.errors)[0][0];
+      } else if (err.response?.data?.message) {
+        errMsg = err.response.data.message;
+      }
+      setStatusModal({ show: true, type: 'error', message: errMsg });
     } finally {
       setLoading(false);
     }
@@ -197,15 +231,6 @@ export default function AdminEventCreatePage() {
       {/* Main Content */}
       <main className="pt-20 pb-24 md:ml-sidebar-width min-h-screen">
         <form onSubmit={handleSubmit} className="w-full">
-          {error && (
-            <div className="max-w-[800px] mx-auto px-gutter mb-4">
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                <strong className="font-bold">Oops! </strong>
-                <span className="block sm:inline">{error}</span>
-              </div>
-            </div>
-          )}
-
           <div className="max-w-[800px] mx-auto px-gutter py-stack-lg">
             {/* Step Navigation */}
             <div className="mb-stack-lg flex overflow-x-auto no-scrollbar gap-stack-lg border-b border-outline-variant">
@@ -420,6 +445,42 @@ export default function AdminEventCreatePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-lg animate-fade-in">
                 <section className="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-lg">
                   <div className="flex items-center gap-2 mb-4">
+                    <span className="material-symbols-outlined text-primary">quiz</span>
+                    <h3 className="font-h3 text-h3">Pertanyaan Tambahan</h3>
+                  </div>
+                  <p className="font-caption text-secondary mb-4">Buat pertanyaan kustom yang wajib diisi oleh peserta sebelum mereka dapat membeli tiket. Anda dapat memanfaatkannya untuk kebutuhan survei, profil data, atau riset internal.</p>
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={newQuestion} 
+                        onChange={(e) => setNewQuestion(e.target.value)} 
+                        placeholder="Contoh: Darimana Anda mengetahui acara ini?" 
+                        className="flex-1 bg-surface-container-low border-[0.5px] border-outline-variant rounded px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddQuestion(); } }}
+                      />
+                      <button type="button" onClick={handleAddQuestion} className="bg-primary text-on-primary px-4 py-2 rounded font-bold hover:opacity-90 transition-opacity">
+                        Tambah
+                      </button>
+                    </div>
+
+                    {customQuestions.length > 0 && (
+                      <div className="mt-4 border border-outline-variant rounded-lg divide-y divide-outline-variant bg-surface-container-lowest">
+                        {customQuestions.map((q, idx) => (
+                          <div key={idx} className="p-3 flex justify-between items-center group">
+                            <span className="font-body-sm text-on-surface">{q}</span>
+                            <button type="button" onClick={() => handleRemoveQuestion(idx)} className="text-secondary opacity-0 group-hover:opacity-100 transition-opacity hover:text-error">
+                              <span className="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                <section className="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-lg">
+                  <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-primary">admin_panel_settings</span>
                     <h3 className="font-h3 text-h3">Privasi & Izin</h3>
                   </div>
@@ -454,6 +515,51 @@ export default function AdminEventCreatePage() {
         </form>
       </main>
       
+      {/* Status Modal (Success / Error) */}
+      {statusModal.show && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+          <div 
+            className="bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden flex flex-col items-center text-center p-8 transition-transform duration-300 transform scale-100"
+            style={{ animation: 'popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+          >
+            <style>{`
+              @keyframes popIn {
+                0% { opacity: 0; transform: scale(0.9); }
+                100% { opacity: 1; transform: scale(1); }
+              }
+            `}</style>
+            
+            {statusModal.type === 'success' ? (
+              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <span className="material-symbols-outlined text-[40px]">check_circle</span>
+              </div>
+            ) : (
+              <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <span className="material-symbols-outlined text-[40px]">error</span>
+              </div>
+            )}
+            
+            <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">
+              {statusModal.type === 'success' ? 'Berhasil!' : 'Oops, Gagal'}
+            </h2>
+            <p className="text-on-surface-variant font-body-md mb-8">
+              {statusModal.message}
+            </p>
+            
+            {statusModal.type === 'error' && (
+              <div className="w-full flex flex-col gap-3">
+                <button 
+                  onClick={() => setStatusModal({ show: false, type: '', message: '' })} 
+                  className="w-full py-3 bg-[#F5F5F7] text-on-surface rounded-[22px] font-bold hover:bg-[#EBEBEB] active:scale-95 transition-all"
+                >
+                  Tutup & Perbaiki
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Seat Config Modal */}
       {seatModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-on-background/40 backdrop-blur-[2px] p-4">

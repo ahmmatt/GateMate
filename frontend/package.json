@@ -14,8 +14,10 @@
     "dayjs": "^1.11.21",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.17.0",
+    "maplibre-gl": "^5.24.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-map-gl": "^8.1.1",
     "react-router-dom": "^7.17.0",
     "zustand": "^5.0.14"
   },

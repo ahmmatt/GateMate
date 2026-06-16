@@ -24,7 +24,7 @@ class EventController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Event::with('ticketTiers')
+        $query = Event::with(['ticketTiers', 'admin'])
             ->where('status', 'active')
             ->whereDate('end_date', '>=', now()->toDateString());
 
@@ -56,7 +56,7 @@ class EventController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $event = Event::with('ticketTiers')
+        $event = Event::with(['ticketTiers', 'admin'])
             ->where('status', 'active')
             ->findOrFail($id);
 

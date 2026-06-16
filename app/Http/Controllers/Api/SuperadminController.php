@@ -257,14 +257,24 @@ class SuperadminController extends Controller
             ], 422);
         }
 
+        // Generate password baru
+        $rawPassword = \Illuminate\Support\Str::random(10);
+        $organizer->password = \Illuminate\Support\Facades\Hash::make($rawPassword);
         $organizer->is_verified_organizer = true;
         $organizer->save();
+
+        // Kirim email notifikasi yang berisi email dan password
+        try {
+            \Illuminate\Support\Facades\Mail::to($organizer->email)->send(new \App\Mail\OrganizerApprovedMail($organizer, $rawPassword));
+        } catch (\Exception $e) {
+            Log::error('Gagal mengirim email approve organizer: ' . $e->getMessage());
+        }
 
         Log::info('Superadmin approved organizer', ['organizer_id' => $organizer->id_user]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Organizer "' . $organizer->organization_name . '" berhasil disetujui!',
+            'message' => 'Organizer "' . $organizer->organization_name . '" berhasil disetujui! Email berisi password telah dikirimkan ke calon organizer.',
         ]);
     }
 

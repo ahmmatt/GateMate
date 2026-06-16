@@ -673,10 +673,16 @@ class EventController extends Controller
         $event = Event::where('id_admin', Auth::id())->findOrFail($eventId);
         $transaction = Transaction::where('event_id', $event->id_event)->findOrFail($transactionId);
 
+        $isUsedNow = !$transaction->is_used;
+
         $transaction->update([
-            'is_used'    => !$transaction->is_used,
-            'scanned_at' => !$transaction->is_used ? now() : null,
+            'is_used'    => $isUsedNow,
+            'scanned_at' => $isUsedNow ? now() : null,
         ]);
+
+        // Sync dengan tabel attendees
+        \App\Models\Attendee::where('ticket_code', $transaction->order_id)
+            ->update(['status' => $isUsedNow ? 'checked_in' : 'approved']);
 
         return response()->json([
             'success' => true,

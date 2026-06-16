@@ -81,15 +81,7 @@ class ScannerController extends Controller
             ]);
         }
 
-        // 5. Check-in: update is_used dan scanned_at
-        $now = now();
-        $transaction->update([
-            'is_used'    => true,
-            'scanned_at' => $now,
-        ]);
-
-        $scannedAtFormatted = $now->translatedFormat('d F Y, H:i') . ' WIB';
-
+        // 5. Kembalikan data untuk direview admin sebelum check-in (2-step)
         $profilePictureUrl = !empty($transaction->user->profile_picture)
             ? asset('Media/uploads/' . $transaction->user->profile_picture)
             : 'https://ui-avatars.com/api/?name=' . urlencode($transaction->user->full_name ?? 'User')
@@ -97,7 +89,7 @@ class ScannerController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Check-in berhasil! Peserta diperbolehkan masuk.',
+            'message' => 'Tiket valid. Menunggu konfirmasi check-in.',
             'data'    => [
                 'order_id'            => $transaction->order_id,
                 'holder_name'         => $transaction->user->full_name ?? '—',
@@ -106,8 +98,8 @@ class ScannerController extends Controller
                 'profile_picture_url' => $profilePictureUrl,
                 'event_name'          => $transaction->event->title ?? '—',
                 'tier_name'           => $transaction->ticketTier->tier_name ?? '—',
+                'seat_number'         => $transaction->seat_number ?? 'Tidak ada kursi',
                 'gross_amount'        => 'Rp ' . number_format($transaction->gross_amount, 0, ',', '.'),
-                'scanned_at'          => $scannedAtFormatted,
             ],
         ]);
     }
@@ -133,11 +125,17 @@ class ScannerController extends Controller
             return response()->json(['success' => false, 'message' => 'Tiket sudah digunakan.'], 409);
         }
 
-        $transaction->update(['is_used' => true, 'scanned_at' => now()]);
+        $now = now();
+        $transaction->update(['is_used' => true, 'scanned_at' => $now]);
+
+        // Update status di tabel attendees menjadi 'checked_in'
+        \App\Models\Attendee::where('ticket_code', $transaction->order_id)
+            ->update(['status' => 'checked_in']);
 
         return response()->json([
             'success' => true,
-            'message' => 'Check-in diapprove.',
+            'message' => 'Check-in berhasil! Peserta diperbolehkan masuk.',
+            'scanned_at' => $now->translatedFormat('d F Y, H:i') . ' WIB',
         ]);
     }
 }

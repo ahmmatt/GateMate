@@ -19,8 +19,12 @@ export default function ProfilePage() {
       <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface mb-8">Profil Saya</h1>
 
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 flex flex-col items-center gap-6 shadow-sm">
-        <div className="w-24 h-24 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-[36px] font-bold">
-          {userInitial}
+        <div className="w-40 h-40 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-[64px] font-bold overflow-hidden border-4 border-white shadow-md">
+          {user?.profile_picture_url ? (
+            <img src={user.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            userInitial
+          )}
         </div>
         
         <div className="text-center">

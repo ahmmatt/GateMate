@@ -152,6 +152,16 @@ class CheckoutController extends Controller
                     'snap_token'     => null,
                 ]);
 
+                // 2.5 Buat Attendee record
+                \App\Models\Attendee::create([
+                    'id_user'     => $user->id_user,
+                    'id_event'    => $event->id_event,
+                    'id_tier'     => $tier->id_tier,
+                    'ticket_code' => $orderId,
+                    'qr_token'    => \Illuminate\Support\Str::random(40),
+                    'status'      => 'approved',
+                ]);
+
                 // 3. Catat histori pengeluaran di wallet transaction
                 WalletTransaction::create([
                     'user_id'  => $user->id_user,

@@ -11,8 +11,10 @@ export default function AdminScannerPage() {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [manualTicketId, setManualTicketId] = useState('');
   const scannerRef = useRef(null);
+  const processingRef = useRef(false);
 
   // Recent activity mock or state
   const [recentLogs, setRecentLogs] = useState([]);
@@ -33,8 +35,8 @@ export default function AdminScannerPage() {
       
       if (res.data.success) {
         const data = res.data.data;
-        setScanResult({ type: 'success', data });
-        addLog({ name: data.holder_name || 'Guest', status: 'Approved', type: 'success' });
+        // Data diverifikasi tapi belum di-approve (2-step)
+        setScanResult({ type: 'pending_approval', data });
       } else {
         const message = res.data.message || 'Tiket tidak valid';
         setScanResult({ type: 'error', message, details: res.data.scanned_at ? `Di-scan pada: ${res.data.scanned_at}` : '' });
@@ -44,6 +46,24 @@ export default function AdminScannerPage() {
       const message = err.response?.data?.message || 'Terjadi kesalahan sistem / rute tidak ditemukan';
       setScanResult({ type: 'error', message });
       addLog({ name: qrCode || 'Manual ID', status: 'Error', type: 'error' });
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!scanResult || scanResult.type !== 'pending_approval') return;
+    setIsApproving(true);
+    try {
+      const res = await api.post('/admin/scanner/approve', { order_id: scanResult.data.order_id });
+      if (res.data.success) {
+        setScanResult(prev => ({ type: 'success', data: { ...prev.data, scanned_at: res.data.scanned_at } }));
+        addLog({ name: scanResult.data.holder_name || 'Guest', status: 'Checked In', type: 'success' });
+      } else {
+        setScanResult({ type: 'error', message: res.data.message });
+      }
+    } catch (err) {
+      setScanResult({ type: 'error', message: err.response?.data?.message || 'Gagal approve check-in' });
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -68,8 +88,14 @@ export default function AdminScannerPage() {
           { facingMode: "environment" },
           { fps: 10 },
           async (decodedText) => {
-            await handleScan(decodedText);
+            if (processingRef.current) return;
+            processingRef.current = true;
+            
+            // Hentikan scanner terlebih dahulu sebelum proses API agar tidak double-request
             stopScanner();
+            await handleScan(decodedText);
+            
+            processingRef.current = false;
           },
           (error) => {}
         );
@@ -90,12 +116,18 @@ export default function AdminScannerPage() {
     }
   };
 
-  const handleManualEntry = (e) => {
+  const handleManualEntry = async (e) => {
     e.preventDefault();
     if (!selectedEventId) { alert('Pilih event terlebih dahulu'); return; }
     if (!manualTicketId) return;
-    handleScan(manualTicketId);
+    
+    if (processingRef.current) return;
+    processingRef.current = true;
+    
+    await handleScan(manualTicketId);
     setManualTicketId('');
+    
+    processingRef.current = false;
   };
 
   const timeAgo = (date) => {
@@ -315,19 +347,25 @@ export default function AdminScannerPage() {
                       <span className="material-symbols-outlined text-[64px] mb-4">document_scanner</span>
                       <p className="text-body-lg font-medium">Menunggu hasil scan...</p>
                     </div>
-                  ) : scanResult.type === 'success' ? (
+                  ) : (scanResult.type === 'pending_approval' || scanResult.type === 'success') ? (
                     <>
                       {/* Attendee Profile */}
                       <div className="flex flex-col items-center mb-6 animate-in zoom-in duration-300">
                         <div className="relative mb-4">
                           <div className="w-32 h-32 rounded-xl overflow-hidden border-2 border-primary bg-surface-container flex items-center justify-center text-primary text-[48px] font-bold">
-                            {(scanResult.data.buyer_name || 'G').charAt(0).toUpperCase()}
+                            {scanResult.data.profile_picture_url ? (
+                                <img src={scanResult.data.profile_picture_url} className="w-full h-full object-cover" alt="Profile" />
+                            ) : (
+                                (scanResult.data.holder_name || 'G').charAt(0).toUpperCase()
+                            )}
                           </div>
-                          <div className="absolute -bottom-2 -right-2 bg-[#2E7D32] text-white w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest">
-                            <span className="material-symbols-outlined text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
-                          </div>
+                          {scanResult.type === 'success' && (
+                            <div className="absolute -bottom-2 -right-2 bg-[#2E7D32] text-white w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest animate-bounce">
+                              <span className="material-symbols-outlined text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                            </div>
+                          )}
                         </div>
-                        <h2 className="text-[24px] text-on-surface font-black leading-8">{scanResult.data.buyer_name}</h2>
+                        <h2 className="text-[24px] text-on-surface font-black leading-8">{scanResult.data.holder_name}</h2>
                         <div className="mt-2 inline-flex items-center px-3 py-1 bg-primary/10 text-primary rounded-full">
                           <span className="material-symbols-outlined text-[14px] mr-1" style={{fontVariationSettings: "'FILL' 1"}}>stars</span>
                           <span className="text-[11px] font-bold uppercase tracking-wider">{scanResult.data.tier_name}</span>
@@ -335,29 +373,65 @@ export default function AdminScannerPage() {
                       </div>
 
                       {/* Ticket Details */}
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6 flex-grow">
                         <div className="flex justify-between items-center py-3 border-b border-outline-variant">
                           <span className="text-[12px] font-medium text-secondary">ID Transaksi</span>
-                          <span className="text-[12px] font-bold text-on-surface">{scanResult.data.transaction_id || '#'}</span>
+                          <span className="text-[12px] font-bold text-on-surface">{scanResult.data.order_id || '#'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                          <span className="text-[12px] font-medium text-secondary">Nomor Kursi</span>
+                          <span className="text-[12px] font-bold text-on-surface">{scanResult.data.seat_number || 'Tidak ada kursi'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                          <span className="text-[12px] font-medium text-secondary">Jenis Kelamin</span>
+                          <span className="text-[12px] font-bold text-on-surface capitalize">{scanResult.data.holder_gender || '—'}</span>
                         </div>
                         
                         {/* Status Check */}
-                        <div className="bg-surface-container-low p-4 rounded-lg border-[0.5px] border-outline-variant">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2 text-[#2E7D32]">
-                              <span className="material-symbols-outlined">verified_user</span>
-                              <span className="text-[12px] font-bold">Tiket Valid</span>
+                        {scanResult.type === 'success' ? (
+                          <div className="bg-[#2E7D32]/10 p-4 rounded-lg border-[0.5px] border-[#2E7D32]/30 mt-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-[#2E7D32]">
+                                <span className="material-symbols-outlined">verified_user</span>
+                                <span className="text-[12px] font-bold">Check-in Berhasil</span>
+                              </div>
+                              <span className="text-[11px] font-black text-[#2E7D32]">Tervalidasi</span>
                             </div>
-                            <span className="text-[11px] font-black text-tertiary">Verified</span>
+                            <p className="text-[11px] text-secondary">Peserta diperbolehkan masuk. Waktu scan: {scanResult.data.scanned_at}</p>
                           </div>
-                          <p className="text-[11px] text-secondary">Check-in berhasil. Sistem telah mencatat kehadiran peserta pada event ini.</p>
-                        </div>
+                        ) : (
+                          <div className="bg-surface-container-low p-4 rounded-lg border-[0.5px] border-outline-variant mt-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-primary">
+                                <span className="material-symbols-outlined">info</span>
+                                <span className="text-[12px] font-bold">Tiket Valid</span>
+                              </div>
+                              <span className="text-[11px] font-black text-tertiary">Menunggu Konfirmasi</span>
+                            </div>
+                            <p className="text-[11px] text-secondary">Pastikan wajah peserta sesuai dengan foto profil di atas sebelum melakukan konfirmasi Check-In.</p>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="mt-auto">
-                        <button onClick={() => setScanResult(null)} className="w-full bg-primary text-white py-4 rounded-xl text-[20px] font-black hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
-                          Scan Berikutnya
-                        </button>
+                      <div className="mt-auto flex flex-col gap-3">
+                        {scanResult.type === 'pending_approval' ? (
+                          <>
+                            <button 
+                              onClick={handleApprove} 
+                              disabled={isApproving}
+                              className="w-full bg-[#2E7D32] text-white py-4 rounded-xl text-[18px] font-black hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70"
+                            >
+                              {isApproving ? 'Memproses...' : 'Konfirmasi Check-In'}
+                            </button>
+                            <button onClick={() => setScanResult(null)} className="w-full bg-surface-container-high text-on-surface py-3 rounded-xl text-[16px] font-bold hover:bg-surface-container-highest transition-colors">
+                              Batalkan
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={() => setScanResult(null)} className="w-full bg-primary text-white py-4 rounded-xl text-[20px] font-black hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+                            Scan Berikutnya
+                          </button>
+                        )}
                       </div>
                     </>
                   ) : scanResult.type === 'error' ? (

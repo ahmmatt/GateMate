@@ -179,21 +179,6 @@ export default function WalletPage() {
               <p className="font-label-md text-label-md opacity-80 uppercase tracking-wider mb-2">Total Saldo</p>
               <h1 className="font-headline-lg text-headline-lg font-bold">{formatRp(walletData?.wallet_balance)}</h1>
             </div>
-            <div className="flex z-10">
-              <button onClick={() => setShowTopup(true)} className="bg-white font-label-md text-label-md font-bold active:scale-95 transition-all hover:bg-surface-container-low" style={{ color: '#F04E37', padding: '10px 22px', borderRadius: '22px' }}>
-                Top Up
-              </button>
-            </div>
-          </div>
-
-          {/* Action Row */}
-          <div className="flex gap-4">
-            <button onClick={() => setShowTopup(true)} className="flex-1 flex items-center justify-center gap-2 font-label-md text-label-md font-bold hover:bg-surface-container-low transition-all active:scale-95" style={{ border: '1px solid #F04E37', color: '#F04E37', borderRadius: '22px', padding: '10px 22px' }}>
-              <span className="material-symbols-outlined text-[20px]">add_circle</span> Top Up
-            </button>
-            <button onClick={() => setShowScanModal(true)} className="flex-1 flex items-center justify-center gap-2 font-label-md text-label-md font-bold hover:bg-surface-container-low transition-all active:scale-95" style={{ border: '1px solid #F04E37', color: '#F04E37', borderRadius: '22px', padding: '10px 22px' }}>
-              <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span> Scan QR / Bayar
-            </button>
           </div>
 
           {/* Transaction History */}
@@ -239,18 +224,35 @@ export default function WalletPage() {
             </div>
           </div>
 
-          {/* Quick Settings */}
+          {/* Quick Actions (Replacing Quick Settings) */}
           <div className="bg-surface-container-lowest rounded-[14px] border border-[#EBEBEB] p-6 flex flex-col gap-4">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Pengaturan Wallet</h3>
-            {[{ icon: 'credit_card', label: 'Metode Pembayaran' }, { icon: 'lock', label: 'Ubah PIN Wallet' }, { icon: 'notifications', label: 'Notifikasi Transaksi' }].map(({ icon, label }) => (
-              <button key={label} className="flex items-center justify-between w-full py-3 text-left hover:bg-[#F9F9F9] transition-colors rounded-lg px-2 -mx-2 group">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-secondary group-hover:text-primary transition-colors">{icon}</span>
-                  <span className="font-body-md text-body-md text-on-surface">{label}</span>
+            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Aksi Cepat</h3>
+            
+            <button onClick={() => setShowTopup(true)} className="flex items-center justify-between w-full py-4 text-left hover:bg-[#FFF0EE] transition-colors rounded-[12px] px-4 -mx-2 group border border-transparent hover:border-[#F9DCD7]">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#FFF0EE] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#F04E37]">add_card</span>
                 </div>
-                <span className="material-symbols-outlined text-secondary text-[18px]">chevron_right</span>
-              </button>
-            ))}
+                <div>
+                  <span className="block font-body-lg text-body-lg font-bold text-on-surface">Top Up Saldo</span>
+                  <span className="block font-caption text-caption text-secondary">Isi ulang wallet via Midtrans</span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-secondary text-[20px] group-hover:text-[#F04E37] transition-colors">chevron_right</span>
+            </button>
+
+            <button onClick={() => setShowScanModal(true)} className="flex items-center justify-between w-full py-4 text-left hover:bg-[#FFF0EE] transition-colors rounded-[12px] px-4 -mx-2 group border border-transparent hover:border-[#F9DCD7]">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#FFF0EE] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#F04E37]">qr_code_scanner</span>
+                </div>
+                <div>
+                  <span className="block font-body-lg text-body-lg font-bold text-on-surface">Scan QR / Bayar</span>
+                  <span className="block font-caption text-caption text-secondary">Bayar tenant dengan mudah</span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-secondary text-[20px] group-hover:text-[#F04E37] transition-colors">chevron_right</span>
+            </button>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import LandingPage    from './pages/LandingPage';
 import LoginPage      from './pages/auth/LoginPage';
 import RegisterPage   from './pages/auth/RegisterPage';
 import OrganizerRegisterPage from './pages/auth/OrganizerRegisterPage';
+import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
 
 // AppLayout (shared nav/footer)
 import AppLayout      from './layouts/AppLayout';
@@ -16,6 +17,7 @@ import WalletPage     from './pages/WalletPage';
 import ProfilePage    from './pages/ProfilePage';
 import ETicketPage    from './pages/ETicketPage';
 import EventDetailPage from './pages/EventDetailPage';
+import ChatPage       from './pages/ChatPage';
 
 // Admin / Tenant / Superadmin (Stand-alone Layouts built into the pages)
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -59,6 +61,7 @@ export default function App() {
         <Route path="/login"     element={<LoginPage />} />
         <Route path="/register"  element={<RegisterPage />} />
         <Route path="/organizer-register" element={<OrganizerRegisterPage />} />
+        <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
         {/* Public pages using AppLayout */}
         <Route element={<AppLayout />}>
@@ -72,6 +75,8 @@ export default function App() {
           <Route path="/profile"   element={<ProfilePage />} />
           <Route path="/tickets/:id" element={<ETicketPage />} />
           <Route path="/events/:id"  element={<EventDetailPage />} />
+          <Route path="/chat"        element={<ChatPage />} />
+          <Route path="/chat/:id"    element={<ChatPage />} />
         </Route>
 
         {/* Protected Pages with their OWN built-in layouts (Sidebar) */}

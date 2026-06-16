@@ -34,8 +34,77 @@ export default function LoginPage() {
     }
   };
 
+  const handleSocialLogin = async (provider) => {
+    if (provider === 'Google') {
+      const apiUrl = api.defaults.baseURL.replace(/\/api$/, '');
+      window.location.href = `${apiUrl}/api/auth/google/redirect`;
+      return;
+    }
+    
+    // Fallback Apple simulation (karena Apple perlu konfigurasi developer khusus)
+    const emailPrompt = window.prompt(`[Simulasi Login ${provider}]\nKarena mode OAuth sungguhan membutuhkan kredensial cloud, masukkan email Anda untuk melanjutkan simulasi:`);
+    if (!emailPrompt) return;
+
+    setLoading(true);
+    setError('');
+    try {
+      const response = await api.post('/auth/social-login', { email: emailPrompt, provider });
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+        setAuth(user, token);
+        if (user.role === 'user') navigate('/discover');
+        else if (user.role === 'admin') navigate('/admin/dashboard');
+        else if (user.role === 'tenant') navigate('/tenant/dashboard');
+        else if (user.role === 'superadmin') navigate('/superadmin/dashboard');
+        else navigate('/');
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        // Redirect ke register dengan membawa email
+        navigate('/register', { state: { email: err.response.data.data.email } });
+      } else {
+        setError(err.response?.data?.message || `Gagal login dengan ${provider}.`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cek apakah ada error dari redirect
+  const searchParams = new URLSearchParams(window.location.search);
+  const urlError = searchParams.get('error');
+
   return (
-    <div className="bg-background text-on-background min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="bg-background text-on-background min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif", WebkitFontSmoothing: 'antialiased' }}>
+      <style>
+        {`
+          .glass-card {
+              background: rgba(255, 255, 255, 0.8);
+              backdrop-filter: blur(12px);
+              -webkit-backdrop-filter: blur(12px);
+              border: 0.5px solid #EBEBEB;
+          }
+          .coral-pill-primary {
+              background-color: #F04E37;
+              border-radius: 22px;
+              padding: 10px 22px;
+              color: white;
+              transition: opacity 0.2s;
+          }
+          .coral-pill-primary:active { opacity: 0.8; }
+          .input-base {
+              background-color: #F5F5F7;
+              border: 1px solid #EBEBEB;
+              border-radius: 10px;
+              transition: border-color 0.2s;
+          }
+          .input-base:focus {
+              outline: none;
+              border-color: #F04E37;
+              box-shadow: none;
+          }
+        `}
+      </style>
 
       {/* TopNavBar */}
       <header className="w-full top-0 sticky bg-surface/80 backdrop-blur-md border-b border-outline-variant z-50">
@@ -43,10 +112,9 @@ export default function LoginPage() {
           <div className="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">
             GateMate
           </div>
+          <div className="hidden md:flex gap-gap-default"></div>
           <div className="flex items-center gap-4">
-            <Link to="/register" className="font-body-md text-body-md text-primary font-bold">
-              Daftar Sekarang
-            </Link>
+            <Link to="/register" className="font-body-md text-body-md text-primary font-bold">Daftar Sekarang</Link>
           </div>
         </nav>
       </header>
@@ -54,11 +122,11 @@ export default function LoginPage() {
       {/* Main Content: Center Split Layout */}
       <main className="flex-grow flex items-center justify-center relative overflow-hidden px-4 py-12">
         {/* Atmospheric Background Elements */}
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[100px]" />
-
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[100px]"></div>
+        
         <div className="w-full max-w-[1100px] grid md:grid-cols-2 items-center gap-12 relative z-10">
-
+          
           {/* Left Side: Branding/Visual */}
           <div className="hidden md:flex flex-col gap-6">
             <div className="space-y-4">
@@ -70,101 +138,86 @@ export default function LoginPage() {
               </p>
             </div>
             <div className="relative w-full aspect-square max-w-[400px] rounded-[32px] overflow-hidden border border-outline-variant shadow-sm">
-              <img
-                className="w-full h-full object-cover"
-                alt="GateMate Branding"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM"
-              />
+              <img className="w-full h-full object-cover" alt="Illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM" />
             </div>
           </div>
 
           {/* Right Side: Login Card */}
           <div className="flex justify-center md:justify-end">
-            <div className="w-full max-w-[440px] p-8 md:p-10 rounded-[28px] shadow-sm"
-              style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '0.5px solid #EBEBEB' }}>
-
+            <div className="glass-card w-full max-w-[440px] p-8 md:p-10 rounded-[28px] shadow-sm">
               <div className="mb-8">
                 <h2 className="font-headline-md text-headline-md text-on-surface mb-2">Selamat Datang Kembali</h2>
                 <p className="font-body-md text-body-md text-on-surface-variant">Masuk ke akun Anda untuk mengelola tiket dan networking.</p>
               </div>
 
               {/* Error Message */}
-              {error && (
+              {(error || urlError) && (
                 <div className="mb-6 bg-error-container border border-error text-on-error-container px-4 py-3 rounded-lg flex items-center gap-2 font-body-md text-body-md shadow-sm">
                   <span className="material-symbols-outlined">error</span>
-                  <span>{error}</span>
+                  <span>{error || urlError}</span>
                 </div>
               )}
 
               {/* Social Login */}
               <div className="grid grid-cols-2 gap-4 mb-8">
-                <a href="#" className="flex items-center justify-center gap-2 py-3 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors active:scale-95">
-                  <img alt="Google" className="w-5 h-5" src="data:image/png;base64,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" />
+                <button onClick={(e) => { e.preventDefault(); handleSocialLogin('Google'); }} className="flex items-center justify-center gap-2 py-3 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors active:scale-95">
+                  <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                  </svg>
                   <span className="font-label-md text-label-md text-on-surface">Google</span>
-                </a>
-                <a href="#" className="flex items-center justify-center gap-2 py-3 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors active:scale-95">
-                  <img alt="Apple" className="w-5 h-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADhklEQVR4AdSZWahNURzGd5TMU0jmEBKZiowpT4ryoBDxgAdTeCISmfKgCCWFEkkpRKHEiyeernnI8GBOJIQMhd93b/t2Wu2z91nD3qer77fX2nuv9V//79xjn73WahQ18H9FG+jC57URxkEQFWlgLRk/g3XQGIKoCAOdyfQabIZmID3UIQR5G+hFkrdgNMR6QuUDBFGeBpqT4RnQX4CiXifqawEqeRrYSX6DwNR+84LPeV4GepPUfDB1kAvPIZjyMrCQDM3YSnwl14PKHCQp+HQungY9Av9RvoOroMdiV8okTUy42Idrr+AuHIE50Bq8lGZgCZHfw3GYCkqAItJ/yjFU9Fh8TXkDtsAsmAZroB8kSQkP5sZsOAxvYRs0BSclGehAJCW1h7ITZGkkDZT0UcqTIDPtKStRCxqtAv1OUNjLNKCEawijpCgKk/6aToOZBnYRpTsUKf1WOP82lBqYQtYzoGjt9hmw1MB2n0COfT/S7wI4KzYwkwj9oWjpkeo1ZmxgrlcU986P3LvW9ZQBMb7utPDjH98RlfxwgrSEaqiJ76AyMMA3iEf/oR59a7vKQLvaWuYhlwbDiNoKnCUDlf7sOw+S0lFTzEUp9zNvyYD39zBzlPQGehfqkd6k/F0Z+Fr+diF39A04x0htwFoy8Nm6V/gOAwl5H8aClWRAExWrTjk17kbcBWAlGXhs1SPfxgdsw8vAGzq9hGpL60VXbJOQAfXxeiNUgABYf/oaMzZwSidV5DtjO60XxQbOEiDYch+xbKX59yfbTmofG/jLySGohn4yqPNkKjZAjGiHDlVAU0rNzJyGLjWgNRotODkFcuz0hX5bwVmlBhRE6zu/VCkILad4vQmYBrT0t6mg5DWW83c/ztE0oOtaWbunSs4sDxE/yYDiztMhR/YRW8uQFH4qZ0DbQpMJ/RtCS/tjK0IFLWdA8c9z0GozRVDpw1lNxA0lLKXupDQDCqiJxiQq3yCUtLS+nmAxi6lfBCdlGVDQSxw0+b5NmSU912uiKHpAwx+QpWM0GALOC1yVGCB+pEmPTCzmxPzV1Ku4nufa1GjL/RGgzT2t/U+grvccc9p6h+u6p00R7fhw6qZKDcTR91LpCNr/1S6NZlE9Odfu+1NKU5e5sAw03+1LOQq0w6P1IN3j1E+2BuLRXlC5DpoMUVQkbfLdpKW2rSjCyNVAmNEDRGnwBv4DAAD//44sHKQAAAAGSURBVAMAsy17YX9OrloAAAAASUVORK5CYII=" />
+                </button>
+                <button onClick={(e) => { e.preventDefault(); handleSocialLogin('Apple'); }} className="flex items-center justify-center gap-2 py-3 border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors active:scale-95">
+                  <svg width="20" height="20" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#000" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                  </svg>
                   <span className="font-label-md text-label-md text-on-surface">Apple</span>
-                </a>
+                </button>
               </div>
 
-              {/* Divider */}
               <div className="relative mb-8 flex items-center">
-                <div className="flex-grow border-t border-outline-variant" />
+                <div className="flex-grow border-t border-outline-variant"></div>
                 <span className="mx-4 font-caption text-caption text-on-surface-variant bg-transparent">atau email</span>
-                <div className="flex-grow border-t border-outline-variant" />
+                <div className="flex-grow border-t border-outline-variant"></div>
               </div>
 
               {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-1.5">
                   <label className="font-label-md text-label-md text-on-surface-variant ml-1">Email</label>
-                  <input
+                  <input 
+                    className="w-full h-12 px-4 input-base text-body-md" 
+                    placeholder="nama@email.com" 
+                    required 
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-12 px-4 text-body-md"
-                    style={{ backgroundColor: '#F5F5F7', border: '1px solid #EBEBEB', borderRadius: '10px', transition: 'border-color 0.2s', outline: 'none' }}
-                    onFocus={(e) => e.target.style.borderColor = '#b22110'}
-                    onBlur={(e) => e.target.style.borderColor = '#EBEBEB'}
-                    placeholder="nama@email.com"
-                    required
                   />
                 </div>
-
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center px-1">
                     <label className="font-label-md text-label-md text-on-surface-variant">Password</label>
                     <a className="font-label-md text-label-md text-primary hover:underline" href="#">Lupa Password?</a>
                   </div>
-                  <input
+                  <input 
+                    className="w-full h-12 px-4 input-base text-body-md" 
+                    placeholder="••••••••" 
+                    required 
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-12 px-4 text-body-md"
-                    style={{ backgroundColor: '#F5F5F7', border: '1px solid #EBEBEB', borderRadius: '10px', transition: 'border-color 0.2s', outline: 'none' }}
-                    onFocus={(e) => e.target.style.borderColor = '#b22110'}
-                    onBlur={(e) => e.target.style.borderColor = '#EBEBEB'}
-                    placeholder="••••••••"
-                    required
                   />
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full font-body-md font-bold mt-4 shadow-sm hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#F04E37', borderRadius: '22px', padding: '10px 22px', color: 'white', transition: 'opacity 0.2s' }}
-                >
+                <button disabled={loading} className="w-full coral-pill-primary font-body-md font-bold mt-4 shadow-sm hover:opacity-90 disabled:opacity-70" type="submit">
                   {loading ? 'Memproses...' : 'Masuk'}
                 </button>
               </form>
-
+              
               <p className="mt-8 text-center font-body-md text-body-md text-on-surface-variant">
                 Belum punya akun?{' '}
-                <Link className="text-primary font-bold hover:underline" to="/register">
-                  Daftar Sekarang
-                </Link>
+                <Link className="text-primary font-bold hover:underline" to="/register">Daftar Sekarang</Link>
               </p>
             </div>
           </div>

@@ -10,8 +10,8 @@ export default function OrganizerRegisterPage() {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
-    password: '',
-    password_confirmation: '',
+    gender: '',
+    nik: '',
     organization_name: '',
     phone: '',
     ig_handle: '',
@@ -19,8 +19,6 @@ export default function OrganizerRegisterPage() {
   });
 
   const [file, setFile] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -111,22 +109,21 @@ export default function OrganizerRegisterPage() {
                   <input required name="email" value={formData.email} onChange={handleChange} className="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors" placeholder="nama@email.com" type="email" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="font-label-md text-label-md text-secondary">Password</label>
+                  <label className="font-label-md text-label-md text-secondary">Jenis Kelamin</label>
                   <div className="relative">
-                    <input required name="password" value={formData.password} onChange={handleChange} className="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors" placeholder="••••••••" type={showPassword ? 'text' : 'password'} />
-                    <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface" type="button">
-                      <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
-                    </button>
+                    <select required name="gender" value={formData.gender} onChange={handleChange} className="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer">
+                      <option value="" disabled>Pilih jenis kelamin</option>
+                      <option value="Male">Laki-laki</option>
+                      <option value="Female">Perempuan</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                      <span className="material-symbols-outlined text-[20px]">keyboard_arrow_down</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="font-label-md text-label-md text-secondary">Konfirmasi Password</label>
-                  <div className="relative">
-                    <input required name="password_confirmation" value={formData.password_confirmation} onChange={handleChange} className="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors" placeholder="••••••••" type={showConfirmPassword ? 'text' : 'password'} />
-                    <button onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface" type="button">
-                      <span className="material-symbols-outlined text-[20px]">{showConfirmPassword ? 'visibility_off' : 'visibility'}</span>
-                    </button>
-                  </div>
+                  <label className="font-label-md text-label-md text-secondary">NIK KTP (16 Digit)</label>
+                  <input required name="nik" value={formData.nik} onChange={handleChange} className="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors" placeholder="Contoh: 3201..." type="text" maxLength="16" />
                 </div>
               </div>
             </section>

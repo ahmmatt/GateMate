@@ -26,7 +26,22 @@ Route::get('/ping', fn () => response()->json([
     'timestamp' => now()->toIso8601String(),
 ]));
 
+Route::get('/test-ngrok', function() {
+    $ngrok = @file_get_contents('http://127.0.0.1:4040/api/tunnels');
+    $tx = \App\Models\WalletTransaction::where('type', 'topup')->orderBy('id', 'desc')->first();
+    return response()->json([
+        'ngrok' => json_decode($ngrok, true),
+        'last_tx' => $tx
+    ]);
+});
+
 // ─── Public Routes ────────────────────────────────────────────────────────────
+// Endpoint untuk Testing: Reset semua tiket yang sudah di scan
+Route::get('/dev/reset-scanner', function() {
+    \App\Models\Transaction::where('is_used', true)->update(['is_used' => false, 'scanned_at' => null]);
+    return response()->json(['message' => 'Semua tiket berhasil di-reset menjadi belum di-scan!']);
+});
+
 Route::prefix('events')->name('api.events.')->group(function () {
     Route::get('/', [EventController::class, 'index'])->name('index');
     Route::get('/{id}', [EventController::class, 'show'])->name('show');
@@ -35,6 +50,8 @@ Route::prefix('events')->name('api.events.')->group(function () {
 // ─── Auth Routes (Guest) ──────────────────────────────────────────────────────
 Route::prefix('auth')->name('api.auth.')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::get('/google/redirect', [AuthController::class, 'googleRedirect'])->name('google.redirect');
+    Route::get('/google/callback', [AuthController::class, 'googleCallback'])->name('google.callback');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/register/organizer', [OrganizerRegisterController::class, 'register'])->name('register.organizer');
 });
@@ -66,9 +83,25 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}/ai-match', [AiMatchController::class, 'findMatch'])->name('ai-match');
         });
 
+        // AI Matchmaking
+        Route::post('/tickets/{id}/vibe', [\App\Http\Controllers\Api\MatchmakingController::class, 'setVibeBio']);
+        Route::get('/tickets/{id}/matches', [\App\Http\Controllers\Api\MatchmakingController::class, 'getMatches']);
+
+        // Chat System (GateMate Match)
+        Route::get('/chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'getConversations']);
+        Route::get('/chat/messages/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'getMessages']);
+        Route::post('/chat/messages', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
+
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::post('/notifications/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+
+        // Checkout (Beli Tiket & Topup)
+        Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('api.checkout.process');
+        
         Route::prefix('wallet')->name('api.wallet.')->group(function () {
-            Route::get('/', [WalletController::class, 'index'])->name('index');
             Route::post('/topup', [WalletController::class, 'topup'])->name('topup');
+            Route::get('/', [WalletController::class, 'index'])->name('index');
             Route::get('/tenant/{id}', [WalletController::class, 'tenantInfo'])->name('tenant-info');
             Route::post('/pay/{id}', [WalletController::class, 'processPayment'])->name('pay');
         });

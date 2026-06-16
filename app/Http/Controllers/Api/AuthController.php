@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
 
 /**
  * API AuthController
@@ -88,6 +89,62 @@ class AuthController extends Controller
                 'user'       => new UserResource($user),
             ],
         ]);
+    }
+
+    /**
+     * Redirect to Google
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function googleRedirect()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    /**
+     * Google Callback
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function googleCallback(Request $request)
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+
+            if (!$user) {
+                // Redirect ke frontend register page dengan email
+                return redirect()->away($frontendUrl . '/register?email=' . urlencode($googleUser->getEmail()) . '&name=' . urlencode($googleUser->getName()));
+            }
+
+            $abilities = match ($user->role) {
+                'superadmin'  => ['superadmin', 'admin', 'user', 'tenant'],
+                'admin'       => ['admin', 'user'],
+                'tenant'      => ['tenant'],
+                default       => ['user'],
+            };
+
+            $tokenObj = $user->createToken('auth_token', $abilities);
+            $accessToken = $tokenObj->accessToken;
+            
+            $ip = $request->ip();
+            $accessToken->ip_address = $ip;
+            $accessToken->user_agent = $request->userAgent();
+            $accessToken->location = 'Localhost';
+            $accessToken->save();
+
+            $token = $tokenObj->plainTextToken;
+
+            // Redirect ke frontend oauth callback page
+            return redirect()->away($frontendUrl . '/oauth/callback?token=' . urlencode($token));
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth Error: ' . $e->getMessage());
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            return redirect()->away($frontendUrl . '/login?error=' . urlencode('Gagal login dengan Google.'));
+        }
     }
 
     /**

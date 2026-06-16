@@ -14,13 +14,23 @@ export default function ETicketPage() {
   const [showVibeModal, setShowVibeModal] = useState(false);
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [showMatchResult, setShowMatchResult] = useState(false);
+  const [alertInfo, setAlertInfo] = useState(null); // { type: 'success' | 'error', title: string, message: string }
   const [vibeBio, setVibeBio] = useState('');
   const [hasVibeBio, setHasVibeBio] = useState(false);
+  const [matches, setMatches] = useState([]);
 
   useEffect(() => {
     api.get(`/tickets/${id}`)
       .then(res => {
-        setTicket(res.data.data);
+        const payload = res.data.data;
+        const ticketData = payload.ticket || payload;
+        setTicket(ticketData);
+        
+        const attendeeData = payload.my_attendee || payload.attendee;
+        if (attendeeData && attendeeData.vibe_bio) {
+          setVibeBio(attendeeData.vibe_bio);
+          setHasVibeBio(true);
+        }
       })
       .catch(err => {
         console.error(err);
@@ -31,21 +41,41 @@ export default function ETicketPage() {
       });
   }, [id, navigate]);
 
-  const handleSaveVibe = (e) => {
+  const handleSaveVibe = async (e) => {
     e.preventDefault();
     if (!vibeBio.trim()) return;
-    setHasVibeBio(true);
-    setShowVibeModal(false);
-    // You would call api.post('/ticket/vibe', { vibe_bio }) here
+    try {
+      await api.post(`/tickets/${ticket.id_transaction || ticket.id}/vibe`, { vibe_bio: vibeBio });
+      setHasVibeBio(true);
+      setShowVibeModal(false);
+      setAlertInfo({ type: 'success', title: 'Berhasil', message: 'Vibe Bio Anda berhasil disimpan!' });
+    } catch (err) {
+      setAlertInfo({ type: 'error', title: 'Gagal', message: err.response?.data?.message || 'Gagal menyimpan Vibe Bio. Coba lagi.' });
+    }
   };
 
-  const startMatchmaking = () => {
+  const startMatchmaking = async () => {
     if (!hasVibeBio) return;
-    setShowMatchModal(true);
-    setTimeout(() => {
-      setShowMatchModal(false);
-      setShowMatchResult(true);
-    }, 3000);
+    try {
+      const res = await api.get(`/tickets/${ticket.id_transaction || ticket.id}/matches`);
+      const data = res.data.data;
+      if (data.length === 0) {
+        setAlertInfo({
+          type: 'error',
+          title: 'Belum Ada Peserta',
+          message: 'Belum ada peserta lain yang mengaktifkan fitur pencarian teman di event ini. Coba lagi nanti!'
+        });
+        return;
+      }
+      setShowMatchModal(true);
+      setMatches(data);
+      setTimeout(() => {
+        setShowMatchModal(false);
+        setShowMatchResult(true);
+      }, 2000);
+    } catch (err) {
+      setAlertInfo({ type: 'error', title: 'Gagal', message: 'Gagal mencari matchmaking. Periksa koneksi Anda.' });
+    }
   };
 
   if (loading) return (
@@ -110,12 +140,12 @@ export default function ETicketPage() {
             <div className="w-full border-t border-outline-variant pt-6 grid grid-cols-2 gap-y-5 gap-x-4">
               <div className="flex flex-col gap-1">
                 <p className="font-caption text-caption text-secondary">Attendee</p>
-                <p className="font-body-md text-body-md font-medium text-on-surface">{ticket.user.full_name}</p>
+                <p className="font-body-md text-body-md font-medium text-on-surface">{ticket.user?.full_name}</p>
               </div>
               <div className="flex flex-col gap-1 text-right">
                 <p className="font-caption text-caption text-secondary">Tier</p>
                 <div className="flex justify-end">
-                  <span className="bg-primary-fixed text-on-primary-fixed px-3 py-0.5 rounded-[10px] font-label-md text-label-md">{ticket.ticketTier.tier_name}</span>
+                  <span className="bg-primary-fixed text-on-primary-fixed px-3 py-0.5 rounded-[10px] font-label-md text-label-md">{(ticket.ticket_tier || ticket.ticketTier)?.tier_name}</span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
@@ -239,22 +269,45 @@ export default function ETicketPage() {
               <p className="font-body-lg text-body-lg text-secondary">Hasil pencocokan AI berdasarkan minat dan preferensi Anda.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className={`bg-white rounded-[14px] p-6 flex flex-col items-center relative transition-transform hover:-translate-y-1 shadow-sm ${i === 1 ? 'border-2 border-primary' : 'border border-outline-variant'}`}>
-                  {i === 1 && <div className="absolute -top-3 bg-primary text-white px-3 py-1 rounded-full text-[12px] font-bold shadow-sm flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">star</span> Best Match</div>}
-                  <div className={`w-24 h-24 rounded-full overflow-hidden mb-4 border-4 ${i === 1 ? 'border-primary-fixed' : 'border-surface-container'}`}>
-                    <img src={`https://ui-avatars.com/api/?name=Partner+${i}&background=random&color=fff`} alt="User" />
+              {matches.length === 0 && (
+                <div className="col-span-1 md:col-span-3 text-center py-12">
+                  <span className="material-symbols-outlined text-[48px] text-secondary mb-4 opacity-50">group_off</span>
+                  <p className="text-secondary font-body-lg">Belum ada peserta lain yang mencari match di event ini.</p>
+                </div>
+              )}
+              {matches.map((match, idx) => (
+                <div key={match.id_user} className={`bg-white rounded-[14px] p-6 flex flex-col items-center relative transition-transform hover:-translate-y-1 shadow-sm ${idx === 0 ? 'border-2 border-primary' : 'border border-outline-variant'}`}>
+                  {idx === 0 && <div className="absolute -top-3 bg-primary text-white px-3 py-1 rounded-full text-[12px] font-bold shadow-sm flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">star</span> Best Match</div>}
+                  <div className={`w-24 h-24 rounded-full overflow-hidden mb-4 border-4 ${idx === 0 ? 'border-primary-fixed' : 'border-surface-container'}`}>
+                    <img src={match.avatar || `https://ui-avatars.com/api/?name=${match.name}&background=random&color=fff`} alt={match.name} className="w-full h-full object-cover" />
                   </div>
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-1">Partner {i}</h3>
-                  <div className="bg-surface-container-low px-2 py-0.5 rounded-full mb-3"><span className="text-[11px] font-medium text-primary">Peserta</span></div>
-                  <p className="font-body-md text-body-md text-secondary text-center mb-6 line-clamp-3">Sangat antusias dengan inovasi teknologi terbaru. Ingin mencari partner diskusi tentang AI dan Web3.</p>
-                  <button onClick={() => alert('Fitur Chat segera hadir!')} className="mt-auto w-full py-2.5 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2">
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-1">{match.name}</h3>
+                  <div className="bg-surface-container-low px-2 py-0.5 rounded-full mb-3"><span className="text-[11px] font-medium text-primary">Score: {match.score}%</span></div>
+                  <p className="font-body-md text-body-md text-secondary text-center mb-6 line-clamp-3">{match.vibe_bio}</p>
+                  <button onClick={() => navigate(`/chat/${match.id_user}`)} className="mt-auto w-full py-2.5 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">chat</span> Say Hello
                   </button>
                 </div>
               ))}
             </div>
           </main>
+        </div>
+      )}
+      {/* Custom Alert Popup */}
+      {alertInfo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-surface-container-lowest rounded-[20px] shadow-2xl overflow-hidden p-8 text-center animate-in fade-in zoom-in duration-300">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${alertInfo.type === 'success' ? 'bg-primary-fixed' : 'bg-surface-container'}`}>
+              <span className={`material-symbols-outlined text-[32px] ${alertInfo.type === 'success' ? 'text-primary' : 'text-secondary'}`}>
+                {alertInfo.type === 'success' ? 'check_circle' : 'error'}
+              </span>
+            </div>
+            <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface mb-2">{alertInfo.title}</h3>
+            <p className="font-body-md text-body-md text-secondary mb-6">{alertInfo.message}</p>
+            <button onClick={() => setAlertInfo(null)} className="w-full bg-primary text-white py-3 rounded-full font-medium hover:brightness-110 transition-colors">
+              Mengerti
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -93,6 +93,16 @@ class CheckoutController extends Controller
                     'snap_token'     => null,
                 ]);
 
+                // 2.5 Buat Attendee record
+                \App\Models\Attendee::create([
+                    'id_user'     => $user->id_user,
+                    'id_event'    => $event->id_event,
+                    'id_tier'     => $tier->id_tier,
+                    'ticket_code' => $orderId,
+                    'qr_token'    => \Illuminate\Support\Str::random(40),
+                    'status'      => 'approved',
+                ]);
+
                 // 3. Catat histori pengeluaran di wallet transaction
                 \App\Models\WalletTransaction::create([
                     'user_id'  => $user->id_user,
@@ -212,6 +222,18 @@ class CheckoutController extends Controller
                 if ($fraudStatus == 'accept') {
                     $transaction->update(['payment_status' => 'success']);
 
+                    // Buat Attendee record jika belum ada
+                    \App\Models\Attendee::firstOrCreate(
+                        ['ticket_code' => $orderId],
+                        [
+                            'id_user'  => $transaction->user_id,
+                            'id_event' => $transaction->event_id,
+                            'id_tier'  => $transaction->ticket_tier_id,
+                            'qr_token' => \Illuminate\Support\Str::random(40),
+                            'status'   => 'approved',
+                        ]
+                    );
+
                     // ── Kirim E-Ticket via email setelah pembayaran lunas ────
                     try {
                         $transaction->load(['user', 'event', 'ticketTier']);
@@ -223,6 +245,18 @@ class CheckoutController extends Controller
                 }
             } else if ($transactionStatus == 'settlement') {
                 $transaction->update(['payment_status' => 'success']);
+
+                // Buat Attendee record jika belum ada
+                \App\Models\Attendee::firstOrCreate(
+                    ['ticket_code' => $orderId],
+                    [
+                        'id_user'  => $transaction->user_id,
+                        'id_event' => $transaction->event_id,
+                        'id_tier'  => $transaction->ticket_tier_id,
+                        'qr_token' => \Illuminate\Support\Str::random(40),
+                        'status'   => 'approved',
+                    ]
+                );
 
                 // ── Kirim E-Ticket via email setelah pembayaran lunas ────────
                 try {

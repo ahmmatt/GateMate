@@ -143,8 +143,8 @@ export default function DiscoverPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {events.map((event) => (
               <div
-                key={event.id_event}
-                onClick={() => isAuthenticated ? navigate(`/events/${event.id_event}`) : navigate('/login')}
+                key={event.id || event.id_event}
+                onClick={() => isAuthenticated ? navigate(`/events/${event.id || event.id_event}`) : navigate('/login')}
                 className="group bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden hover:border-primary hover:shadow-lg transition-all flex flex-col h-full cursor-pointer"
               >
                 <div className="relative h-48 overflow-hidden">
@@ -171,11 +171,19 @@ export default function DiscoverPage() {
                   <div className="mt-auto pt-4 border-t border-outline-variant/50 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-[10px]">
-                        {(event.author_name || 'A')[0].toUpperCase()}
+                        {(event.organizer?.full_name || 'A')[0].toUpperCase()}
                       </div>
-                      <span className="font-caption text-secondary truncate max-w-[100px]">{event.author_name || 'Admin'}</span>
+                      <span className="font-caption text-secondary truncate max-w-[100px]">{event.organizer?.full_name || 'Admin'}</span>
                     </div>
-                    <div className="font-label-md font-bold text-primary">{formatPrice(event.min_price)}</div>
+                    <div className="font-label-md font-bold text-primary">
+                      {(!event.ticket_tiers || event.ticket_tiers.length === 0) 
+                        ? 'Free' 
+                        : (() => {
+                            const minPrice = Math.min(...event.ticket_tiers.map(t => Number(t.price)));
+                            return minPrice === 0 ? 'Free' : 'Rp ' + minPrice.toLocaleString('id-ID');
+                          })()
+                      }
+                    </div>
                   </div>
                 </div>
               </div>

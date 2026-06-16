@@ -41,6 +41,13 @@ return [
         'server_key' => env('MIDTRANS_SERVER_KEY'),
     ],
 
+    // ── Google OAuth ──────────────────────────────────────────────────────────
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URL', '/api/auth/google/callback'),
+    ],
+
     // ── Platform Fee ──────────────────────────────────────────────────────────
     'platform' => [
         // Potongan superadmin dari total tiket (persen, e.g. 10 = 10%)

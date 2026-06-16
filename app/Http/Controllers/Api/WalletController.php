@@ -35,6 +35,35 @@ class WalletController extends Controller
     {
         /** @var \App\Models\User $user */
         $user         = Auth::user();
+
+        // Cek status transaksi pending dengan Midtrans (mengatasi webhook yang gagal karena ngrok/lokal)
+        $pendingTopups = $user->walletTransactions()->where('type', 'topup')->where('status', 'pending')->get();
+        if ($pendingTopups->isNotEmpty()) {
+            \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+            \Midtrans\Config::$isProduction = false;
+            foreach ($pendingTopups as $tx) {
+                try {
+                    $status = \Midtrans\Transaction::status($tx->order_id);
+                    if ($status && isset($status->transaction_status)) {
+                        $ts = $status->transaction_status;
+                        $fs = $status->fraud_status ?? '';
+                        
+                        if ($ts == 'capture' || $ts == 'settlement') {
+                            if ($ts == 'capture' && $fs != 'accept') {
+                                continue;
+                            }
+                            $tx->update(['status' => 'success']);
+                            $user->increment('wallet_balance', $tx->amount);
+                        } else if ($ts == 'cancel' || $ts == 'deny' || $ts == 'expire') {
+                            $tx->update(['status' => 'failed']);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Abaikan jika tidak ditemukan di Midtrans
+                }
+            }
+        }
+
         $transactions = $user->walletTransactions()->latest()->get();
 
         return response()->json([
@@ -82,6 +111,22 @@ class WalletController extends Controller
             MidtransConfig::$isProduction = false; // Sandbox
             MidtransConfig::$isSanitized  = true;
             MidtransConfig::$is3ds        = true;
+
+            // Dinamis ambil URL Ngrok jika ada, agar webhook bisa ditembak oleh Midtrans
+            try {
+                $ngrokResponse = @file_get_contents('http://127.0.0.1:4040/api/tunnels');
+                if ($ngrokResponse) {
+                    $ngrokData = json_decode($ngrokResponse, true);
+                    if (!empty($ngrokData['tunnels'][0]['public_url'])) {
+                        $ngrokUrl = $ngrokData['tunnels'][0]['public_url'];
+                        $ngrokUrl = str_replace('http://', 'https://', $ngrokUrl);
+                        MidtransConfig::$overrideNotifUrl = $ngrokUrl . '/webhook/midtrans';
+                        Log::info('Set overrideNotifUrl via Ngrok: ' . MidtransConfig::$overrideNotifUrl);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Gagal mengambil URL ngrok: ' . $e->getMessage());
+            }
 
             $params = [
                 'transaction_details' => [
