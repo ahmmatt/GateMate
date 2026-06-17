@@ -44,7 +44,7 @@ export default function EventDetailPage() {
   const [answers, setAnswers] = useState({});
 
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [errorModal, setErrorModal] = useState({ show: false, message: '' });
+  const [errorModal, setErrorModal] = useState({ show: false, message: '', data: null });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
@@ -188,8 +188,9 @@ export default function EventDetailPage() {
         navigate('/my-tickets');
       }
     } catch (err) { 
-      const errMsg = err.response?.data?.message || 'Gagal memproses pembelian';
-      setErrorModal({ show: true, message: errMsg });
+      const data = err.response?.data;
+      const errMsg = data?.message || 'Gagal memproses pembelian';
+      setErrorModal({ show: true, message: errMsg, data: data });
     } finally { 
       setCheckoutLoading(false); 
     }
@@ -505,15 +506,46 @@ export default function EventDetailPage() {
                 100% { opacity: 1; transform: scale(1); }
               }
             `}</style>
-            <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
-              <span className="material-symbols-outlined text-[40px]">account_balance_wallet</span>
-            </div>
-            <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Transaksi Gagal</h2>
-            <p className="text-on-surface-variant font-body-md mb-8">
-              {errorModal.message}
-            </p>
+
+            {errorModal.data?.status === 'insufficient_balance' ? (
+              <>
+                <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <span className="material-symbols-outlined text-[40px]">account_balance_wallet</span>
+                </div>
+                <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Saldo Tidak Cukup</h2>
+                <p className="text-on-surface-variant font-body-md mb-6 text-sm">
+                  {errorModal.message}
+                </p>
+                <div className="w-full bg-[#F5F5F7] rounded-xl p-4 mb-6 text-left">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-on-surface-variant">Saldo Saat Ini:</span>
+                    <span className="text-sm font-bold text-on-surface">{formatRp(errorModal.data.current_balance)}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-on-surface-variant">Harga Tiket:</span>
+                    <span className="text-sm font-bold text-on-surface">{formatRp(errorModal.data.required_amount)}</span>
+                  </div>
+                  <div className="h-px w-full bg-[#EBEBEB] my-2"></div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-[#F04E37] font-bold">Kekurangan:</span>
+                    <span className="text-sm font-bold text-[#F04E37]">{formatRp(errorModal.data.required_amount - errorModal.data.current_balance)}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <span className="material-symbols-outlined text-[40px]">error</span>
+                </div>
+                <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Transaksi Gagal</h2>
+                <p className="text-on-surface-variant font-body-md mb-8">
+                  {errorModal.message}
+                </p>
+              </>
+            )}
+
             <div className="w-full flex flex-col gap-3">
-              {(errorModal.message.toLowerCase().includes('saldo') || errorModal.message.toLowerCase().includes('balance')) ? (
+              {(errorModal.data?.status === 'insufficient_balance' || errorModal.message.toLowerCase().includes('saldo') || errorModal.message.toLowerCase().includes('balance')) ? (
                 <button 
                   onClick={() => navigate('/wallet')} 
                   className="w-full py-3 bg-[#F04E37] text-white rounded-[22px] font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
@@ -523,7 +555,7 @@ export default function EventDetailPage() {
                 </button>
               ) : null}
               <button 
-                onClick={() => setErrorModal({ show: false, message: '' })} 
+                onClick={() => setErrorModal({ show: false, message: '', data: null })} 
                 className="w-full py-3 bg-[#F5F5F7] text-on-surface rounded-[22px] font-bold hover:bg-[#EBEBEB] active:scale-95 transition-all"
               >
                 Kembali

@@ -258,7 +258,7 @@ export default function ETicketPage() {
       {/* Match Result Modal */}
       {showMatchResult && (
         <div className="fixed inset-0 z-[60] bg-surface flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300">
-          <nav className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-outline-variant h-16 flex items-center justify-between px-6 z-10">
+          <nav className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-outline-variant h-16 shrink-0 flex items-center justify-between px-6 z-10">
             <div className="font-bold text-primary text-[20px]">GateMate Match</div>
             <button onClick={() => setShowMatchResult(false)} className="text-secondary hover:text-primary"><span className="material-symbols-outlined">close</span></button>
           </nav>
@@ -282,8 +282,20 @@ export default function ETicketPage() {
                     <img src={match.avatar || `https://ui-avatars.com/api/?name=${match.name}&background=random&color=fff`} alt={match.name} className="w-full h-full object-cover" />
                   </div>
                   <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-1">{match.name}</h3>
-                  <div className="bg-surface-container-low px-2 py-0.5 rounded-full mb-3"><span className="text-[11px] font-medium text-primary">Score: {match.score}%</span></div>
-                  <p className="font-body-md text-body-md text-secondary text-center mb-6 line-clamp-3">{match.vibe_bio}</p>
+                  <div className="bg-surface-container-low px-3 py-1 rounded-full mb-3 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px] text-primary">favorite</span>
+                    <span className="text-[12px] font-bold text-primary">Match Score: {match.score}%</span>
+                  </div>
+                  <p className="font-body-md text-body-md text-secondary text-center mb-4 italic">"{match.vibe_bio}"</p>
+                  {match.reason && (
+                    <div className="w-full bg-[#FAFAFA] border border-outline-variant p-3 rounded-[12px] mb-6 text-center">
+                      <p className="text-[12px] font-medium text-on-surface flex items-center justify-center gap-1 mb-1">
+                        <span className="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+                        AI Reason
+                      </p>
+                      <p className="text-[12px] text-secondary leading-relaxed">{match.reason}</p>
+                    </div>
+                  )}
                   <button onClick={() => navigate(`/chat/${match.id_user}`)} className="mt-auto w-full py-2.5 border border-primary text-primary font-medium rounded-full hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-[18px]">chat</span> Say Hello
                   </button>

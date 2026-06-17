@@ -96,19 +96,28 @@ export default function MyTicketsPage() {
       {/* Header & Segmented Control */}
       <div className="flex flex-col gap-6 mb-10">
         <h1 className="font-headline-lg text-headline-lg text-on-surface">My Tickets</h1>
-        <div className="flex gap-8 border-b border-outline-variant">
-          <button
-            onClick={() => setActiveTab('upcoming')}
-            className={`pb-3 transition-all ${activeTab === 'upcoming' ? 'text-primary font-bold border-b-2 border-primary' : 'text-secondary hover:text-on-surface'}`}
+        <div className="flex justify-between items-end border-b border-outline-variant">
+          <div className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`pb-3 transition-all ${activeTab === 'upcoming' ? 'text-primary font-bold border-b-2 border-primary' : 'text-secondary hover:text-on-surface'}`}
+            >
+              Upcoming
+            </button>
+            <button
+              onClick={() => setActiveTab('past')}
+              className={`pb-3 transition-all ${activeTab === 'past' ? 'text-primary font-bold border-b-2 border-primary' : 'text-secondary hover:text-on-surface'}`}
+            >
+              Past
+            </button>
+          </div>
+          <Link
+            to="/chat"
+            className="pb-3 flex items-center gap-2 text-primary font-bold hover:opacity-80 transition-opacity"
           >
-            Upcoming
-          </button>
-          <button
-            onClick={() => setActiveTab('past')}
-            className={`pb-3 transition-all ${activeTab === 'past' ? 'text-primary font-bold border-b-2 border-primary' : 'text-secondary hover:text-on-surface'}`}
-          >
-            Past
-          </button>
+            <span className="material-symbols-outlined text-[20px]">chat</span>
+            Chats
+          </Link>
         </div>
       </div>
 

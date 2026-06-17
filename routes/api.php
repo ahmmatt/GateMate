@@ -88,16 +88,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/tickets/{id}/matches', [\App\Http\Controllers\Api\MatchmakingController::class, 'getMatches']);
 
         // Chat System (GateMate Match)
-        Route::get('/chat/conversations', [\App\Http\Controllers\Api\ChatController::class, 'getConversations']);
-        Route::get('/chat/messages/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'getMessages']);
-        Route::post('/chat/messages', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
+        Route::get('/chat', [\App\Http\Controllers\Api\ChatController::class, 'getInbox']);
+        Route::get('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'getMessages']);
+        Route::post('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
 
         // Notifications
         Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
         Route::post('/notifications/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
 
-        // Checkout (Beli Tiket & Topup)
-        Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('api.checkout.process');
+
         
         Route::prefix('wallet')->name('api.wallet.')->group(function () {
             Route::post('/topup', [WalletController::class, 'topup'])->name('topup');

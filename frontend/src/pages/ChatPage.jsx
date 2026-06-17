@@ -61,13 +61,26 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
+  const formatTime = (dateString) => {
+    if (!dateString) return '';
+    let d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    
+    // If it's a plain DB string "YYYY-MM-DD HH:MM:SS" (no T, no Z)
+    if (typeof dateString === 'string' && !dateString.includes('T') && !dateString.includes('Z')) {
+      d = new Date(dateString.replace(' ', 'T') + 'Z');
+    }
+    
+    return d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZoneName: 'short'});
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !id) return;
     
     const tempMessage = {
       id: Date.now(),
-      sender_id: user.id_user,
+      sender_id: user?.id || user?.id_user,
       receiver_id: id,
       content: newMessage,
       created_at: new Date().toISOString(),
@@ -97,7 +110,7 @@ export default function ChatPage() {
           {id ? (
             <>
               <button onClick={() => navigate('/chat')} className="material-symbols-outlined hover:text-primary transition-colors text-secondary mr-2">arrow_back</button>
-              {partner?.name || 'Chat'}
+              Kembali
             </>
           ) : 'Pesan'}
         </h1>
@@ -124,7 +137,7 @@ export default function ChatPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
                     <h4 className="font-headline-sm font-bold truncate text-on-surface">{contact.name}</h4>
-                    <span className="text-[10px] text-secondary flex-shrink-0">{new Date(contact.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    <span className="text-[10px] text-secondary flex-shrink-0">{formatTime(contact.time)}</span>
                   </div>
                   <p className="font-body-md text-secondary truncate">{contact.last_message}</p>
                 </div>
@@ -159,13 +172,13 @@ export default function ChatPage() {
               <div className="flex-1 overflow-y-auto p-6 bg-[#FAFAFA]">
                 <div className="flex flex-col gap-4">
                   {messages.map((msg, idx) => {
-                    const isMe = parseInt(msg.sender_id) === user.id_user;
+                    const isMe = String(msg.sender_id) === String(user?.id || user?.id_user);
                     return (
                       <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[70%] px-4 py-2 rounded-[18px] ${isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-container text-on-surface rounded-tl-none border border-outline-variant'}`}>
                           <p className="font-body-md text-[15px]">{msg.content}</p>
                           <span className={`text-[10px] block mt-1 ${isMe ? 'text-white/70 text-right' : 'text-secondary text-left'}`}>
-                            {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            {formatTime(msg.created_at)}
                           </span>
                         </div>
                       </div>
