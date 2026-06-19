@@ -23,7 +23,7 @@ export default function SuperadminSidebar() {
     <aside className="fixed left-0 top-0 h-full w-[240px] border-r border-surface-container-high bg-surface-container-lowest flex flex-col justify-between py-8 z-50">
       <div className="flex flex-col">
         <div className="px-6 mb-10">
-          <span className="font-headline-md text-headline-md font-bold text-primary">GateMate</span>
+          <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
           <p className="font-label-md text-label-md text-secondary mt-1">Superadmin</p>
         </div>
         <nav className="flex flex-col space-y-1">

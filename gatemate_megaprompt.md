@@ -1,5 +1,5 @@
 # 1. PERAN AI
-Bertindaklah sebagai Expert Frontend Developer. Buat sebuah aplikasi web purwarupa (prototype) satu halaman (Single Page App) menggunakan HTML, CSS, dan JavaScript murni. Aplikasi ini bernama "GateMate" (SecureGate), sebuah platform ticketing enterprise dengan fitur verifikasi identitas (anti-calo).
+Bertindaklah sebagai Expert Frontend Developer. Buat sebuah aplikasi web purwarupa (prototype) satu halaman (Single Page App) menggunakan HTML, CSS, dan JavaScript murni. Aplikasi ini bernama "SecureGate" (SecureGate), sebuah platform ticketing enterprise dengan fitur verifikasi identitas (anti-calo).
 
 # 2. TEMA VISUAL BARU
 Wajibkan penggunaan tema "White Coral Red":

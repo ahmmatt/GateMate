@@ -68,7 +68,7 @@ export default function AdminFinancePage() {
       {/* Sidebar Navigation */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">SecureGate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">

@@ -17,11 +17,12 @@ use App\Http\Controllers\Api\Admin\ScannerController as AdminScannerController;
 use App\Http\Controllers\Api\Admin\FinanceController as AdminFinanceController;
 use App\Http\Controllers\Api\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Api\SuperadminController;
+use App\Http\Controllers\Api\OtpController;
 
 // ─── Health Check / Ping ─────────────────────────────────────────────────────
 Route::get('/ping', fn () => response()->json([
     'success' => true,
-    'message' => 'GateMate API is running.',
+    'message' => 'SecureGate API is running.',
     'version' => '1.0.0',
     'timestamp' => now()->toIso8601String(),
 ]));
@@ -63,6 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->name('api.auth.')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/me', [AuthController::class, 'me'])->name('me');
+        // OTP
+        Route::post('/otp/send', [OtpController::class, 'send'])->name('otp.send');
+        Route::post('/otp/verify', [OtpController::class, 'verify'])->name('otp.verify');
     });
 
     // ── User Routes (Ticket Buyers) ───────────────────────────────────────────
@@ -87,7 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/tickets/{id}/vibe', [\App\Http\Controllers\Api\MatchmakingController::class, 'setVibeBio']);
         Route::get('/tickets/{id}/matches', [\App\Http\Controllers\Api\MatchmakingController::class, 'getMatches']);
 
-        // Chat System (GateMate Match)
+        // Chat System (SecureGate Match)
         Route::get('/chat', [\App\Http\Controllers\Api\ChatController::class, 'getInbox']);
         Route::get('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'getMessages']);
         Route::post('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);

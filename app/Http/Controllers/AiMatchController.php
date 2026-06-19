@@ -55,39 +55,34 @@ Berikut daftar peserta lain yang juga ingin berkenalan:
 Tugasmu: Analisis kecocokan bio saya dengan mereka. Pilih maksimal 3 orang yang paling cocok untuk saya ajak networking atau ngobrol. Jelaskan alasan kecocokannya dalam bahasa Indonesia yang santai, hangat, dan asik. Gunakan format yang rapi dengan nama sebagai judul tiap bagian.
 PROMPT;
 
-        // ── 5. Panggil Gemini API via HTTP Facade ─────────────────────────────
-        // KODE BARU: Pakai trim() untuk membuang spasi/enter tersembunyi dari .env
-        $apiKey = trim(env('GEMINI_API_KEY')); 
+        // ── 5. Panggil Groq API via HTTP Facade ─────────────────────────────
+        $apiKey = trim(env('GROQ_API_KEY')); 
+        $model = env('GROQ_MODEL', 'qwen-2.5-32b');
         
         if (empty($apiKey)) {
-            return back()->with('error', 'API Key kosong! Matikan server, jalankan "php artisan config:clear", lalu jalankan server lagi.');
+            return back()->with('error', 'API Key kosong! Matikan server, tambahkan GROQ_API_KEY di .env, lalu jalankan server lagi.');
         }
 
-        // KODE BARU: Pakai /v1/ (bukan v1beta) dan model gemini-1.5-flash
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $apiKey;
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
 
-        $response = Http::withHeaders(['Content-Type' => 'application/json'])
+        $response = Http::withToken($apiKey)
+            ->withHeaders(['Content-Type' => 'application/json'])
             ->timeout(30)
             ->post($url, [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt],
-                        ],
-                    ],
+                'model' => $model,
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
                 ],
-                'generationConfig' => [
-                    'temperature'     => 0.8,
-                    'maxOutputTokens' => 1024,
-                ],
+                'temperature' => 0.8,
+                'max_tokens' => 1024,
             ]);
 
-        // ── 6. Parsing respons Gemini ─────────────────────────────────────────
+        // ── 6. Parsing respons Groq ─────────────────────────────────────────
         if ($response->failed()) {
-            return back()->with('error', 'Error dari Google (' . $response->status() . '): ' . $response->body());
+            return back()->with('error', 'Error dari Groq (' . $response->status() . '): ' . $response->body());
         }
 
-        $aiResponse = $response->json('candidates.0.content.parts.0.text')
+        $aiResponse = $response->json('choices.0.message.content')
             ?? 'AI tidak memberikan respons. Silakan coba lagi.';
 
         return view('ai_match_result', compact('myTicket', 'aiResponse', 'otherAttendees'));

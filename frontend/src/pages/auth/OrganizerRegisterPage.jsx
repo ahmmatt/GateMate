@@ -75,7 +75,7 @@ export default function OrganizerRegisterPage() {
       {/* Header / Branding */}
       <header className="mb-stack-lg text-center">
         <Link to="/" className="inline-block">
-          <h1 className="font-h1 text-h1 font-black text-primary tracking-tighter hover:opacity-80 transition-opacity">GateMate</h1>
+          <h1 className="font-h1 text-h1 font-black text-primary tracking-tighter hover:opacity-80 transition-opacity">SecureGate</h1>
         </Link>
         <p className="font-body-sm text-body-sm text-secondary mt-1">Daftar sebagai Penyelenggara Event</p>
       </header>
@@ -188,7 +188,7 @@ export default function OrganizerRegisterPage() {
 
       {/* Footer Copyright */}
       <footer className="mt-stack-lg">
-        <p className="font-caption text-caption text-secondary">© 2025 GateMate Indonesia. Semua Hak Dilindungi.</p>
+        <p className="font-caption text-caption text-secondary">© 2025 SecureGate Indonesia. Semua Hak Dilindungi.</p>
       </footer>
     </div>
   );

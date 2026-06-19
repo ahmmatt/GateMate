@@ -220,7 +220,7 @@ export default function TenantDashboardPage() {
                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(JSON.stringify(qrPayload))}`} alt="QR Code" className="w-48 h-48" />
                   </div>
                   <div className="text-[24px] font-bold text-[#006579]">{formatRp(qrPayload.amount)}</div>
-                  <p className="text-caption text-secondary mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">info</span> Pembeli scan via Wallet GateMate</p>
+                  <p className="text-caption text-secondary mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">info</span> Pembeli scan via Wallet SecureGate</p>
                 </div>
               )}
             </div>

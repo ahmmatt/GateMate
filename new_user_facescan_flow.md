@@ -1,7 +1,7 @@
 # Analisis UX/UI & Alur Pemindaian Wajah Pengguna Baru (Onboarding Facial Scan)
 
 ## PENDAHULUAN
-Fitur **Onboarding Facial Scan** dirancang sebagai lapis pertama pertahanan keamanan biometrik di ekosistem SecureGate/GateMate. Tujuan utamanya adalah untuk memastikan prinsip "Satu Akun, Satu Identitas Unik". Fitur ini bertujuan untuk mengeliminasi calo tiket (*scalpers*), mencegah pencurian akun, serta memberikan pengalaman *Check-In Gate* yang instan tanpa sentuhan (*contactless*) saat hari H acara (*event*). Dengan mengusung gaya visual *futuristic cyberpunk* dipadukan dengan *glassmorphism*, antarmuka ini dirancang tidak hanya untuk mengamankan data, melainkan juga untuk memberikan kesan premium, modern, dan canggih (*wow factor*) kepada pengguna baru.
+Fitur **Onboarding Facial Scan** dirancang sebagai lapis pertama pertahanan keamanan biometrik di ekosistem SecureGate/SecureGate. Tujuan utamanya adalah untuk memastikan prinsip "Satu Akun, Satu Identitas Unik". Fitur ini bertujuan untuk mengeliminasi calo tiket (*scalpers*), mencegah pencurian akun, serta memberikan pengalaman *Check-In Gate* yang instan tanpa sentuhan (*contactless*) saat hari H acara (*event*). Dengan mengusung gaya visual *futuristic cyberpunk* dipadukan dengan *glassmorphism*, antarmuka ini dirancang tidak hanya untuk mengamankan data, melainkan juga untuk memberikan kesan premium, modern, dan canggih (*wow factor*) kepada pengguna baru.
 
 ## TAHAP 1: LAYAR PERSIAPAN (Greeting Screen)
 **Tujuan:** Menyambut pengguna, memberikan edukasi awal, dan meminta izin akses kamera dengan cara yang elegan tanpa terasa mengintimidasi.

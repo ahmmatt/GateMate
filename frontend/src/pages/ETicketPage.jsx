@@ -259,7 +259,7 @@ export default function ETicketPage() {
       {showMatchResult && (
         <div className="fixed inset-0 z-[60] bg-surface flex flex-col overflow-y-auto animate-in slide-in-from-bottom duration-300">
           <nav className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-outline-variant h-16 shrink-0 flex items-center justify-between px-6 z-10">
-            <div className="font-bold text-primary text-[20px]">GateMate Match</div>
+            <div className="font-bold text-primary text-[20px]">SecureGate Match</div>
             <button onClick={() => setShowMatchResult(false)} className="text-secondary hover:text-primary"><span className="material-symbols-outlined">close</span></button>
           </nav>
           <main className="flex-1 max-w-[1280px] w-full mx-auto px-6 py-12">

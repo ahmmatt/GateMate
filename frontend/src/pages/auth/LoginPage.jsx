@@ -110,7 +110,7 @@ export default function LoginPage() {
       <header className="w-full top-0 sticky bg-surface/80 backdrop-blur-md border-b border-outline-variant z-50">
         <nav className="flex justify-between items-center h-16 px-container-padding max-w-[1280px] mx-auto">
           <div className="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">
-            GateMate
+            SecureGate
           </div>
           <div className="hidden md:flex gap-gap-default"></div>
           <div className="flex items-center gap-4">
@@ -227,7 +227,7 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="w-full mt-auto bg-surface-container-low border-t border-outline-variant">
         <div className="flex flex-col md:flex-row justify-between items-center py-8 px-container-padding max-w-[1280px] mx-auto gap-4">
-          <div className="font-headline-sm text-headline-sm font-bold text-primary">GateMate</div>
+          <div className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</div>
           <div className="flex flex-wrap justify-center gap-6">
             <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
             <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
@@ -235,7 +235,7 @@ export default function LoginPage() {
             <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Us</a>
           </div>
           <div className="font-caption text-caption text-on-surface-variant opacity-70">
-            © 2024 GateMate. All rights reserved.
+            © 2024 SecureGate. All rights reserved.
           </div>
         </div>
       </footer>

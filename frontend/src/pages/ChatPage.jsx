@@ -163,7 +163,7 @@ export default function ChatPage() {
                   </div>
                   <div>
                     <h3 className="font-headline-sm font-bold text-on-surface">{partner?.name}</h3>
-                    <p className="text-[11px] text-primary font-medium">GateMate Match</p>
+                    <p className="text-[11px] text-primary font-medium">SecureGate Match</p>
                   </div>
                 </div>
               </div>

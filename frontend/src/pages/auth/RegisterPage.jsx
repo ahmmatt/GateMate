@@ -13,6 +13,7 @@ export default function RegisterPage() {
     full_name: nameParam || '', 
     email: emailParam || location.state?.email || '', 
     gender: '', 
+    phone: '',
     password: '', 
     password_confirmation: '' 
   });
@@ -52,7 +53,7 @@ export default function RegisterPage() {
       <header className="bg-surface/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant/50">
         <nav className="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
           <div className="flex items-center gap-8">
-            <span className="font-headline-md text-headline-md font-bold text-primary">GateMate</span>
+            <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
           </div>
           <div className="flex items-center gap-4">
             <Link className="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1" to="/login">Masuk</Link>
@@ -104,6 +105,24 @@ export default function RegisterPage() {
               {errors.gender && <div className="text-red-600 text-sm mt-1">{errors.gender[0]}</div>}
             </div>
 
+            {/* Nomor WhatsApp */}
+            <div className="space-y-1.5">
+              <label className="font-label-md text-label-md text-secondary ml-1">Nomor WhatsApp</label>
+              <div className="relative">
+
+                <input
+                  className={`${inputClass}`}
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="08xxxxxxxxxx"
+                  type="tel"
+                  required
+                />
+              </div>
+              <p className="text-xs text-secondary ml-1">Nomor ini digunakan untuk verifikasi OTP via WhatsApp</p>
+              {errors.phone && <div className="text-red-600 text-sm mt-1">{errors.phone[0]}</div>}
+            </div>
             {/* Password */}
             <div className="space-y-1.5">
               <label className="font-label-md text-label-md text-secondary ml-1">Password</label>
@@ -148,7 +167,7 @@ export default function RegisterPage() {
             <p className="font-caption text-caption text-secondary px-4">
               Dengan mendaftar, Anda menyetujui{' '}
               <a className="underline" href="#">Syarat &amp; Ketentuan</a> serta{' '}
-              <a className="underline" href="#">Kebijakan Privasi</a> GateMate.
+              <a className="underline" href="#">Kebijakan Privasi</a> SecureGate.
             </p>
           </div>
         </div>
@@ -158,8 +177,8 @@ export default function RegisterPage() {
       <footer className="bg-surface-container-lowest border-t border-outline-variant/20 w-full mt-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">GateMate</span>
-            <p className="font-caption text-caption text-secondary">© 2024 GateMate. All rights reserved.</p>
+            <span className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
+            <p className="font-caption text-caption text-secondary">© 2024 SecureGate. All rights reserved.</p>
           </div>
           <div className="flex gap-6 flex-wrap justify-center">
             {['Privacy Policy','Terms of Service','Help Center','Contact Us'].map(l => (

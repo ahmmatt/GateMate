@@ -40,6 +40,9 @@ use Laravel\Sanctum\HasApiTokens;
     'organization_address',
     'organization_tiktok',
     'organization_twitter',
+    'phone_otp',
+    'phone_otp_expires_at',
+    'phone_verified_at',
 ])]
 #[Hidden([
     'password',
@@ -69,6 +72,8 @@ class User extends Authenticatable
         return [
             'created_at'            => 'datetime',
             'face_verified_at'      => 'datetime',
+            'phone_otp_expires_at'  => 'datetime',
+            'phone_verified_at'     => 'datetime',
             'password'              => 'hashed',
             'is_verified_organizer' => 'boolean',
             'notification_prefs'    => 'array',

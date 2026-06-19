@@ -158,21 +158,29 @@ class AuthController extends Controller
             'full_name' => ['required', 'string', 'max:255'],
             'gender'    => ['required', 'string', 'in:Male,Female'],
             'email'     => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone'     => ['required', 'string', 'min:9', 'max:15'],
             'password'  => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.required'    => 'Jenis kelamin wajib dipilih.',
             'email.unique'       => 'Email ini sudah terdaftar.',
+            'phone.required'     => 'Nomor WhatsApp wajib diisi.',
+            'phone.min'          => 'Nomor WhatsApp tidak valid.',
             'password.min'       => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
         $user = User::create([
-            'full_name' => $validated['full_name'],
-            'gender'    => $validated['gender'],
-            'email'     => $validated['email'],
-            'password'  => Hash::make($validated['password']),
-            'role'      => 'user',
+            'full_name'            => $validated['full_name'],
+            'gender'               => $validated['gender'],
+            'email'                => $validated['email'],
+            'phone'                => $validated['phone'],
+            'password'             => Hash::make($validated['password']),
+            'role'                 => 'user',
+            'phone_otp'            => $otp,
+            'phone_otp_expires_at' => now()->addMinutes(5),
         ]);
 
         $tokenObj = $user->createToken('auth_token', ['user']);
@@ -198,9 +206,20 @@ class AuthController extends Controller
 
         $token = $tokenObj->plainTextToken;
 
+        // Kirim OTP via WhatsApp
+        try {
+            $fonnte = new \App\Services\FonnteService();
+            $normalizedPhone = \App\Services\FonnteService::normalizePhone($validated['phone']);
+            $appName = config('app.name', 'SecureGate');
+            $message = "🔐 *Kode Verifikasi {$appName}*\n\nKode OTP Anda adalah:\n\n*{$otp}*\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.\n\n_Tim {$appName}_";
+            $fonnte->send($normalizedPhone, $message);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Register OTP send failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil. Selamat datang di GateMate!',
+            'message' => 'Registrasi berhasil. Kode OTP telah dikirim ke WhatsApp Anda.',
             'data'    => [
                 'token'      => $token,
                 'token_type' => 'Bearer',

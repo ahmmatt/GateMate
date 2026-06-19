@@ -171,7 +171,7 @@ export default function AdminEventShowPage() {
     <div className="bg-background text-on-surface font-body-sm min-h-screen">
       {/* Mobile Top Navigation */}
       <header className="flex justify-between items-center px-6 h-16 w-full border-b-[0.5px] border-outline-variant md:hidden bg-surface sticky top-0 z-40">
-        <h1 className="text-[24px] font-bold text-primary">GateMate</h1>
+        <h1 className="text-[24px] font-bold text-primary">SecureGate</h1>
         <button className="active:scale-95 transition-transform">
           <span className="material-symbols-outlined text-primary">menu</span>
         </button>
@@ -180,7 +180,7 @@ export default function AdminEventShowPage() {
       {/* Desktop Side Navigation */}
       <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant hidden md:flex flex-col py-6 z-40" style={{ borderRightWidth: '0.5px' }}>
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">SecureGate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">

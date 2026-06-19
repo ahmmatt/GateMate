@@ -1,7 +1,7 @@
-# SecureGate (GateMate) - Master Prompt for Frontend Prototype Generation
+# SecureGate (SecureGate) - Master Prompt for Frontend Prototype Generation
 
 ## 1. KONTEKS APLIKASI
-Proyek ini adalah "SecureGate" (atau GateMate), sebuah platform ticketing enterprise yang didesain khusus dengan sistem "anti-calo". Aplikasi ini bertujuan untuk memastikan setiap tiket dibeli dan digunakan oleh orang yang tepat dengan memanfaatkan teknologi verifikasi identitas (biometrik wajah). Platform ini memfasilitasi berbagai aktor, namun fokus utama purwarupa ini adalah pengalaman Pembeli Tiket (User) dan Pengelola Platform (Superadmin).
+Proyek ini adalah "SecureGate" (atau SecureGate), sebuah platform ticketing enterprise yang didesain khusus dengan sistem "anti-calo". Aplikasi ini bertujuan untuk memastikan setiap tiket dibeli dan digunakan oleh orang yang tepat dengan memanfaatkan teknologi verifikasi identitas (biometrik wajah). Platform ini memfasilitasi berbagai aktor, namun fokus utama purwarupa ini adalah pengalaman Pembeli Tiket (User) dan Pengelola Platform (Superadmin).
 
 ## 2. VISI DESAIN VISUAL
 Tampilan antarmuka (UI) harus memberikan kesan modern, premium, futuristik, dan highly secure (sangat aman). Ikuti panduan visual berikut:

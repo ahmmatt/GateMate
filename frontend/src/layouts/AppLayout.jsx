@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
 import api from '../lib/api';
+import OtpVerificationModal from '../components/OtpVerificationModal';
 
 export default function AppLayout() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -130,7 +131,7 @@ export default function AppLayout() {
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/50">
         <div className="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
           <div className="flex items-center gap-8">
-            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">GateMate</Link>
+            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">SecureGate</Link>
             <nav className="hidden md:flex gap-6 items-center">
               {getNavLinks()}
             </nav>
@@ -215,8 +216,8 @@ export default function AppLayout() {
       <footer className="w-full bg-surface-container-lowest border-t border-outline-variant/20 mb-16 md:mb-0">
         <div className="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">GateMate</span>
-            <p className="font-caption text-caption text-secondary-fixed-dim">© 2026 GateMate. All rights reserved.</p>
+            <span className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
+            <p className="font-caption text-caption text-secondary-fixed-dim">© 2026 SecureGate. All rights reserved.</p>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
             {['Privacy Policy','Terms of Service','Help Center','Contact Us'].map(l => (
@@ -230,6 +231,8 @@ export default function AppLayout() {
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-outline-variant/30 flex justify-around items-center px-2 py-3">
         {getBottomNav()}
       </nav>
+      {/* OTP Verification Modal — muncul global jika phone belum diverifikasi */}
+      <OtpVerificationModal />
     </div>
   );
 }

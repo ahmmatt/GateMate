@@ -98,28 +98,34 @@ class MatchmakingController extends Controller
         })->toJson();
 
         $prompt = <<<EOT
-Anda adalah matchmaker psiko-linguistik profesional. Tugas Anda adalah menganalisis tingkat kecocokan (match_score) antara target user dan daftar kandidat berdasarkan "vibe_bio" mereka.
+Kamu adalah AI matchmaker yang membantu peserta event menemukan teman ngobrol yang paling cocok.
 
-Target User Bio:
-"{$myBio}"
+Profil saya (user yang sedang mencari match):
+Bio: "{$myBio}"
 
-Daftar Kandidat (JSON):
+Daftar kandidat yang bisa di-match (JSON):
 {$candidateData}
 
 Instruksi:
-1. Analisis kecocokan bio Target User dengan masing-masing kandidat.
-2. Berikan "match_score" dari skala 1 sampai 100.
-3. Berikan "reason" (alasan singkat 1 kalimat santai dalam bahasa Indonesia) mengapa mereka cocok atau kurang cocok.
-4. KEMBALIKAN HANYA ARRAY JSON MURNI TANPA MARKDOWN ATAU TEKS TAMBAHAN. 
+1. Analisis kecocokan bio saya dengan masing-masing kandidat.
+2. Berikan "match_score" dari skala 1 sampai 100 berdasarkan tingkat kecocokan.
+3. Berikan "reason" — ditulis dari sudut pandang SAYA (user yang mencari), bukan orang ketiga.
+   - Gunakan kata "Dia" untuk merujuk kandidat, dan "kamu" untuk merujuk saya.
+   - Contoh BAGUS: "Dia juga suka IT kayak kamu, dan humor soal meme-nya pasti nyambung banget!"
+   - Contoh BAGUS: "Dia paham dunia coding dan bisa jadi partner diskusi teknologi yang asik buat kamu."
+   - Contoh BURUK: "Keduanya suka IT dan paham jokes teknologi." ← jangan seperti ini!
+   - Tulis 1 kalimat santai, hangat, dan natural dalam bahasa Indonesia. Jangan kaku.
+4. KEMBALIKAN HANYA ARRAY JSON MURNI TANPA MARKDOWN ATAU TEKS TAMBAHAN.
 5. Format Wajib:
 [
-  {"user_id": 123, "match_score": 95, "reason": "Sama-sama suka teknologi dan kopi!"},
-  {"user_id": 456, "match_score": 60, "reason": "Mungkin bisa ngobrol santai."}
+  {"user_id": 123, "match_score": 95, "reason": "Dia juga anak IT yang paham jokes meme kayak kamu, dijamin seru ngobrolnya!"},
+  {"user_id": 456, "match_score": 60, "reason": "Dia punya vibe yang kalem, bisa jadi teman ngobrol santai buat kamu."}
 ]
 EOT;
 
-        // 3. Panggil Gemini API
-        $apiKey = env('GEMINI_API_KEY');
+        // 3. Panggil Groq API
+        $apiKey = env('GROQ_API_KEY');
+        $model = env('GROQ_MODEL', 'qwen-2.5-32b');
         
         if (empty($apiKey)) {
             // Fallback jika API Key belum diset
@@ -136,39 +142,38 @@ EOT;
             return response()->json(['success' => true, 'data' => $formattedMatches]);
         }
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $apiKey;
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
 
         try {
-            $geminiResponse = \Illuminate\Support\Facades\Http::withHeaders(['Content-Type' => 'application/json'])
+            $aiResponse = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->withHeaders(['Content-Type' => 'application/json'])
                 ->timeout(30)
                 ->post($url, [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
-                            ]
-                        ]
+                    'model' => $model,
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt]
                     ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'maxOutputTokens' => 2048,
-                    ]
+                    'temperature' => 0.7,
+                    'max_tokens' => 2048,
+                    'reasoning_effort' => 'none', // Matikan thinking mode (Qwen3)
                 ]);
 
-            if ($geminiResponse->failed()) {
-                throw new \Exception('Gemini API Error: ' . $geminiResponse->body());
+            if ($aiResponse->failed()) {
+                throw new \Exception('Groq API Error: ' . $aiResponse->body());
             }
 
-            $geminiText = $geminiResponse->json('candidates.0.content.parts.0.text');
+            $aiText = $aiResponse->json('choices.0.message.content');
             
+            // Hapus blok <think>...</think> dari model reasoning (Qwen3, dll)
+            $aiText = preg_replace('/<think>.*?<\/think>/s', '', $aiText);
             // Bersihkan markdown (contoh: ```json ... ```)
-            $geminiText = preg_replace('/```(?:json)?(.*?)```/s', '$1', $geminiText);
-            $geminiText = trim($geminiText);
+            $aiText = preg_replace('/```(?:json)?(.*?)```/s', '$1', $aiText);
+            $aiText = trim($aiText);
 
-            $aiResults = json_decode($geminiText, true);
+            $aiResults = json_decode($aiText, true);
 
             if (json_last_error() !== JSON_ERROR_NONE || !is_array($aiResults)) {
-                throw new \Exception('Invalid JSON dari Gemini');
+                throw new \Exception('Invalid JSON dari Groq AI');
             }
 
             // Map data gemini dengan model

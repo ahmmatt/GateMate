@@ -72,50 +72,52 @@ Berikut daftar peserta lain yang juga ingin berkenalan:
 Tugasmu: Analisis kecocokan bio saya dengan mereka. Pilih maksimal 3 orang yang paling cocok untuk saya ajak networking atau ngobrol. Jelaskan alasan kecocokannya dalam bahasa Indonesia yang santai, hangat, dan asik. Gunakan format yang rapi dengan nama sebagai judul tiap bagian.
 PROMPT;
 
-        // ── 5. Panggil Gemini API ──────────────────────────────────────────────
-        $apiKey = trim(env('GEMINI_API_KEY'));
+        // ── 5. Panggil Groq API ──────────────────────────────────────────────
+        $apiKey = trim(env('GROQ_API_KEY'));
+        $model = env('GROQ_MODEL', 'qwen-2.5-32b');
 
         if (empty($apiKey)) {
-            Log::error('AiMatchController: GEMINI_API_KEY kosong!');
+            Log::error('AiMatchController: GROQ_API_KEY kosong!');
             return response()->json([
                 'success' => false,
                 'message' => 'Konfigurasi AI belum selesai. Hubungi administrator.',
             ], 500);
         }
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $apiKey;
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
 
-        $geminiResponse = Http::withHeaders(['Content-Type' => 'application/json'])
+        $aiResponse = Http::withToken($apiKey)
+            ->withHeaders(['Content-Type' => 'application/json'])
             ->timeout(30)
             ->post($url, [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt],
-                        ],
-                    ],
+                'model' => $model,
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
                 ],
-                'generationConfig' => [
-                    'temperature'     => 0.8,
-                    'maxOutputTokens' => 1024,
-                ],
+                'temperature' => 0.8,
+                'max_tokens' => 1024,
+                'reasoning_effort' => 'none', // Matikan thinking mode (Qwen3)
             ]);
 
-        // ── 6. Parsing respons Gemini ──────────────────────────────────────────
-        if ($geminiResponse->failed()) {
-            Log::error('Gemini API Error', [
-                'status' => $geminiResponse->status(),
-                'body'   => $geminiResponse->body(),
+        // ── 6. Parsing respons Groq ──────────────────────────────────────────
+        if ($aiResponse->failed()) {
+            Log::error('Groq API Error', [
+                'status' => $aiResponse->status(),
+                'body'   => $aiResponse->body(),
             ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghubungi Gemini AI. Coba lagi nanti.',
-                'detail'  => 'HTTP ' . $geminiResponse->status(),
+                'message' => 'Gagal menghubungi Groq AI. Coba lagi nanti.',
+                'detail'  => 'HTTP ' . $aiResponse->status(),
             ], 502);
         }
 
-        $aiResponse = $geminiResponse->json('candidates.0.content.parts.0.text')
-            ?? 'AI tidak memberikan respons. Silakan coba lagi.';
+        $rawText = $aiResponse->json('choices.0.message.content')
+            ?? '';
+
+        // Hapus blok <think>...</think> dari model reasoning (Qwen3, dll)
+        $aiText = preg_replace('/<think>.*?<\/think>/s', '', $rawText);
+        $aiText = trim($aiText) ?: 'AI tidak memberikan respons. Silakan coba lagi.';
 
         // Daftar peserta yang di-match (untuk frontend tampilkan detail)
         $matchedProfiles = $otherAttendees->map(function ($attendee) {
@@ -133,7 +135,7 @@ PROMPT;
         return response()->json([
             'success' => true,
             'data'    => [
-                'ai_response'      => $aiResponse,
+                'ai_response'      => $aiText,
                 'event_title'      => $myTicket->event->title,
                 'my_vibe_bio'      => $myTicket->vibe_bio,
                 'candidates_count' => $otherAttendees->count(),

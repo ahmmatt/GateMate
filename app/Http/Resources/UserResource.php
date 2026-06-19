@@ -27,6 +27,7 @@ class UserResource extends JsonResource
                 : null,
             'organization_name'      => $this->organization_name,
             'phone'                  => $this->phone,
+            'phone_verified_at'      => $this->phone_verified_at?->toIso8601String(),
             'instagram'              => $this->instagram,
             'created_at'             => $this->created_at?->toIso8601String(),
         ];

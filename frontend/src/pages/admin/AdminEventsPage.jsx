@@ -69,7 +69,7 @@ export default function AdminEventsPage() {
     <div className="bg-background text-on-surface min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Mobile Top Bar */}
       <header className="flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant md:hidden fixed top-0 z-[60]">
-        <span className="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</span>
+        <span className="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
         <button className="active:scale-95 transition-transform">
           <span className="material-symbols-outlined text-primary">menu</span>
         </button>
@@ -78,7 +78,7 @@ export default function AdminEventsPage() {
       {/* Side Navigation (Desktop) */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">SecureGate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">

@@ -299,7 +299,7 @@ export default function AdminSettingsPage() {
       {/* ── Sidebar (Desktop) ── */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">SecureGate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">
@@ -585,7 +585,7 @@ export default function AdminSettingsPage() {
                       </div>
                       <div className="mt-4 p-3 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-start gap-3">
                         <span className="material-symbols-outlined text-tertiary text-[18px] mt-0.5">info</span>
-                        <p className="font-caption text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim GateMate selama maksimal 2×24 jam.</p>
+                        <p className="font-caption text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim SecureGate selama maksimal 2×24 jam.</p>
                       </div>
                     </section>
                   </div>
@@ -830,7 +830,7 @@ export default function AdminSettingsPage() {
                   <div className="bg-surface-container-low rounded-[14px] border border-dashed border-outline-variant p-stack-lg">
                     <h4 className="font-label-md text-label-md font-bold text-secondary uppercase tracking-wider mb-2">Butuh Bantuan?</h4>
                     <p className="font-body-sm text-body-sm text-on-surface mb-4">Hubungi account manager Anda untuk bantuan perubahan data yang mendesak.</p>
-                    <a href="mailto:support@gatemate.id" className="inline-flex items-center text-primary font-bold font-body-sm text-body-sm group hover:underline">
+                    <a href="mailto:support@securegate.id" className="inline-flex items-center text-primary font-bold font-body-sm text-body-sm group hover:underline">
                       Hubungi Support
                       <span className="material-symbols-outlined ml-1 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </a>

@@ -175,7 +175,7 @@ export default function AdminScannerPage() {
       {/* Side Navigation (Desktop) */}
       <aside className="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
         <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
+          <h2 className="font-h2 text-h2 font-black text-primary">SecureGate</h2>
           <p className="font-caption text-caption text-secondary">Organizer</p>
         </div>
         <nav className="flex-1 space-y-1">
@@ -229,7 +229,7 @@ export default function AdminScannerPage() {
       {/* Top App Bar */}
       <header className="flex justify-between items-center h-16 px-gutter fixed top-0 left-0 right-0 md:ml-sidebar-width bg-surface border-b border-outline-variant z-30">
         <div className="flex items-center gap-4">
-          <h1 className="font-h3 text-[24px] font-black text-primary md:hidden tracking-tight">GateMate</h1>
+          <h1 className="font-h3 text-[24px] font-black text-primary md:hidden tracking-tight">SecureGate</h1>
           <div className="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant focus-within:border-primary transition-all w-80">
             <span className="material-symbols-outlined text-secondary text-[20px]">search</span>
             <input className="bg-transparent border-none focus:ring-0 text-body-sm font-body-sm w-full ml-2" placeholder="Cari tiket, nama, atau ID..." type="text"/>
