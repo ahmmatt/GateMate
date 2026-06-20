@@ -78,6 +78,13 @@ export default function ETicketPage() {
     }
   };
 
+  const isEventStarted = () => {
+    if (!ticket || !ticket.event) return false;
+    // Format required for reliable parsing: YYYY-MM-DDTHH:MM:SS
+    const eventDateTime = new Date(`${ticket.event.start_date.split('T')[0]}T${ticket.event.start_time}`);
+    return new Date() >= eventDateTime;
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center py-24">
       <span className="material-symbols-outlined text-primary animate-spin" style={{ fontSize: '40px' }}>progress_activity</span>
@@ -121,6 +128,38 @@ export default function ETicketPage() {
               </div>
             </div>
           </div>
+
+          {/* Online Meeting Link */}
+          {ticket.event.location_type === 'online' && (
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-[14px] p-6 flex flex-col gap-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-primary">videocam</span>
+                </div>
+                <div>
+                  <h3 className="font-headline-sm font-bold text-on-surface">Akses Event Online</h3>
+                  <p className="font-body-md text-secondary">Tautan meeting untuk event virtual Anda</p>
+                </div>
+              </div>
+              
+              {isEventStarted() ? (
+                <a 
+                  href={ticket.event.location_details} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-primary text-white rounded-full font-bold text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">login</span>
+                  Join Meeting Sekarang
+                </a>
+              ) : (
+                <div className="w-full py-3 bg-surface-container text-secondary rounded-full font-bold text-center flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined text-[20px]">lock_clock</span>
+                  Link akan terbuka saat event dimulai
+                </div>
+              )}
+            </div>
+          )}
 
           {/* QR Card */}
           <div className="bg-surface-container-lowest border border-outline-variant rounded-[14px] p-8 flex flex-col items-center gap-6 shadow-sm">

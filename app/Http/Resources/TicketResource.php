@@ -28,6 +28,7 @@ class TicketResource extends JsonResource
             'event'          => new EventResource($this->whenLoaded('event')),
             'ticket_tier'    => new TicketTierResource($this->whenLoaded('ticketTier')),
             'user'           => new UserResource($this->whenLoaded('user')),
+            'attendee_status'=> \App\Models\Attendee::where('ticket_code', $this->order_id)->value('status'),
 
             // QR Code data — untuk generate QR di frontend
             'qr_data'        => $this->order_id,

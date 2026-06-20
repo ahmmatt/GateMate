@@ -52,6 +52,28 @@ export default function AdminEventShowPage() {
     logout(); navigate('/login');
   };
 
+  const handleApproveAttendee = async (transactionId) => {
+    if (!window.confirm('Yakin ingin menyetujui peserta ini? Tiket akan diterbitkan.')) return;
+    try {
+      await api.post(`/admin/events/${event.id_event || event.id}/attendees/${transactionId}/approve`);
+      fetchData();
+      alert('Peserta disetujui');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menyetujui peserta');
+    }
+  };
+
+  const handleRejectAttendee = async (transactionId) => {
+    if (!window.confirm('Yakin ingin menolak peserta ini? Saldo akan dikembalikan ke wallet mereka.')) return;
+    try {
+      await api.post(`/admin/events/${event.id_event || event.id}/attendees/${transactionId}/reject`);
+      fetchData();
+      alert('Peserta ditolak dan dana di-refund');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menolak peserta');
+    }
+  };
+
   const handleSaveTier = async (e) => {
     e.preventDefault();
     try {
@@ -223,7 +245,7 @@ export default function AdminEventShowPage() {
             <h2 className="font-h1 text-h1 text-on-surface">{event.title}</h2>
           </div>
 
-          <div className="relative w-full aspect-video md:rounded-xl overflow-hidden border-[0.5px] border-outline-variant bg-surface-container-high">
+          <div className="relative w-full aspect-[2048/768] md:rounded-xl overflow-hidden border-[0.5px] border-outline-variant bg-surface-container-high">
             <img 
               alt="Event Banner" 
               className="w-full h-full object-cover" 
@@ -406,7 +428,11 @@ export default function AdminEventShowPage() {
                           <td className="px-6 py-4 text-secondary">{new Date(tb.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})}</td>
                           <td className="px-6 py-4">
                             <div className="flex justify-center">
-                              {tb.is_used ? (
+                              {tb.attendee_status === 'need_approval' ? (
+                                <span className="px-3 py-1 rounded-full text-caption bg-orange-100 text-orange-800 font-bold">
+                                  Menunggu Persetujuan
+                                </span>
+                              ) : tb.is_used ? (
                                 <span className="px-3 py-1 rounded-full text-caption bg-green-100 text-green-800 font-bold flex items-center gap-1">
                                   <span className="material-symbols-outlined text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
                                   Hadir
@@ -420,26 +446,46 @@ export default function AdminEventShowPage() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-end gap-2">
-                              <button 
-                                className={`p-2 transition-colors ${tb.is_used ? 'text-primary' : 'text-secondary hover:text-primary'}`} 
-                                title="Check-in Toggle"
-                                onClick={async () => {
-                                  try {
-                                    await api.post(`/admin/events/${event.id_event || event.id}/tickets/${tb.id}/toggle-checkin`);
-                                    fetchData();
-                                  } catch (err) {
-                                    alert('Gagal mengubah status check-in');
-                                  }
-                                }}
-                              >
-                                <span className="material-symbols-outlined">{tb.is_used ? 'toggle_on' : 'toggle_off'}</span>
-                              </button>
-                              <button 
-                                className="p-2 text-error hover:bg-error-container/20 rounded transition-colors"
-                                onClick={() => setRefundModalData(tb)}
-                              >
-                                <span className="material-symbols-outlined">assignment_return</span>
-                              </button>
+                              {tb.attendee_status === 'need_approval' ? (
+                                <>
+                                  <button 
+                                    className="p-2 text-primary hover:bg-primary-container/20 rounded transition-colors"
+                                    onClick={() => handleApproveAttendee(tb.id)}
+                                    title="Terima"
+                                  >
+                                    <span className="material-symbols-outlined">check_circle</span>
+                                  </button>
+                                  <button 
+                                    className="p-2 text-error hover:bg-error-container/20 rounded transition-colors"
+                                    onClick={() => handleRejectAttendee(tb.id)}
+                                    title="Tolak"
+                                  >
+                                    <span className="material-symbols-outlined">cancel</span>
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button 
+                                    className={`p-2 rounded transition-colors ${tb.is_used ? 'text-primary hover:bg-primary-container/20' : 'text-secondary hover:bg-surface-container'}`}
+                                    onClick={async () => {
+                                      try {
+                                        await api.post(`/admin/events/${event.id_event || event.id}/tickets/${tb.id}/toggle-checkin`);
+                                        fetchData();
+                                      } catch (err) {
+                                        alert('Gagal mengubah status check-in');
+                                      }
+                                    }}
+                                  >
+                                    <span className="material-symbols-outlined">{tb.is_used ? 'toggle_on' : 'toggle_off'}</span>
+                                  </button>
+                                  <button 
+                                    className="p-2 text-error hover:bg-error-container/20 rounded transition-colors"
+                                    onClick={() => setRefundModalData(tb)}
+                                  >
+                                    <span className="material-symbols-outlined">assignment_return</span>
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>

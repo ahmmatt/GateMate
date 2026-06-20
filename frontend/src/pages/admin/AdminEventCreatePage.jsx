@@ -21,6 +21,8 @@ export default function AdminEventCreatePage() {
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState('');
   
+  const [space3dFile, setSpace3dFile] = useState(null);
+  
   // Seat Configuration Modal State
   const [seatModalOpen, setSeatModalOpen] = useState(false);
   const [seatNumbers, setSeatNumbers] = useState([]);
@@ -88,6 +90,13 @@ export default function AdminEventCreatePage() {
     }
   };
 
+  const handleSpace3dFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSpace3dFile(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -102,6 +111,7 @@ export default function AdminEventCreatePage() {
       }
     });
     if (bannerFile) payload.append('banner_image', bannerFile);
+    if (space3dFile) payload.append('space_3d_file', space3dFile);
     
     if (formData.capacity_type === 'limited' && formData.seat_assignment === 'pilih') {
       payload.append('seat_numbers', JSON.stringify(seatNumbers));
@@ -119,7 +129,7 @@ export default function AdminEventCreatePage() {
       });
       setStatusModal({ show: true, type: 'success', message: 'Event berhasil dipublikasikan!' });
       setTimeout(() => {
-        navigate(`/admin/events/${res.data.data.id_event}`);
+        navigate(`/admin/events/${res.data.data.id || res.data.data.id_event}`);
       }, 1500);
     } catch (err) {
       let errMsg = 'Gagal membuat event. Periksa kembali input Anda.';
@@ -476,6 +486,33 @@ export default function AdminEventCreatePage() {
                         ))}
                       </div>
                     )}
+                  </div>
+                </section>
+
+                <section className="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-lg">
+                  <div className="flex items-center gap-2 mb-4">
+                     <span className="material-symbols-outlined text-primary">view_in_ar</span>
+                     <h3 className="font-h3 text-h3">Video 3D Space (Peta Event)</h3>
+                  </div>
+                  <p className="font-caption text-secondary mb-4">Unggah video navigasi 3D atau tur virtual untuk memberikan panduan visual area event kepada peserta.</p>
+                  
+                  <div className="mt-4">
+                    <label className="relative cursor-pointer border-2 border-dashed border-outline-variant rounded-lg bg-surface-container-low h-32 flex flex-col items-center justify-center overflow-hidden hover:border-primary transition-colors">
+                      <input type="file" name="space_3d_file" accept="video/*" onChange={handleSpace3dFileChange} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
+                      {space3dFile ? (
+                        <div className="flex flex-col items-center gap-2 z-0">
+                          <span className="material-symbols-outlined text-primary text-[32px]">movie</span>
+                          <span className="font-label-md text-on-surface text-center px-4 truncate w-full">{space3dFile.name}</span>
+                          <span className="text-caption text-secondary">Klik untuk mengganti file</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 z-0">
+                          <span className="material-symbols-outlined text-secondary text-[32px]">upload_file</span>
+                          <span className="font-label-md text-on-surface">Pilih File Video MP4/WebM</span>
+                          <span className="text-caption text-secondary">Maks. 50MB</span>
+                        </div>
+                      )}
+                    </label>
                   </div>
                 </section>
 

@@ -140,7 +140,10 @@ class CheckoutController extends Controller
                 // 1. Potong saldo wallet user
                 $user->decrement('wallet_balance', $grossAmount);
 
-                // 2. Buat record transaksi tiket langsung success
+                // Cek apakah butuh approval
+                $isPending = $event->require_approval;
+
+                // 2. Buat record transaksi tiket
                 $transaction = Transaction::create([
                     'user_id'        => $user->id_user,
                     'event_id'       => $event->id_event,
@@ -148,7 +151,7 @@ class CheckoutController extends Controller
                     'seat_number'    => $seatNumber,
                     'order_id'       => $orderId,
                     'gross_amount'   => $grossAmount,
-                    'payment_status' => 'success',
+                    'payment_status' => $isPending ? 'pending' : 'success',
                     'snap_token'     => null,
                 ]);
 
@@ -159,7 +162,7 @@ class CheckoutController extends Controller
                     'id_tier'     => $tier->id_tier,
                     'ticket_code' => $orderId,
                     'qr_token'    => \Illuminate\Support\Str::random(40),
-                    'status'      => 'approved',
+                    'status'      => $isPending ? 'need_approval' : 'approved',
                 ]);
 
                 // 3. Catat histori pengeluaran di wallet transaction
@@ -168,7 +171,7 @@ class CheckoutController extends Controller
                     'order_id' => $orderId,
                     'type'     => 'ticket_purchase',
                     'amount'   => $grossAmount,
-                    'status'   => 'success',
+                    'status'   => $isPending ? 'pending' : 'success',
                     'meta'     => [
                         'event_id'    => $event->id_event,
                         'event_title' => $event->title,
@@ -182,34 +185,33 @@ class CheckoutController extends Controller
                     $tier->decrement('remaining_seats');
                 }
 
-                // 5. Kirim E-Ticket via email (fire-and-forget, non-blocking)
-                try {
-                    $transaction->load(['user', 'event', 'ticketTier']);
-                    Mail::to($user->email)->send(new ETicketMail($transaction));
-                    Log::info('E-Ticket email terkirim (API wallet checkout).', ['order_id' => $orderId]);
-                } catch (\Exception $mailErr) {
-                    Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
-                    // Tidak throw — pembelian tetap sukses meski email gagal
+                // 5. Kirim E-Ticket via email jika tidak pending
+                if (!$isPending) {
+                    try {
+                        $transaction->load(['user', 'event', 'ticketTier']);
+                        Mail::to($user->email)->send(new ETicketMail($transaction));
+                        Log::info('E-Ticket email terkirim (API wallet checkout).', ['order_id' => $orderId]);
+                    } catch (\Exception $mailErr) {
+                        Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
+                        // Email gagal tak perlu membatalkan transaksi tiket
+                    }
                 }
 
                 DB::commit();
 
-                Log::info('API Checkout Wallet Berhasil!', [
-                    'order_id'       => $orderId,
-                    'user_id'        => $user->id_user,
-                    'amount_charged' => $grossAmount,
-                ]);
+                $msg = $isPending ? 'Pendaftaran berhasil. Silakan tunggu persetujuan dari penyelenggara.' : 'Pembelian tiket berhasil dengan Wallet!';
 
                 return response()->json([
-                    'success'   => true,
-                    'message'   => 'Pembelian tiket berhasil! E-Ticket telah dikirim ke email Anda.',
-                    'data'      => [
+                    'success' => true,
+                    'message' => $msg,
+                    'data'    => [
                         'order_id'        => $orderId,
                         'event_title'     => $event->title,
                         'tier_name'       => $tier->tier_name,
                         'gross_amount'    => $grossAmount,
                         'new_balance'     => (float) $user->fresh()->wallet_balance,
                         'transaction_id'  => $transaction->id,
+                        'status'          => $isPending ? 'pending' : 'success',
                     ],
                 ]);
 

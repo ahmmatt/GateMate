@@ -46,7 +46,7 @@ export default function MyTicketsPage() {
           <span>{formatDate(ev.start_date)}</span>
           <span className="text-[#f04e37]">{formatTime(ev.start_time)}</span>
         </div>
-        <div className="w-full aspect-[1024/412] overflow-hidden rounded-lg bg-surface-container-low">
+        <div className="w-full aspect-[2048/768] overflow-hidden rounded-lg bg-surface-container-low">
           <img 
             alt={ev.title} 
             className="w-full h-full object-cover" 
@@ -70,13 +70,34 @@ export default function MyTicketsPage() {
             <span className="text-secondary">Total</span>
             <span className="text-on-surface">{formatCurrency(ticket.gross_amount)}</span>
           </div>
+          {ticket.attendee_status === 'need_approval' && (
+            <div className="flex justify-between items-center text-xs font-bold mt-1">
+              <span className="text-secondary">Status</span>
+              <span className="text-orange-600 bg-orange-100 px-2 py-0.5 rounded">Menunggu Persetujuan</span>
+            </div>
+          )}
         </div>
         <button
-          onClick={() => navigate(`/tickets/${ticket.id}`)}
-          className="w-full py-2.5 bg-[#f04e37] text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          onClick={() => {
+            if (ticket.attendee_status === 'need_approval') {
+              alert('Pendaftaran Anda sedang menunggu persetujuan dari penyelenggara event.');
+              return;
+            }
+            navigate(`/tickets/${ticket.id}`)
+          }}
+          className={`w-full py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 transition-opacity ${ticket.attendee_status === 'need_approval' ? 'bg-orange-100 text-orange-800' : 'bg-[#f04e37] text-white hover:opacity-90'}`}
         >
-          <span className="material-symbols-outlined text-sm">qr_code_2</span>
-          Lihat E-Ticket
+          {ticket.attendee_status === 'need_approval' ? (
+            <>
+              <span className="material-symbols-outlined text-sm">hourglass_empty</span>
+              Menunggu Persetujuan
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-sm">qr_code_2</span>
+              Lihat E-Ticket
+            </>
+          )}
         </button>
       </div>
     );

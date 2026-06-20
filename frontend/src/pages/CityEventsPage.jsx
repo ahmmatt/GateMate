@@ -144,7 +144,7 @@ export default function CityEventsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {events.map((ev) => (
               <div key={ev.id || ev.id_event} className="bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer flex flex-col h-full" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
-                <div className="relative overflow-hidden aspect-[16/9]">
+                <div className="relative overflow-hidden aspect-[2048/768]">
                   <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
                   <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.category?.name || ev.category || 'EVENT'}</span>
                 </div>

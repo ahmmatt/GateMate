@@ -222,6 +222,9 @@ class CheckoutController extends Controller
                 if ($fraudStatus == 'accept') {
                     $transaction->update(['payment_status' => 'success']);
 
+                    // Cek apakah butuh approval
+                    $isPending = $transaction->event->require_approval ?? false;
+
                     // Buat Attendee record jika belum ada
                     \App\Models\Attendee::firstOrCreate(
                         ['ticket_code' => $orderId],
@@ -230,21 +233,26 @@ class CheckoutController extends Controller
                             'id_event' => $transaction->event_id,
                             'id_tier'  => $transaction->ticket_tier_id,
                             'qr_token' => \Illuminate\Support\Str::random(40),
-                            'status'   => 'approved',
+                            'status'   => $isPending ? 'need_approval' : 'approved',
                         ]
                     );
 
-                    // ── Kirim E-Ticket via email setelah pembayaran lunas ────
-                    try {
-                        $transaction->load(['user', 'event', 'ticketTier']);
-                        Mail::to($transaction->user->email)->send(new ETicketMail($transaction));
-                        Log::info('E-Ticket email terkirim (capture).', ['order_id' => $orderId]);
-                    } catch (\Exception $mailErr) {
-                        Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
+                    // Kirim E-Ticket via email setelah pembayaran lunas jika tidak pending
+                    if (!$isPending) {
+                        try {
+                            $transaction->load(['user', 'event', 'ticketTier']);
+                            Mail::to($transaction->user->email)->send(new ETicketMail($transaction));
+                            Log::info('E-Ticket email terkirim (capture).', ['order_id' => $orderId]);
+                        } catch (\Exception $mailErr) {
+                            Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
+                        }
                     }
                 }
             } else if ($transactionStatus == 'settlement') {
                 $transaction->update(['payment_status' => 'success']);
+
+                // Cek apakah butuh approval
+                $isPending = $transaction->event->require_approval ?? false;
 
                 // Buat Attendee record jika belum ada
                 \App\Models\Attendee::firstOrCreate(
@@ -254,17 +262,19 @@ class CheckoutController extends Controller
                         'id_event' => $transaction->event_id,
                         'id_tier'  => $transaction->ticket_tier_id,
                         'qr_token' => \Illuminate\Support\Str::random(40),
-                        'status'   => 'approved',
+                        'status'   => $isPending ? 'need_approval' : 'approved',
                     ]
                 );
 
-                // ── Kirim E-Ticket via email setelah pembayaran lunas ────────
-                try {
-                    $transaction->load(['user', 'event', 'ticketTier']);
-                    Mail::to($transaction->user->email)->send(new ETicketMail($transaction));
-                    Log::info('E-Ticket email terkirim (settlement).', ['order_id' => $orderId]);
-                } catch (\Exception $mailErr) {
-                    Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
+                // Kirim E-Ticket via email setelah pembayaran lunas jika tidak pending
+                if (!$isPending) {
+                    try {
+                        $transaction->load(['user', 'event', 'ticketTier']);
+                        Mail::to($transaction->user->email)->send(new ETicketMail($transaction));
+                        Log::info('E-Ticket email terkirim (settlement).', ['order_id' => $orderId]);
+                    } catch (\Exception $mailErr) {
+                        Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
+                    }
                 }
             } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
                 $transaction->update(['payment_status' => 'failed']);

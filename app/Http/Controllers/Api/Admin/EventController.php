@@ -11,6 +11,9 @@ use App\Models\TicketTier;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletTransaction;
+use App\Models\Attendee;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ETicketMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -154,7 +157,7 @@ class EventController extends Controller
                 'max_capacity'     => $validated['capacity_type'] === 'limited'
                                        ? ($validated['max_capacity'] ?? null) : null,
                 'seat_assignment'  => $validated['capacity_type'] === 'limited'
-                                       ? ($validated['seat_assignment'] ?? null) : null,
+                                       ? ($validated['seat_assignment'] ?? 'bebas') : 'bebas',
                 'seat_numbers'     => isset($validated['seat_numbers']) ? json_decode($validated['seat_numbers']) : null,
                 'status'           => 'active',
             ]);
@@ -717,6 +720,96 @@ class EventController extends Controller
                 'scanned_at' => $transaction->fresh()->scanned_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    public function approveAttendee(int $eventId, int $transactionId): JsonResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($eventId);
+        $transaction = Transaction::where('event_id', $event->id_event)->findOrFail($transactionId);
+        $attendee = Attendee::where('ticket_code', $transaction->order_id)->first();
+
+        if (!$attendee || $attendee->status !== 'need_approval') {
+            return response()->json(['success' => false, 'message' => 'Status peserta tidak valid untuk disetujui.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $attendee->update(['status' => 'approved']);
+
+            $transaction->update(['payment_status' => 'success']);
+
+            $walletTx = WalletTransaction::where('order_id', $transaction->order_id)
+                                         ->where('type', 'ticket_purchase')
+                                         ->first();
+            if ($walletTx) {
+                $walletTx->update(['status' => 'success']);
+            }
+
+            // Kirim E-Ticket
+            $transaction->load(['user', 'event', 'ticketTier']);
+            try {
+                Mail::to($transaction->user->email)->send(new ETicketMail($transaction));
+            } catch (\Exception $e) {
+                Log::error('Gagal kirim ETicket setelah approve: ' . $e->getMessage());
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Peserta berhasil disetujui.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Approve Attendee Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem.'], 500);
+        }
+    }
+
+    public function rejectAttendee(int $eventId, int $transactionId): JsonResponse
+    {
+        $event = Event::where('id_admin', Auth::id())->findOrFail($eventId);
+        $transaction = Transaction::where('event_id', $event->id_event)->findOrFail($transactionId);
+        $attendee = Attendee::where('ticket_code', $transaction->order_id)->first();
+
+        if (!$attendee || $attendee->status !== 'need_approval') {
+            return response()->json(['success' => false, 'message' => 'Status peserta tidak valid untuk ditolak.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $transaction->update(['payment_status' => 'failed']);
+
+            $walletTx = WalletTransaction::where('order_id', $transaction->order_id)
+                                         ->where('type', 'ticket_purchase')
+                                         ->first();
+            if ($walletTx) {
+                $walletTx->update(['status' => 'failed']);
+            }
+
+            // Refund wallet
+            $user = User::find($transaction->user_id);
+            if ($user) {
+                $user->increment('wallet_balance', $transaction->gross_amount);
+
+                WalletTransaction::create([
+                    'user_id'  => $user->id_user,
+                    'order_id' => 'REFUND-' . time() . '-' . rand(100, 999),
+                    'type'     => 'topup',
+                    'amount'   => $transaction->gross_amount,
+                    'status'   => 'success',
+                    'meta'     => [
+                        'note'        => 'Refund penolakan peserta event',
+                        'event_title' => $event->title,
+                    ],
+                ]);
+            }
+
+            $attendee->delete();
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Peserta berhasil ditolak dan dana dikembalikan.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Reject Attendee Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem.'], 500);
+        }
     }
 
     public function refundTicket(int $eventId, int $transactionId): JsonResponse

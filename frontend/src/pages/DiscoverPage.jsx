@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import useAuthStore from '../store/useAuthStore';
+import BannerSlider from '../components/BannerSlider';
 
 const CITIES = [
   { name: 'Jakarta',    count: '120+', img: '/icon_jakarta_monas.png',          alt: 'Jakarta Monas' },
@@ -151,38 +152,8 @@ export default function DiscoverPage() {
   return (
     <div className="space-y-12 pb-16">
       {/* Section 1: Hero Banner */}
-      <section className="max-w-[1280px] mx-auto">
-        <div className="relative w-full h-[320px] bg-navy-dark overflow-hidden flex items-center justify-between px-16" style={{ backgroundColor: '#0F1E3D', borderRadius: '24px' }}>
-          {/* Text */}
-          <div className="space-y-6 max-w-lg z-10 text-white">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: '"FILL" 1' }}>stars</span>
-              <span className="text-caption tracking-widest uppercase opacity-80">Eksklusif di SecureGate</span>
-            </div>
-            <h1 className="text-4xl font-bold leading-tight">EVENT MINGGU INI</h1>
-            <p className="text-white/70 text-body-lg">Temukan pengalaman terbaik dari konser musik hingga festival seni pilihan kurator kami.</p>
-          </div>
-
-          <div className="hidden lg:block relative h-full w-[400px]">
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 flex gap-4">
-              <div className="w-56 h-80 rounded-2xl rotate-12 border border-white/20 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm" style={{ backgroundColor: 'rgba(240,78,55,0.9)' }}>
-                <span className="material-symbols-outlined text-white text-8xl mb-4">qr_code_2</span>
-                <div className="w-full border-t border-dashed border-white/30 my-4"></div>
-                <span className="text-white font-bold tracking-widest">SECURE PASS</span>
-              </div>
-              <div className="w-56 h-80 rounded-2xl -rotate-6 border border-white/20 flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                <span className="material-symbols-outlined text-8xl" style={{ color: 'rgba(255,255,255,0.2)' }}>confirmation_number</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Carousel Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-            <div className="w-8 h-1.5 bg-white rounded-full"></div>
-            <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
-            <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
-          </div>
-        </div>
+      <section className="w-full overflow-hidden">
+        <BannerSlider />
       </section>
 
       {/* Section 2: Rekomendasi Event */}
@@ -206,7 +177,7 @@ export default function DiscoverPage() {
             </div>
           ) : recommendedEvents.map((ev) => (
             <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer flex flex-col shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
-              <div className="relative overflow-hidden aspect-[1024/412]">
+              <div className="relative overflow-hidden aspect-[2048/768]">
                 <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
                 <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.category?.name || 'EVENT'}</span>
               </div>
@@ -271,7 +242,7 @@ export default function DiscoverPage() {
                         <span className="material-symbols-outlined text-sm">location_on</span> {ev.location_type === 'online' ? 'Online Event' : `${ev.city || ''}${ev.city ? ', ' : ''}${ev.location_details || ''}`}
                       </p>
                     </div>
-                    <div className="w-40 aspect-[16/9] rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-40 aspect-[2048/768] rounded-lg overflow-hidden flex-shrink-0">
                       <img alt={ev.title} className="w-full h-full object-cover" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
                     </div>
                   </div>
@@ -340,7 +311,7 @@ export default function DiscoverPage() {
           {events.filter(e => e.city === terdekatCity).length > 0 ? (
             events.filter(e => e.city === terdekatCity).map((ev) => (
               <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] space-y-3 group cursor-pointer shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
-                <div className="rounded-xl overflow-hidden border border-border-light aspect-[1024/412]">
+                <div className="rounded-xl overflow-hidden border border-border-light aspect-[2048/768]">
                   <img className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} alt={ev.title} />
                 </div>
                 <div>

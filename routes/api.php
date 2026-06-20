@@ -137,6 +137,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/{id}/withdraw', [AdminEventController::class, 'withdrawEvent'])->name('withdraw');
             Route::post('/{eventId}/tickets/{transactionId}/toggle-checkin', [AdminEventController::class, 'toggleCheckIn'])->name('tickets.toggle-checkin');
             Route::post('/{eventId}/tickets/{transactionId}/refund', [AdminEventController::class, 'refundTicket'])->name('tickets.refund');
+
+            // Attendee Approvals
+            Route::post('/{eventId}/attendees/{attendeeId}/approve', [AdminEventController::class, 'approveAttendee'])->name('attendees.approve');
+            Route::post('/{eventId}/attendees/{attendeeId}/reject', [AdminEventController::class, 'rejectAttendee'])->name('attendees.reject');
         });
 
         Route::prefix('scanner')->name('scanner.')->group(function () {

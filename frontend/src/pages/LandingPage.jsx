@@ -1,9 +1,84 @@
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../lib/api';
 import useAuthStore from '../store/useAuthStore';
+import BannerSlider from '../components/BannerSlider';
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [terdekatCity, setTerdekatCity] = useState('Makassar');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const topCategories = [
+    { id: 'Technology', label: 'Teknologi', icon: 'computer' },
+    { id: 'Music', label: 'Musik', icon: 'music_note' },
+    { id: 'Sports', label: 'Olahraga', icon: 'sports_soccer' },
+    { id: 'Education', label: 'Pendidikan', icon: 'school' },
+    { id: 'Business', label: 'Bisnis', icon: 'work' }
+  ];
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.city) {
+          const available = ['Jakarta', 'Bandung', 'Yogyakarta', 'Bali', 'Surabaya', 'Makassar', 'Medan', 'Semarang'];
+          if (available.includes(data.city)) {
+            setTerdekatCity(data.city);
+          } else {
+            setTerdekatCity('Jakarta');
+          }
+        }
+      })
+      .catch(() => setTerdekatCity('Jakarta'));
+  }, []);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await api.get('/events');
+        setEvents(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const formatShortDate = (dateStr) => {
+    if (!dateStr) return { month: '', day: '', weekday: '' };
+    const d = new Date(dateStr);
+    return {
+      month: d.toLocaleDateString('id-ID', { month: 'short' }).toUpperCase(),
+      day: d.toLocaleDateString('id-ID', { day: '2-digit' }),
+      weekday: d.toLocaleDateString('id-ID', { weekday: 'short' }).substring(0,3).toUpperCase()
+    };
+  };
+
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'FREE';
+    return 'Rp ' + Number(price).toLocaleString('id-ID');
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -15,8 +90,12 @@ export default function LandingPage() {
   return (
     <div className="bg-white text-on-surface antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ── HEADER ───────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 w-full z-50 bg-white border-b border-border-light">
+      {/* 🚀 NAVBAR 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 */}
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${
+        isScrolled 
+          ? 'bg-white/70 backdrop-blur-md border-border-light/50 shadow-sm' 
+          : 'bg-white border-border-light'
+      }`}>
         <div className="flex justify-between items-center px-container-padding h-16 max-w-[1280px] mx-auto gap-gap-default">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all">
@@ -74,45 +153,8 @@ export default function LandingPage() {
       <main className="pt-20 pb-16 space-y-12">
 
         {/* Section 1: Hero Banner */}
-        <section className="max-w-[1280px] mx-auto px-container-padding">
-          <div className="relative w-full h-[320px] rounded-banner bg-navy-dark overflow-hidden flex items-center justify-between px-16" style={{ backgroundColor: '#0F1E3D', borderRadius: '24px' }}>
-            {/* Text */}
-            <div className="space-y-6 max-w-lg z-10 text-white">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: '"FILL" 1' }}>stars</span>
-                <span className="text-caption tracking-widest uppercase opacity-80">Eksklusif di SecureGate</span>
-              </div>
-              <h1 className="text-4xl font-bold leading-tight">EVENT MINGGU INI</h1>
-              <p className="text-white/70 text-body-lg">Temukan pengalaman terbaik dari konser musik hingga festival seni pilihan kurator kami.</p>
-              <button
-                onClick={() => navigate('/discover')}
-                className="bg-white px-8 py-2.5 rounded-button font-bold hover:bg-gray-100 transition-all"
-                style={{ color: '#0F1E3D' }}
-              >
-                Lihat Jadwal
-              </button>
-            </div>
-
-            <div className="hidden lg:block relative h-full w-[400px]">
-              <div className="absolute top-1/2 right-0 -translate-y-1/2 flex gap-4">
-                <div className="w-56 h-80 rounded-2xl rotate-12 border border-white/20 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm" style={{ backgroundColor: 'rgba(240,78,55,0.9)' }}>
-                  <span className="material-symbols-outlined text-white text-8xl mb-4">qr_code_2</span>
-                  <div className="w-full border-t border-dashed border-white/30 my-4"></div>
-                  <span className="text-white font-bold tracking-widest">SECURE PASS</span>
-                </div>
-                <div className="w-56 h-80 rounded-2xl -rotate-6 border border-white/20 flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                  <span className="material-symbols-outlined text-8xl" style={{ color: 'rgba(255,255,255,0.2)' }}>confirmation_number</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Carousel Dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-              <div className="w-8 h-1.5 bg-white rounded-full"></div>
-              <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
-              <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
-            </div>
-          </div>
+        <section className="w-full overflow-hidden max-w-[1280px] mx-auto px-container-padding">
+          <BannerSlider />
         </section>
 
         {/* Section 2: Rekomendasi Event */}
@@ -127,31 +169,32 @@ export default function LandingPage() {
             </Link>
           </div>
           <div className="flex gap-6 overflow-x-auto hide-scrollbar px-[calc((100vw-1280px)/2+1.5rem)] pb-4">
-            {[
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwogDwE_KfH1dkfAakghdm3mnxRTQH2Bw96PgS9foxPUOD0EWsNTphUau9Ir-lBNWRU8C5WpWccdDy2h4ts1Cf_ni9Q3tI6tCftglLKzALhfVg3qAO7h9o7zC1K7HaVGSGCKJR_-tdjXD08C9-jwbx6DUI1c1CEXnwmiwZBfONnF7QgyPpjPgkFgu9e-Jj_ykP-w5E3_h76mRkIzD_uMgwbYLgEQ9Bjf7Zh1JqV1UWGVdDjbeOVF8gMg467B17qF7e6BjhdYelyzQ', badge: 'MUSIK', title: 'Java Jazz Festival 2024', date: '24 - 26 Mei 2024', location: 'JIExpo Kemayoran', price: 'Mulai Rp 450rb' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAm_wyNAgLNgKuDznlyxzcSLlU_qWLzwO215cAaETyP_dVu_aGRVKWkFwK05-S7qIEwwHkpEFLDrCFqSweFMSsCAWSdyyL8BZm5S-Sy4mkyYyPyRL-ia72XbULbPADCcWdZh5_Xd18EL1Zj4nJGE2S9LFyZakZQRU4m9DP9arDtwDtXFbJOXexRe-W5IwkdSeYc92TqbhivgaP7WcLDIyYK6bKMDETwpthDry3YPbYlnwAoMnStifoEb3tRWJhMMGuE9nfvE4mUO6c', badge: 'EXHIBITION', title: 'IndoTech Future Expo', date: '15 Juni 2024', location: 'ICE BSD City', price: 'Mulai Rp 75rb' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDgC_BOreddC_gRmj4tg59-W_DQ9yvJVE22Gf81QzUzqmUF8sFUu6emm35LM6Hg1maUWUIqbqu26HC41k7-dX7Zj_KnEgB0XhZOQZeUJFMUXwjI-jLSwal-fAFHszpF48lDoeB0EL1a3P4Y_Se71D4OVbC1xCJ1Fw09litlAoVKL1aZ0CeUnx4TTtS3kg-nL4bAydYdxn2Gx7mp5Ult3b75kyPiFFji1BNFnpUrcfVHMg_UHxbLp7redAlQF805qgdhAvY9ZKPNW58', badge: 'PARTY', title: 'Echoes of Tomorrow', date: '01 Juni 2024', location: 'SCBD Jakarta', price: 'Mulai Rp 200rb' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBfVHNmodW2e04wqWmeWpANV7gs3sXFMg-JRIWS7FCXQqEawXiYeFj1jRcmfYJSHm8pFxVFEIZSihXSoCfaIUX8sKFMWOsrVzTarfKqS6WK0e8qS4u54oFMbiVd5biLVaNtFdUO7NkODnEmU8eqZAPOxIT8kOxbD7cAM0z2fSgGCK5UjNKSL0w4LIGiIqy2hoXKZWs3hH7AhU3UUFFgfh7YnQhc51Wo86lMhFD5ha9_jC5gTq45AnFKn0RZoJiNt_d7YTTzlnmbqvQ', badge: 'WORKSHOP', title: 'UI/UX Design Masterclass', date: '10 Juli 2024', location: 'Kuningan City', price: 'FREE' },
-            ].map((ev) => (
-              <div key={ev.title} className="min-w-[280px] bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer" onClick={() => navigate('/discover')}>
-                <div className="relative overflow-hidden aspect-[16/9]">
-                  <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.img} />
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.badge}</span>
+            {loading ? (
+              <div className="flex gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="min-w-[280px] h-[300px] bg-white rounded-[14px] border-[0.5px] border-border-light animate-pulse" />
+                ))}
+              </div>
+            ) : events.slice(0, 4).map((ev) => (
+              <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer flex flex-col shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
+                <div className="relative overflow-hidden aspect-[2048/768]">
+                  <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.category?.name || 'EVENT'}</span>
                 </div>
-                <div className="p-4 space-y-2">
-                  <h3 className="font-bold text-body-md line-clamp-1">{ev.title}</h3>
-                  <div className="space-y-1">
+                <div className="p-4 flex flex-col flex-grow">
+                  <h3 className="font-bold text-body-md line-clamp-1 mb-2">{ev.title}</h3>
+                  <div className="space-y-1 mt-auto">
                     <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
                       <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-                      <span>{ev.date}</span>
+                      <span>{formatDate(ev.start_date)}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
                       <span className="material-symbols-outlined text-[16px]">location_on</span>
-                      <span>{ev.location}</span>
+                      <span className="truncate">{ev.location_type === 'online' ? 'Online Event' : `${ev.city || ''}${ev.city ? ', ' : ''}${ev.location_details || ''}`}</span>
                     </div>
                   </div>
-                  <div className="pt-2 flex justify-between items-center">
-                    <span className="text-[#B22110] font-bold">{ev.price}</span>
+                  <div className="pt-3 mt-3 border-t border-border-light flex justify-between items-center">
+                    <span className="text-[#B22110] font-bold">{formatPrice(ev.ticket_tiers ? Math.min(...ev.ticket_tiers.map(t => Number(t.price))) : 0)}</span>
                     <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">add_circle</span>
                   </div>
                 </div>
@@ -174,32 +217,34 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="space-y-4">
-              {[
-                { month: 'JUN', day: '20', weekday: 'SAB', badge: 'MUSIK', badgeColor: 'bg-red-50 text-[#B22110]', tag: '• Baru Saja Ditambah', title: 'Summer Sound Festival 2024', location: 'Stadion Utama GBK, Jakarta', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqaD5Sv0cEyS6bBR0gbrH3srFORlfItyKHScBU7ZZhMm_AiKyoD0nd5P8r7Dbu9hfmRJAt6Wtqp-7p4T7vhzR2-dkggjrtyCWTAqZZ3Eki1CzfD6tlntvEKJGM2Bq4B1wNd7G5l-GZaoa0kzxZspdhtoqhzd4Sg7hsr7SErIe3DctJZpS71PtLuY417JkHwoclPZmbAayHH4N5MvQw3ClAYfy4Yu_njkZm1NyzdOtM8fiCplId8Buq476gDG2qdx4CQdMlf2DWhsw' },
-                { month: 'JUN', day: '25', weekday: 'SEL', badge: 'TECH', badgeColor: 'bg-blue-50 text-blue-600', tag: '• Trending #1', title: 'World AI Summit Jakarta', location: 'Ritz Carlton Mega Kuningan', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBiTU9RA6_KIDfgbQwV9NNWN97YAiqeZkgChfYC6vVVQ0eezZjY8AF4o60PXLNAjem4-_ZbWQkBd8nY9G_D2sJkapC5xjvnF7h8kcFqOnRsDCG33kEFOQei3TvgS3IjOhSVGB6L_FHQkYPLB1LQvAlJLAq6nqloqTsA7K7MuLd5hQj4Bq0usNn6xPmx7pgHA3AmEPr5Cr2_7QI93f0po9Wz5FmwLsLGCuya9eD0K469roSJCc3k3VH4yd9fbVIWzMaGWrUQw1ihgYU' },
-                { month: 'JUL', day: '02', weekday: 'MIN', badge: 'SPORTS', badgeColor: 'bg-green-50 text-green-600', tag: '', title: 'Jakarta International Marathon', location: 'Area Monas, Jakarta Pusat', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbYoSuMa9lVAsdtInRQI04UcsRVzfUMWBxaX6vNafmiYv4IgYkkST5AOOfF9IJO7NpWguUmoYoBBCckd1ha65I7laQwzGzAKWTB3-pArhVeR99SBrwt-hTuloUX6bgY3xE2JeEX2oG2QKc2yb31fsLpb52xFyzenDOiOmLPnLRS5dFyTEHmy4oh7P11-oP9md0UhaUGjJLJRcG5ehDYiB_eAIAxe4HNXZTHugRsYpScAXzYWr7i7nOLjuaKp39Ys0CbQyn6iF3Zxc' },
-              ].map((item) => (
-                <div key={item.title} className="flex items-center gap-6 p-4 rounded-xl border-[0.5px] border-border-light card-hover group cursor-pointer transition-all" onClick={() => navigate('/discover')}>
-                  <div className="w-16 flex flex-col items-center border-r border-border-light pr-6 shrink-0">
-                    <span className="text-caption font-bold text-on-surface-variant">{item.month}</span>
-                    <span className="text-2xl font-bold text-[#B22110]">{item.day}</span>
-                    <span className="text-caption text-on-surface-variant">{item.weekday}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${item.badgeColor}`}>{item.badge}</span>
-                      {item.tag && <span className="text-[10px] text-on-surface-variant">{item.tag}</span>}
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="h-32 bg-white rounded-xl border border-border-light animate-pulse" />
+                ))
+              ) : events.slice(0, 3).map((item) => {
+                const dateInfo = formatShortDate(item.start_date);
+                return (
+                  <div key={item.id || item.id_event} className="flex items-center gap-6 p-4 rounded-xl border-[0.5px] border-border-light card-hover group cursor-pointer transition-all" onClick={() => navigate(isAuthenticated ? `/events/${item.id || item.id_event}` : '/login')}>
+                    <div className="w-16 flex flex-col items-center border-r border-border-light pr-6 shrink-0">
+                      <span className="text-caption font-bold text-on-surface-variant">{dateInfo.month}</span>
+                      <span className="text-2xl font-bold text-[#B22110]">{dateInfo.day}</span>
+                      <span className="text-caption text-on-surface-variant">{dateInfo.weekday}</span>
                     </div>
-                    <h3 className="font-bold text-body-md truncate">{item.title}</h3>
-                    <p className="text-caption text-on-surface-variant flex items-center gap-1 mt-1">
-                      <span className="material-symbols-outlined text-sm">location_on</span> {item.location}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-red-50 text-[#B22110]">{item.category?.name || 'EVENT'}</span>
+                      </div>
+                      <h3 className="font-bold text-body-md truncate">{item.title}</h3>
+                      <p className="text-caption text-on-surface-variant flex items-center gap-1 mt-1">
+                        <span className="material-symbols-outlined text-sm">location_on</span> {item.location_type === 'online' ? 'Online Event' : `${item.city || ''}${item.city ? ', ' : ''}${item.location_details || ''}`}
+                      </p>
+                    </div>
+                      <div className="w-40 aspect-[2048/768] rounded-lg overflow-hidden flex-shrink-0">
+                        <img alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={item.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
+                      </div>
                   </div>
-                  <div className="w-40 aspect-[16/9] rounded-lg overflow-hidden flex-shrink-0">
-                    <img alt={item.title} className="w-full h-full object-cover" src={item.img} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <button onClick={() => navigate('/discover')} className="w-full py-3 border border-border-light rounded-xl text-body-md font-medium text-on-surface-variant hover:bg-gray-50 transition-colors">
               Muat Lebih Banyak
@@ -222,21 +267,15 @@ export default function LandingPage() {
         <section className="max-w-[1280px] mx-auto px-container-padding space-y-6">
           <h2 className="text-headline-md">Telusuri Kategori</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { icon: 'music_note', label: 'Musik' },
-              { icon: 'palette', label: 'Pameran' },
-              { icon: 'attractions', label: 'Wahana' },
-              { icon: 'sports_soccer', label: 'Olahraga' },
-              { icon: 'architecture', label: 'Workshop' },
-            ].map(({ icon, label }) => (
-              <div key={label} className="flex flex-col items-center justify-center p-6 border-[0.5px] border-border-light rounded-xl card-hover cursor-pointer space-y-3" onClick={() => navigate('/discover')}>
+            {topCategories.map(({ id, icon, label }) => (
+              <div key={label} className="flex flex-col items-center justify-center p-6 border-[0.5px] border-border-light rounded-xl bg-white card-hover cursor-pointer space-y-3 transition-colors hover:border-[#B22110]/50" onClick={() => navigate('/discover?category=' + id)}>
                 <span className="material-symbols-outlined text-[#B22110] text-3xl">{icon}</span>
-                <span className="text-caption font-bold">{label}</span>
+                <span className="text-caption font-bold text-on-surface">{label}</span>
               </div>
             ))}
-            <div className="flex flex-col items-center justify-center p-6 border border-[#B22110] rounded-xl bg-white cursor-pointer space-y-3" onClick={() => navigate('/discover')}>
+            <div className="flex flex-col items-center justify-center p-6 border-[0.5px] border-border-light rounded-xl bg-white cursor-pointer space-y-3 transition-colors hover:border-[#B22110]/50" onClick={() => navigate('/discover')}>
               <span className="material-symbols-outlined text-[#B22110] text-3xl">grid_view</span>
-              <span className="text-caption font-bold text-[#B22110]">Semua Kategori</span>
+              <span className="text-caption font-bold text-on-surface">Semua Kategori</span>
             </div>
           </div>
         </section>
@@ -245,29 +284,41 @@ export default function LandingPage() {
         <section className="space-y-6">
           <div className="max-w-[1280px] mx-auto px-container-padding flex items-center gap-4">
             <h2 className="text-headline-md">Event Terdekat</h2>
-            <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full border border-border-light cursor-pointer">
-              <span className="text-[12px]">📍</span>
-              <span className="text-caption font-bold">Makassar</span>
-              <span className="material-symbols-outlined text-sm">expand_more</span>
+            <div className="relative">
+              <div onClick={() => setShowCityDropdown(!showCityDropdown)} className="flex items-center gap-1 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full border border-border-light cursor-pointer transition-colors">
+                <span className="text-[12px]">📍</span>
+                <span className="text-caption font-bold">{terdekatCity}</span>
+                <span className="material-symbols-outlined text-sm">expand_more</span>
+              </div>
+              {showCityDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-36 bg-white border border-border-light rounded-xl shadow-lg z-50 py-2 overflow-hidden">
+                  {['Jakarta', 'Bandung', 'Yogyakarta', 'Bali', 'Surabaya', 'Makassar', 'Medan', 'Semarang'].map(c => (
+                    <div key={c} onClick={() => { setTerdekatCity(c); setShowCityDropdown(false); }} className={`px-4 py-2 text-caption cursor-pointer hover:bg-gray-50 ${terdekatCity === c ? 'font-bold text-[#B22110] bg-[#B22110]/5' : 'text-on-surface'}`}>
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-6 overflow-x-auto hide-scrollbar px-[calc((100vw-1280px)/2+1.5rem)] pb-4">
-            {[
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdBdOkSGZLD1jCcVTryAatjulS3GTlE-Jytc1gFBR7EYufORn2DlzlKZFZKcc8ICrcqViTgNldTEVtoAPdsSN4bbwNAdnl_8Y0osKzYV0Go55ufiJos04BqBq1QYk8zM1EcH7Kmt8FAS2NlZDDb8M0TYvbUHgg1f5kJUDdf-Evlm42Qij8QhArmfxTlJ6tvzuihqGQnV9nIEzRbi6cLx-T_A89GlodcyGABs4OImUA86D1av2WRWyccWbLrVeJDTt3X8cfuc5wQR0', title: 'Makassar Food Festival', sub: 'Losari, 22-23 Juni' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCdgQDghL6u4x-QYYUidy5vjQ3RJiTXRtHuNcq9BoKTLeifzN4qBATalY8anFTk3np9PvdPnH6MSfTQXMWWQpKkdOw_oQoC6p4MzNSCGSM-fzrMEhWEAV-FJWBrLlrTdHHKUYYCJqT_UANBU1GpzwL-tGgYJoxjLkUvdnUq3S3uWI5fgd_H14_NHxUKTw2accdvZlDOwQcXZw6yubW2jUUCeRo76gZMeBmM-vyBruvXLFx7Pw6Zwz9Bu0u7-PtdLD1zA3pKBollNkQ', title: 'Sultan Hasanuddin Run', sub: 'Karebosi, 30 Juni' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAIcUXiNfqL4uGP2PwIp4xn806-M8Kj4_-Sb0YBBMNaO6DWLKRl4US1hvolFG-rolRi99vZQ77dhVQ5vTyV7gF4tEcBf9IQeVWfCacBbq4IR71LT33Zkrv6jy1ZFdhvYGBlXmFeXww3GXT0OySqJdu_eUzjroOaqS1VXzaKzz2cIa2g_zzApDw4zygqnP_FFngJsQSja0hrWER4bvLRypwqg8QvrKnLJG9xr4lnYlXFT47qQhdUVvGl-5n3vtyPqtf_Nm5Mc1mjf-0', title: 'Phinisi Digital Art Show', sub: 'CCC, 05-07 Juli' },
-              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyjCTxlmF8vZnlP8AngJIrcap9E1AVUmPJXwSpG_lQbMUojzipNHPgjYlxRnmh50kkBBIzlnf7gnE4OZi5ltS0QuaVDW-CdZdaR-gMY-t-ZymEqNvyDnrlAP4CccBQRycmR5Fyg0DsP93dBBoUjUudTA05xBZKyzzXMiBnzoEx2S_EJ7Y9IxsR_VWVMkhuooGERnXXMowdrC0QVwmB4VkHgicL-miGPsn7EmAJTf3m305c1w-GWIh34JDUbALIQfgzx2VNO5x5mGI', title: 'Local Band Night', sub: 'Phinisi Point, Tiap Sabtu' },
-            ].map((item) => (
-              <div key={item.title} className="min-w-[240px] space-y-3 group cursor-pointer" onClick={() => navigate('/discover')}>
-                <div className="rounded-xl overflow-hidden border border-border-light aspect-[16/9]">
-                  <img className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" src={item.img} alt={item.title} />
+            {events.filter(e => e.city === terdekatCity).length > 0 ? (
+              events.filter(e => e.city === terdekatCity).map((ev) => (
+                <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] space-y-3 group cursor-pointer shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
+                  <div className="rounded-xl overflow-hidden border border-border-light aspect-[2048/768]">
+                    <img className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} alt={ev.title} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-body-md truncate">{ev.title}</h4>
+                    <p className="text-caption text-on-surface-variant truncate">{ev.location_details || ev.city || 'TBA'}, {formatShortDate(ev.start_date).day} {formatShortDate(ev.start_date).month}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-body-md">{item.title}</h4>
-                  <p className="text-caption text-on-surface-variant">{item.sub}</p>
-                </div>
+              ))
+            ) : (
+              <div className="py-8 px-4 w-full text-center text-secondary border border-dashed border-border-light rounded-xl">
+                Belum ada event terdekat di {terdekatCity}.
               </div>
-            ))}
+            )}
           </div>
         </section>
 
