@@ -286,7 +286,7 @@ export default function EventDetailPage() {
                           
                           {/* Sleek Tooltip */}
                           <div className="absolute bottom-full mb-3 bg-[#1e1e1e] border border-white/10 text-white px-4 py-2 rounded-xl shadow-2xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                            {event.venue_name || event.city || 'Lokasi Event'}
+                            {event.location_details || event.city || 'Lokasi Event'}
                             <div className="text-[10px] font-normal text-white/50 mt-0.5">{event.city || 'Indonesia'}</div>
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1e1e1e]"></div>
                           </div>

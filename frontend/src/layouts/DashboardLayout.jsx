@@ -24,9 +24,9 @@ export default function DashboardLayout() {
       <aside className="w-64 glass-dark rounded-r-3xl my-4 ml-4 flex flex-col z-20">
         <div className="p-6 flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-coral-400 to-coral-600 flex items-center justify-center text-white font-bold shadow-lg shadow-coral-500/20">
-            G
+            S
           </div>
-          <span className="text-xl font-bold tracking-tight text-white">Gate<span className="text-coral-500">Mate</span></span>
+          <span className="text-xl font-bold tracking-tight text-white">Secure<span className="text-coral-500">Gate</span></span>
         </div>
 
         <div className="px-6 py-4 border-b border-white/10">

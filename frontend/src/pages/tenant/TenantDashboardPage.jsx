@@ -17,19 +17,35 @@ export default function TenantDashboardPage() {
   const [cart, setCart] = useState({});
   const [qrPayload, setQrPayload] = useState(null);
 
-  useEffect(() => {
-    // Mock fetch since we don't have the exact API yet
-    setTimeout(() => {
-      setData({
-        menus: [{ id: 1, item_name: 'Nasi Goreng', price: 25000 }, { id: 2, item_name: 'Es Teh Manis', price: 8000 }],
-        transactions: [{ id: 1, type: 'tenant_revenue', amount: 50000, status: 'success', created_at: new Date().toISOString() }],
-        totalEarned: 50000,
-        pendingWd: 0,
-        availableBalance: 50000,
-        isEventEnded: true
-      });
+  // Withdraw Form
+  const [wdAmount, setWdAmount] = useState('');
+  const [wdBank, setWdBank] = useState('');
+  const [wdAccount, setWdAccount] = useState('');
+  const [isSubmittingWd, setIsSubmittingWd] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/api/tenant/dashboard');
+      if (res.data.success) {
+        setData({
+          menus: res.data.data.menus || [],
+          transactions: res.data.data.transactions || [],
+          totalEarned: res.data.data.total_earned || 0,
+          pendingWd: res.data.data.pending_wd || 0,
+          availableBalance: res.data.data.available_balance || 0,
+          isEventEnded: res.data.data.is_event_ended,
+          eventTitle: res.data.data.event_title || ''
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch tenant dashboard", err);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const handleLogout = async () => {
@@ -37,12 +53,43 @@ export default function TenantDashboardPage() {
     logout(); navigate('/login');
   };
 
-  const handleAddMenu = (e) => {
+  const handleAddMenu = async (e) => {
     e.preventDefault();
     if (!newItemName || !newItemPrice) return;
-    const newMenu = { id: Date.now(), item_name: newItemName, price: parseInt(newItemPrice) };
-    setData(prev => ({ ...prev, menus: [...prev.menus, newMenu] }));
-    setNewItemName(''); setNewItemPrice('');
+    try {
+      const res = await api.post('/api/tenant/menus', {
+        item_name: newItemName,
+        price: parseInt(newItemPrice)
+      });
+      if (res.data.success) {
+        setNewItemName(''); setNewItemPrice('');
+        fetchData(); // Refresh data
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menambah menu');
+    }
+  };
+
+  const handleWithdraw = async (e) => {
+    e.preventDefault();
+    if (!wdAmount || !wdBank || !wdAccount) return;
+    setIsSubmittingWd(true);
+    try {
+      const res = await api.post('/api/tenant/withdraw', {
+        amount: parseInt(wdAmount),
+        bank_name: wdBank,
+        account_number: wdAccount
+      });
+      if (res.data.success) {
+        alert('Permintaan penarikan berhasil diajukan!');
+        setWdAmount(''); setWdBank(''); setWdAccount('');
+        fetchData();
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal mengajukan penarikan');
+    } finally {
+      setIsSubmittingWd(false);
+    }
   };
 
   const formatRp = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
@@ -83,7 +130,7 @@ export default function TenantDashboardPage() {
     <div className="min-h-screen flex flex-col bg-surface text-on-surface" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Top Nav */}
       <nav className="h-16 flex items-center justify-between px-6 bg-white/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-50">
-        <div className="font-headline-md font-bold text-on-surface">Gate<span className="text-primary">Mate</span> Tenant</div>
+        <div className="font-headline-md font-bold text-on-surface">Secure<span className="text-primary">Gate</span> Tenant</div>
         <div className="flex items-center gap-4">
           <div className="bg-primary-fixed text-primary px-4 py-1.5 rounded-full font-bold text-label-md">
             {formatRp(data.availableBalance)}
@@ -158,16 +205,68 @@ export default function TenantDashboardPage() {
                 <span className="material-symbols-outlined">payments</span> Tarik Dana
               </h3>
               {!data.isEventEnded && <div className="bg-red-50 text-error p-3 rounded-xl mb-4 text-body-md flex items-center gap-2"><span className="material-symbols-outlined">lock</span> Penarikan dikunci karena event berlangsung.</div>}
-              <form className="flex flex-col gap-3">
-                <input type="number" placeholder={`Jumlah (Maks ${formatRp(data.availableBalance)})`} max={data.availableBalance} min="10000" disabled={!data.isEventEnded} className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
+              <form onSubmit={handleWithdraw} className="flex flex-col gap-3">
+                <input type="number" value={wdAmount} onChange={e => setWdAmount(e.target.value)} placeholder={`Jumlah (Maks ${formatRp(data.availableBalance)})`} max={data.availableBalance} min="10000" required disabled={!data.isEventEnded || isSubmittingWd} className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
                 <div className="flex gap-3">
-                  <input type="text" placeholder="Nama Bank" disabled={!data.isEventEnded} className="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
-                  <input type="text" placeholder="No Rekening" disabled={!data.isEventEnded} className="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
+                  <input type="text" value={wdBank} onChange={e => setWdBank(e.target.value)} placeholder="Nama Bank (cth: BCA)" required disabled={!data.isEventEnded || isSubmittingWd} className="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
+                  <input type="text" value={wdAccount} onChange={e => setWdAccount(e.target.value)} placeholder="No Rekening" required disabled={!data.isEventEnded || isSubmittingWd} className="flex-1 bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 font-body-md disabled:opacity-50" />
                 </div>
-                <button type="button" disabled={!data.isEventEnded} className="mt-2 bg-error text-white font-bold py-3 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined">send</span> Ajukan Penarikan
+                <button type="submit" disabled={!data.isEventEnded || isSubmittingWd} className="mt-2 bg-error text-white font-bold py-3 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined">{isSubmittingWd ? 'hourglass_empty' : 'send'}</span> {isSubmittingWd ? 'Memproses...' : 'Ajukan Penarikan'}
                 </button>
               </form>
+            </div>
+
+            {/* Riwayat Transaksi */}
+            <div className="bg-surface-container-lowest border border-outline-variant rounded-[20px] p-6 shadow-sm">
+              <h3 className="font-headline-sm font-bold flex items-center gap-2 mb-4 text-[#006579]">
+                <span className="material-symbols-outlined">receipt_long</span> Riwayat Transaksi
+              </h3>
+              {data.transactions.length === 0 ? (
+                <div className="text-center py-8 text-secondary">
+                  <span className="material-symbols-outlined text-4xl opacity-50 mb-2">history</span>
+                  <p>Belum ada riwayat transaksi.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {data.transactions.map((tx, idx) => {
+                    const isIncome = tx.type === 'tenant_revenue';
+                    return (
+                      <div key={idx} className="flex justify-between items-center p-4 bg-surface-container-low rounded-xl border border-outline-variant">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isIncome ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                            <span className="material-symbols-outlined text-[20px]">
+                              {isIncome ? 'south_west' : 'north_east'}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-bold text-body-md text-on-surface">
+                              {isIncome ? 'Penjualan' : 'Penarikan Dana'}
+                            </div>
+                            <div className="text-caption text-secondary">
+                              {new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`font-bold ${isIncome ? 'text-green-600' : 'text-orange-600'}`}>
+                            {isIncome ? '+' : '-'}{formatRp(tx.amount)}
+                          </div>
+                          <div className="text-caption text-secondary flex items-center justify-end gap-1 mt-0.5">
+                            {tx.status === 'success' ? (
+                              <><span className="material-symbols-outlined text-[14px] text-green-600">check_circle</span> Selesai</>
+                            ) : tx.status === 'failed' ? (
+                              <><span className="material-symbols-outlined text-[14px] text-error">cancel</span> Gagal</>
+                            ) : (
+                              <><span className="material-symbols-outlined text-[14px] text-orange-500">pending</span> Diproses</>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 

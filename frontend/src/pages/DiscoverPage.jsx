@@ -3,28 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import useAuthStore from '../store/useAuthStore';
 
-const CATEGORIES = [
-  { key: 'All', label: 'Semua' },
-  { key: 'Music Concert', label: 'Konser' },
-  { key: 'Workshop & Training', label: 'Workshop' },
-  { key: 'Sport', label: 'Sport' },
-  { key: 'Festival', label: 'Festival' },
-  { key: 'Exhibition', label: 'Pameran' },
-  { key: 'Tech Seminar', label: 'Seminar' },
+const CITIES = [
+  { name: 'Jakarta',    count: '120+', img: '/icon_jakarta_monas.png',          alt: 'Jakarta Monas' },
+  { name: 'Bandung',    count: '85+',  img: '/icon_bandung_gedung_sate.png',     alt: 'Bandung Gedung Sate' },
+  { name: 'Yogyakarta', count: '64+',  img: '/icon_yogyakarta_tugu.png',         alt: 'Tugu Yogyakarta' },
+  { name: 'Bali',       count: '92+',  img: '/icon_bali_temple.png',             alt: 'Bali Temple' },
+  { name: 'Surabaya',   count: '78+',  img: '/icon_surabaya_sura_baya.png',      alt: 'Surabaya' },
+  { name: 'Makassar',   count: '45+',  img: '/icon_makassar_phinisi.png',        alt: 'Makassar Phinisi' },
+  { name: 'Medan',      count: '38+',  img: '/icon_medan_istana_maimun.png',     alt: 'Medan Istana Maimun' },
+  { name: 'Semarang',   count: '52+',  img: '/icon_semarang_lawang_sewu.png',    alt: 'Semarang Lawang Sewu' },
 ];
-
-const CITIES = ['All', 'Jakarta', 'Bandung', 'Surabaya', 'Bali', 'Yogyakarta', 'Medan', 'Makassar', 'Semarang'];
-
-const CITY_META = {
-  Jakarta:    { color: 'bg-primary-container text-on-primary-container', icon: 'location_city' },
-  Bali:       { color: 'bg-tertiary-container text-on-tertiary-container', icon: 'holiday_village' },
-  Bandung:    { color: 'bg-secondary-container text-on-secondary-container', icon: 'landscape' },
-  Surabaya:   { color: 'bg-error-container text-on-error-container', icon: 'apartment' },
-  Yogyakarta: { color: 'bg-surface-variant text-on-surface-variant', icon: 'account_balance' },
-  Makassar:   { color: 'bg-primary-fixed text-on-primary-fixed', icon: 'sailing' },
-  Medan:      { color: 'bg-tertiary-fixed text-on-tertiary-fixed', icon: 'map' },
-  Semarang:   { color: 'bg-secondary-fixed text-on-secondary-fixed', icon: 'train' },
-};
 
 export default function DiscoverPage() {
   const [events, setEvents] = useState([]);
@@ -32,6 +20,9 @@ export default function DiscoverPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [city, setCity] = useState('All');
+  const [pilihanTab, setPilihanTab] = useState('Populer');
+  const [terdekatCity, setTerdekatCity] = useState('Makassar');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -53,166 +44,343 @@ export default function DiscoverPage() {
 
   useEffect(() => { fetchEvents(); }, [category, city]);
 
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.city) {
+          const available = ['Jakarta', 'Bandung', 'Yogyakarta', 'Bali', 'Surabaya', 'Makassar', 'Medan', 'Semarang'];
+          if (available.includes(data.city)) {
+            setTerdekatCity(data.city);
+          } else {
+            setTerdekatCity('Jakarta');
+          }
+        }
+      })
+      .catch(() => setTerdekatCity('Jakarta'));
+  }, []);
+
   const handleSearch = (e) => { e.preventDefault(); fetchEvents(); };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const formatShortDate = (dateStr) => {
+    if (!dateStr) return { month: '', day: '', weekday: '' };
+    const d = new Date(dateStr);
+    return {
+      month: d.toLocaleDateString('id-ID', { month: 'short' }).toUpperCase(),
+      day: d.toLocaleDateString('id-ID', { day: '2-digit' }),
+      weekday: d.toLocaleDateString('id-ID', { weekday: 'short' }).substring(0,3).toUpperCase()
+    };
   };
 
   const formatPrice = (price) => {
-    if (!price || price === 0) return 'Free';
+    if (!price || price === 0) return 'FREE';
     return 'Rp ' + Number(price).toLocaleString('id-ID');
   };
 
+  const handleCategoryClick = (cat) => {
+    setCategory(cat);
+  };
+
+  const handleCityClick = (c) => {
+    setCity(c);
+  };
+
+  const getTicketsSold = (event) => {
+    if (!event.ticket_tiers) return 0;
+    return event.ticket_tiers.reduce((total, tier) => {
+      if (tier.is_unlimited) return total;
+      return total + ((tier.capacity || 0) - (tier.remaining_seats || 0));
+    }, 0);
+  };
+
+  const isThisWeek = (dateStr) => {
+    if (!dateStr) return false;
+    const eventDate = new Date(dateStr);
+    eventDate.setHours(0,0,0,0);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const dayOfWeek = today.getDay();
+    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + daysUntilSunday);
+    endOfWeek.setHours(23,59,59,999);
+    return eventDate >= today && eventDate <= endOfWeek;
+  };
+
+  const pilihanEvents = pilihanTab === 'Minggu Ini' 
+    ? events.filter(e => isThisWeek(e.start_date)).sort((a,b) => new Date(a.start_date) - new Date(b.start_date)).slice(0, 5)
+    : [...events].sort((a, b) => getTicketsSold(b) - getTicketsSold(a)).slice(0, 5);
+
+  const getRelevanceScore = (event) => {
+    let score = 0;
+    if (event.city === terdekatCity) score += 1000;
+    
+    if (event.created_at) {
+      const createdAt = new Date(event.created_at);
+      const now = new Date();
+      const hoursSinceRelease = (now - createdAt) / (1000 * 60 * 60);
+      if (hoursSinceRelease <= 12) score += 500;
+    }
+    
+    score += getTicketsSold(event);
+    return score;
+  };
+
+  const todayDate = new Date();
+  todayDate.setHours(0,0,0,0);
+  
+  const recommendedEvents = events
+    .filter(e => new Date(e.start_date) >= todayDate)
+    .map(e => ({ ...e, relevanceScore: getRelevanceScore(e) }))
+    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .slice(0, 4);
+
+  const topCategories = [
+    { id: 'Technology', label: 'Teknologi', icon: 'computer' },
+    { id: 'Music', label: 'Musik', icon: 'music_note' },
+    { id: 'Sports', label: 'Olahraga', icon: 'sports_soccer' },
+    { id: 'Education', label: 'Pendidikan', icon: 'school' },
+    { id: 'Business', label: 'Bisnis', icon: 'work' }
+  ];
+
   return (
-    <div className="flex flex-col gap-10">
-      {/* Hero Section */}
-      <section className="bg-surface-container-low rounded-3xl p-8 md:p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-fixed/30 to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="font-headline-lg text-headline-lg md:text-5xl font-bold text-on-surface mb-4">Discover Event</h1>
-          <p className="font-body-lg text-body-lg text-secondary mb-8">Find what's happening nearby, pick your favorite category, or search instantly.</p>
-          <form onSubmit={handleSearch} className="flex items-center gap-2 bg-surface-container-lowest rounded-full p-2 shadow-sm focus-within:ring-2 ring-primary transition-all">
-            <span className="material-symbols-outlined text-secondary ml-3">search</span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search event by title..."
-              className="w-full bg-transparent border-none outline-none text-on-surface font-body-md focus:ring-0"
-            />
-            <button type="submit" className="bg-primary hover:bg-primary-container text-on-primary px-6 py-2 rounded-full font-label-md font-bold transition-colors">
-              Search
-            </button>
-          </form>
+    <div className="space-y-12 pb-16">
+      {/* Section 1: Hero Banner */}
+      <section className="max-w-[1280px] mx-auto">
+        <div className="relative w-full h-[320px] bg-navy-dark overflow-hidden flex items-center justify-between px-16" style={{ backgroundColor: '#0F1E3D', borderRadius: '24px' }}>
+          {/* Text */}
+          <div className="space-y-6 max-w-lg z-10 text-white">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: '"FILL" 1' }}>stars</span>
+              <span className="text-caption tracking-widest uppercase opacity-80">Eksklusif di SecureGate</span>
+            </div>
+            <h1 className="text-4xl font-bold leading-tight">EVENT MINGGU INI</h1>
+            <p className="text-white/70 text-body-lg">Temukan pengalaman terbaik dari konser musik hingga festival seni pilihan kurator kami.</p>
+          </div>
+
+          <div className="hidden lg:block relative h-full w-[400px]">
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 flex gap-4">
+              <div className="w-56 h-80 rounded-2xl rotate-12 border border-white/20 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm" style={{ backgroundColor: 'rgba(240,78,55,0.9)' }}>
+                <span className="material-symbols-outlined text-white text-8xl mb-4">qr_code_2</span>
+                <div className="w-full border-t border-dashed border-white/30 my-4"></div>
+                <span className="text-white font-bold tracking-widest">SECURE PASS</span>
+              </div>
+              <div className="w-56 h-80 rounded-2xl -rotate-6 border border-white/20 flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                <span className="material-symbols-outlined text-8xl" style={{ color: 'rgba(255,255,255,0.2)' }}>confirmation_number</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Carousel Dots */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="w-8 h-1.5 bg-white rounded-full"></div>
+            <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
+            <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
+          </div>
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="flex flex-col md:flex-row md:items-center justify-between gap-gap-default mt-2">
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0">
-          {CATEGORIES.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setCategory(key)}
-              className={`whitespace-nowrap px-5 py-2 rounded-full font-label-md text-label-md transition-all active:scale-95 ${category === key ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-secondary hover:bg-surface-container-high'}`}
-            >
-              {label}
-            </button>
-          ))}
+      {/* Section 2: Rekomendasi Event */}
+      <section className="space-y-6">
+        <div className="max-w-[1280px] mx-auto flex justify-between items-end">
+          <div className="space-y-1">
+            <h2 className="text-headline-md">Rekomendasi Untukmu</h2>
+            <p className="text-on-surface-variant text-body-md">Event pilihan yang mungkin kamu sukai</p>
+          </div>
         </div>
-        <div className="relative min-w-[160px]">
-          <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="appearance-none w-full bg-surface-container-low border border-outline-variant/30 rounded-[10px] px-4 py-2 font-body-md text-body-md focus:outline-none focus:border-primary cursor-pointer"
-          >
-            <option value="All">Semua Kota</option>
-            {CITIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary pointer-events-none">expand_more</span>
-        </div>
-      </section>
-
-      {/* Events Grid */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-headline-md text-headline-md font-bold text-on-surface">Recently Added</h2>
-        </div>
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl overflow-hidden border border-outline-variant animate-pulse">
-                <div className="h-48 bg-surface-container-high" />
-                <div className="p-5 space-y-3">
-                  <div className="h-4 bg-surface-container-high rounded w-3/4" />
-                  <div className="h-3 bg-surface-container-high rounded w-1/2" />
-                  <div className="h-3 bg-surface-container-high rounded w-1/3" />
+        <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4">
+          {loading ? (
+            <div className="flex gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] h-[300px] bg-white rounded-[14px] border-[0.5px] border-border-light animate-pulse" />
+              ))}
+            </div>
+          ) : recommendedEvents.length === 0 ? (
+            <div className="w-full py-12 text-center text-secondary border border-dashed border-border-light rounded-[14px]">
+              Tidak ada event yang direkomendasikan saat ini.
+            </div>
+          ) : recommendedEvents.map((ev) => (
+            <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer flex flex-col shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
+              <div className="relative overflow-hidden aspect-[1024/412]">
+                <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
+                <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.category?.name || 'EVENT'}</span>
+              </div>
+              <div className="p-4 flex flex-col flex-grow">
+                <h3 className="font-bold text-body-md line-clamp-1 mb-2">{ev.title}</h3>
+                <div className="space-y-1 mt-auto">
+                  <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
+                    <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                    <span>{formatDate(ev.start_date)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
+                    <span className="material-symbols-outlined text-[16px]">location_on</span>
+                    <span className="truncate">{ev.location_type === 'online' ? 'Online Event' : `${ev.city || ''}${ev.city ? ', ' : ''}${ev.location_details || ''}`}</span>
+                  </div>
+                </div>
+                <div className="pt-3 mt-3 border-t border-border-light flex justify-between items-center">
+                  <span className="text-[#B22110] font-bold">{formatPrice(ev.ticket_tiers ? Math.min(...ev.ticket_tiers.map(t => Number(t.price))) : 0)}</span>
+                  <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">add_circle</span>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 3: Event Pilihan + Sidebar */}
+      <section className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[#B22110] text-2xl" style={{ fontVariationSettings: '"FILL" 1' }}>calendar_today</span>
+              <h2 className="text-headline-md">Event Pilihan</h2>
+            </div>
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              <button onClick={() => setPilihanTab('Populer')} className={`px-4 py-1.5 text-caption font-bold rounded-md transition-all ${pilihanTab === 'Populer' ? 'bg-white shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>Populer</button>
+              <button onClick={() => setPilihanTab('Minggu Ini')} className={`px-4 py-1.5 text-caption font-bold rounded-md transition-all ${pilihanTab === 'Minggu Ini' ? 'bg-white shadow-sm text-on-surface' : 'text-on-surface-variant hover:text-on-surface'}`}>Minggu Ini</button>
+            </div>
           </div>
-        ) : events.length === 0 ? (
-          <div className="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-low rounded-2xl border border-outline-variant border-dashed">
-            <span className="material-symbols-outlined text-secondary-fixed-dim" style={{ fontSize: '48px' }}>event_busy</span>
-            <h3 className="mt-4 font-headline-sm font-bold text-on-surface">No Events Available</h3>
-            <p className="text-secondary font-body-md mt-2 text-center max-w-md">There are no upcoming events at the moment. Please check back later or try adjusting your filters.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {events.map((event) => (
-              <div
-                key={event.id || event.id_event}
-                onClick={() => isAuthenticated ? navigate(`/events/${event.id || event.id_event}`) : navigate('/login')}
-                className="group bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden hover:border-primary hover:shadow-lg transition-all flex flex-col h-full cursor-pointer"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={event.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'}
-                    alt={event.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full text-primary font-label-md font-bold text-xs flex items-center gap-1">
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>calendar_month</span>
-                    {formatDate(event.start_date)}
-                  </div>
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="font-headline-sm font-bold text-on-surface mb-2 line-clamp-2">{event.title}</h3>
-                  <div className="flex items-center gap-2 text-secondary font-caption mb-2">
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
-                    <span className="truncate">{event.location_type === 'online' ? 'Online Event' : `${event.city || ''}${event.city ? ', ' : ''}${event.location_details || ''}`}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-secondary font-caption mb-4">
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                    <span>{event.start_time}</span>
-                  </div>
-                  <div className="mt-auto pt-4 border-t border-outline-variant/50 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-[10px]">
-                        {(event.organizer?.full_name || 'A')[0].toUpperCase()}
+          <div className="space-y-4">
+            {loading ? (
+              [...Array(3)].map((_, i) => <div key={i} className="h-32 bg-white border border-border-light rounded-xl animate-pulse" />)
+            ) : pilihanEvents.length === 0 ? (
+              <div className="py-8 text-center text-secondary border border-dashed border-border-light rounded-xl">
+                Belum ada event pilihan.
+              </div>
+            ) : (
+              pilihanEvents.map((ev) => {
+                const dateParts = formatShortDate(ev.start_date);
+                return (
+                  <div key={ev.id || ev.id_event} className="flex items-center gap-6 p-4 rounded-xl border-[0.5px] border-border-light card-hover group cursor-pointer transition-all bg-white" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
+                    <div className="w-16 flex flex-col items-center border-r border-border-light pr-6 shrink-0">
+                      <span className="text-caption font-bold text-on-surface-variant">{dateParts.month}</span>
+                      <span className="text-2xl font-bold text-[#B22110]">{dateParts.day}</span>
+                      <span className="text-caption text-on-surface-variant">{dateParts.weekday}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-red-50 text-[#B22110]">{ev.category?.name?.toUpperCase() || 'EVENT'}</span>
                       </div>
-                      <span className="font-caption text-secondary truncate max-w-[100px]">{event.organizer?.full_name || 'Admin'}</span>
+                      <h3 className="font-bold text-body-md truncate">{ev.title}</h3>
+                      <p className="text-caption text-on-surface-variant flex items-center gap-1 mt-1">
+                        <span className="material-symbols-outlined text-sm">location_on</span> {ev.location_type === 'online' ? 'Online Event' : `${ev.city || ''}${ev.city ? ', ' : ''}${ev.location_details || ''}`}
+                      </p>
                     </div>
-                    <div className="font-label-md font-bold text-primary">
-                      {(!event.ticket_tiers || event.ticket_tiers.length === 0) 
-                        ? 'Free' 
-                        : (() => {
-                            const minPrice = Math.min(...event.ticket_tiers.map(t => Number(t.price)));
-                            return minPrice === 0 ? 'Free' : 'Rp ' + minPrice.toLocaleString('id-ID');
-                          })()
-                      }
+                    <div className="w-40 aspect-[16/9] rounded-lg overflow-hidden flex-shrink-0">
+                      <img alt={ev.title} className="w-full h-full object-cover" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} />
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
-        )}
-      </section>
-
-      {/* City Explorer */}
-      <section className="mb-16 mt-8">
-        <h2 className="font-headline-md text-headline-md font-bold text-on-surface mb-6">Cari Event di Kotamu</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(CITY_META).map(([cityName, meta]) => (
-            <button
-              key={cityName}
-              onClick={() => setCity(cityName)}
-              className="bg-surface-container-low border border-outline-variant/20 p-4 rounded-xl flex items-center gap-4 hover:shadow-md transition-all cursor-pointer text-left"
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${meta.color}`}>
-                <span className="material-symbols-outlined">{meta.icon}</span>
-              </div>
-              <div>
-                <h4 className="font-headline-sm text-[16px] text-on-surface">{cityName}</h4>
-                <p className="font-body-md text-primary">Events</p>
-              </div>
+          {events.length > 5 && (
+            <button onClick={() => {}} className="w-full py-3 border border-border-light rounded-xl text-body-md font-medium text-on-surface-variant hover:bg-gray-50 transition-colors">
+              Muat Lebih Banyak
             </button>
-          ))}
+          )}
+        </div>
+
+        {/* Sidebar Promo */}
+        <div className="space-y-8">
+          <div className="w-full rounded-[14px] overflow-hidden border-[0.5px] border-border-light shadow-sm h-[600px]">
+            <img
+              alt="GateAI Matchmaking Poster"
+              className="w-full h-full object-cover"
+              src="../../../public/gateai.png"
+            />
+          </div>
         </div>
       </section>
+
+      {/* Section 4: Kategori Event */}
+      <section className="max-w-[1280px] mx-auto space-y-6">
+        <h2 className="text-headline-md">Telusuri Kategori</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {topCategories.map(({ id, icon, label }) => (
+            <div key={label} className={`flex flex-col items-center justify-center p-6 border-[0.5px] rounded-xl card-hover cursor-pointer space-y-3 transition-colors ${category === id ? 'border-[#B22110] bg-[#B22110]/5' : 'border-border-light bg-white hover:border-[#B22110]/50'}`} onClick={() => handleCategoryClick(id)}>
+              <span className={`material-symbols-outlined text-3xl ${category === id ? 'text-[#B22110]' : 'text-[#B22110]'}`}>{icon}</span>
+              <span className={`text-caption font-bold ${category === id ? 'text-[#B22110]' : 'text-on-surface'}`}>{label}</span>
+            </div>
+          ))}
+          <div className={`flex flex-col items-center justify-center p-6 border-[0.5px] rounded-xl cursor-pointer space-y-3 transition-colors ${category === 'All' ? 'border-[#B22110] bg-[#B22110]/5' : 'border-border-light bg-white hover:border-[#B22110]/50'}`} onClick={() => handleCategoryClick('All')}>
+            <span className={`material-symbols-outlined text-3xl ${category === 'All' ? 'text-[#B22110]' : 'text-[#B22110]'}`}>grid_view</span>
+            <span className={`text-caption font-bold ${category === 'All' ? 'text-[#B22110]' : 'text-on-surface'}`}>Semua Kategori</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Event Terdekat */}
+      <section className="space-y-6">
+        <div className="max-w-[1280px] mx-auto flex items-center gap-4">
+          <h2 className="text-headline-md">Event Terdekat</h2>
+          <div className="relative">
+            <div onClick={() => setShowCityDropdown(!showCityDropdown)} className="flex items-center gap-1 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full border border-border-light cursor-pointer transition-colors">
+              <span className="text-[12px]">📍</span>
+              <span className="text-caption font-bold">{terdekatCity}</span>
+              <span className="material-symbols-outlined text-sm">expand_more</span>
+            </div>
+            {showCityDropdown && (
+              <div className="absolute top-full left-0 mt-2 w-36 bg-white border border-border-light rounded-xl shadow-lg z-50 py-2 overflow-hidden">
+                {['Jakarta', 'Bandung', 'Yogyakarta', 'Bali', 'Surabaya', 'Makassar', 'Medan', 'Semarang'].map(c => (
+                  <div key={c} onClick={() => { setTerdekatCity(c); setShowCityDropdown(false); }} className={`px-4 py-2 text-caption cursor-pointer hover:bg-gray-50 ${terdekatCity === c ? 'font-bold text-[#B22110] bg-[#B22110]/5' : 'text-on-surface'}`}>
+                    {c}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4">
+          {events.filter(e => e.city === terdekatCity).length > 0 ? (
+            events.filter(e => e.city === terdekatCity).map((ev) => (
+              <div key={ev.id || ev.id_event} className="min-w-[280px] max-w-[280px] space-y-3 group cursor-pointer shrink-0" onClick={() => navigate(isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login')}>
+                <div className="rounded-xl overflow-hidden border border-border-light aspect-[1024/412]">
+                  <img className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400'} alt={ev.title} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-body-md truncate">{ev.title}</h4>
+                  <p className="text-caption text-on-surface-variant truncate">{ev.location_details || ev.city || 'TBA'}, {formatShortDate(ev.start_date).day} {formatShortDate(ev.start_date).month}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-8 px-4 w-full text-center text-secondary border border-dashed border-border-light rounded-xl">
+              Belum ada event terdekat di {terdekatCity}.
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section 6: Kota Populer */}
+      <section className="max-w-[1280px] mx-auto space-y-6">
+        <h2 className="text-headline-md">Eksplor Kota Populer</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {CITIES.map(({ name, count, img, alt }) => (
+            <div key={name} className={`bg-white rounded-[14px] border-[0.5px] p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform h-40 border-outline-variant`} onClick={() => navigate('/city/' + name)}>
+              <div className="w-16 h-16 flex items-center justify-center">
+                <img alt={alt} className="w-full h-full object-contain" src={img} />
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-[#B22110] text-body-md">{name}</p>
+                <p className="text-caption text-secondary">{count} Event</p>
+              </div>
+            </div>
+          ))}
+          {city !== 'All' && (
+            <div className="bg-white rounded-[14px] border border-[#B22110] p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform h-40" onClick={() => handleCityClick('All')}>
+               <span className="material-symbols-outlined text-[#B22110] text-4xl">travel_explore</span>
+               <p className="font-bold text-[#B22110] text-body-md text-center">Semua Kota</p>
+            </div>
+          )}
+        </div>
+      </section>
+
     </div>
   );
 }

@@ -1,223 +1,314 @@
-import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const sectionsRef = useRef([]);
+  const { isAuthenticated, user } = useAuthStore();
 
-  useEffect(() => {
-    // Scroll-reveal animation (replaces the vanilla JS IntersectionObserver)
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('opacity-100', 'translate-y-0');
-            entry.target.classList.remove('opacity-0', 'translate-y-4');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const sections = document.querySelectorAll('section[data-reveal]');
-    sections.forEach((section) => {
-      section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-4');
-      observer.observe(section);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const q = e.target.search.value.trim();
+    if (q) navigate(`/discover?search=${encodeURIComponent(q)}`);
+    else navigate('/discover');
+  };
 
   return (
-    <div className="bg-surface text-on-surface selection:bg-primary-fixed">
-      {/* TopNavBar */}
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/50">
-        <div className="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
-          <div className="flex items-center gap-gap-default">
+    <div className="bg-white text-on-surface antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── HEADER ───────────────────────────────────────────────────────── */}
+      <header className="fixed top-0 w-full z-50 bg-white border-b border-border-light">
+        <div className="flex justify-between items-center px-container-padding h-16 max-w-[1280px] mx-auto gap-gap-default">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all">
             <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
-            <div className="hidden md:flex gap-6 ml-8">
-              <a className="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Explore</a>
-            </div>
+          </Link>
+
+          {/* Search */}
+          <div className="flex-1 max-w-md hidden md:flex">
+            <form onSubmit={handleSearch} className="relative w-full">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+              <input
+                name="search"
+                className="w-full bg-[#F5F5F7] border border-border-light rounded-[10px] pl-10 pr-4 py-2 text-body-md focus:border-[#B22110] focus:ring-0 transition-all outline-none"
+                placeholder="Cari event..."
+                type="text"
+              />
+            </form>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/login')}
-              className="coral-pill px-6 py-2 bg-primary text-on-primary font-body-md text-body-md hover:bg-primary-container active:scale-95 transition-all duration-200"
-            >
-              Masuk
-            </button>
+
+          {/* Nav Links */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link to="/" className="text-primary font-bold border-b-2 border-primary py-5">Explore</Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/my-tickets" className="text-on-surface-variant hover:text-primary transition-colors py-5">My Tickets</Link>
+                <Link to="/wallet" className="text-on-surface-variant hover:text-primary transition-colors py-5">Wallet</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-on-surface-variant hover:text-primary transition-colors py-5">My Tickets</Link>
+                <Link to="/login" className="text-on-surface-variant hover:text-primary transition-colors py-5">Wallet</Link>
+              </>
+            )}
+          </nav>
+
+          {/* CTA */}
+          <div className="flex items-center">
+            {isAuthenticated ? (
+              <Link to="/discover" className="bg-[#B22110] text-white px-[22px] py-[10px] rounded-[22px] font-medium hover:bg-primary-container transition-all active:scale-95">
+                Jelajahi
+              </Link>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="bg-[#B22110] text-white px-[22px] py-[10px] rounded-[22px] font-medium hover:bg-primary-container transition-all active:scale-95"
+              >
+                Masuk
+              </button>
+            )}
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="pt-16">
-        {/* Hero Section */}
-        <section data-reveal className="relative px-container-padding py-16 md:py-24 max-w-[1280px] mx-auto overflow-hidden">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="w-full md:w-1/2 flex flex-col items-start gap-6 z-10">
-              <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background max-w-md">
-                Temukan event terbaikmu
-              </h1>
-              <p className="font-body-lg text-body-lg text-secondary max-w-lg">
-                Platform tiket digital paling aman dan transparan untuk konser, festival, dan seminar eksklusif. Dapatkan akses instan ke pengalaman tak terlupakan.
-              </p>
-              <div className="flex flex-wrap gap-4 mt-2">
-                <button className="coral-pill px-[22px] py-[10px] bg-primary text-on-primary font-body-md text-body-md hover:opacity-90 active:scale-95 transition-all">
-                  Jelajahi Event
-                </button>
-                <button
-                  onClick={() => navigate('/register')}
-                  className="coral-pill px-[22px] py-[10px] border border-primary text-primary font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all"
-                >
-                  Daftar Gratis
-                </button>
+      {/* ── MAIN ─────────────────────────────────────────────────────────── */}
+      <main className="pt-20 pb-16 space-y-12">
+
+        {/* Section 1: Hero Banner */}
+        <section className="max-w-[1280px] mx-auto px-container-padding">
+          <div className="relative w-full h-[320px] rounded-banner bg-navy-dark overflow-hidden flex items-center justify-between px-16" style={{ backgroundColor: '#0F1E3D', borderRadius: '24px' }}>
+            {/* Text */}
+            <div className="space-y-6 max-w-lg z-10 text-white">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: '"FILL" 1' }}>stars</span>
+                <span className="text-caption tracking-widest uppercase opacity-80">Eksklusif di SecureGate</span>
               </div>
+              <h1 className="text-4xl font-bold leading-tight">EVENT MINGGU INI</h1>
+              <p className="text-white/70 text-body-lg">Temukan pengalaman terbaik dari konser musik hingga festival seni pilihan kurator kami.</p>
+              <button
+                onClick={() => navigate('/discover')}
+                className="bg-white px-8 py-2.5 rounded-button font-bold hover:bg-gray-100 transition-all"
+                style={{ color: '#0F1E3D' }}
+              >
+                Lihat Jadwal
+              </button>
             </div>
-            <div className="w-full md:w-1/2 relative">
-              <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-2xl card-shadow">
-                <img
-                  alt="Featured Event"
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjKeZM_B8HohGvQEC3d1OUmzJKmSPx-nIzmeLNZRf3D_-AtDD9xsKiJDMaU6MQLVatj1b1fhG6xgZ6GXJOpP1bWHQfxTlDeAUeeNDV5gwoMCT-SGBDJ39KZKiKKkqqpg7EA6w-SCbHanimRVZrBDSSXTTtd6SwkrDagyHql5O54MA95FXyJ_lT8bFhMuWGQS5wsUbBKq2OTCgWvtFdt_9tZwXWpncyw80_NnWtqgvbCKK7jjFRK_6lFu7N-wqau-hqyq-k9KCtcVI"
-                />
-              </div>
-              {/* Decorative Floating Element */}
-              <div className="absolute -bottom-6 -left-6 bg-surface-container-high p-4 rounded-xl shadow-lg border border-outline-variant/30 hidden md:block">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
-                  </div>
-                  <div>
-                    <p className="font-label-md text-label-md text-primary-fixed-dim">Tiket Terjamin</p>
-                    <p className="text-[10px] text-secondary">Keamanan Gate 100%</p>
-                  </div>
+
+            <div className="hidden lg:block relative h-full w-[400px]">
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 flex gap-4">
+                <div className="w-56 h-80 rounded-2xl rotate-12 border border-white/20 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm" style={{ backgroundColor: 'rgba(240,78,55,0.9)' }}>
+                  <span className="material-symbols-outlined text-white text-8xl mb-4">qr_code_2</span>
+                  <div className="w-full border-t border-dashed border-white/30 my-4"></div>
+                  <span className="text-white font-bold tracking-widest">SECURE PASS</span>
+                </div>
+                <div className="w-56 h-80 rounded-2xl -rotate-6 border border-white/20 flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                  <span className="material-symbols-outlined text-8xl" style={{ color: 'rgba(255,255,255,0.2)' }}>confirmation_number</span>
                 </div>
               </div>
+            </div>
+
+            {/* Carousel Dots */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="w-8 h-1.5 bg-white rounded-full"></div>
+              <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
+              <div className="w-2 h-1.5 bg-white/30 rounded-full"></div>
             </div>
           </div>
         </section>
 
-        {/* Kategori Section */}
-        <section data-reveal className="bg-surface-container-lowest py-16">
-          <div className="max-w-[1280px] mx-auto px-container-padding">
-            <div className="flex justify-between items-end mb-8">
-              <div>
-                <h2 className="font-headline-md text-headline-md text-on-surface">Kategori</h2>
-                <p className="font-body-md text-body-md text-secondary">Cari berdasarkan minat dan hobi Anda</p>
-              </div>
+        {/* Section 2: Rekomendasi Event */}
+        <section className="space-y-6">
+          <div className="max-w-[1280px] mx-auto px-container-padding flex justify-between items-end">
+            <div className="space-y-1">
+              <h2 className="text-headline-md">Rekomendasi Untukmu</h2>
+              <p className="text-on-surface-variant text-body-md">Event pilihan yang mungkin kamu sukai</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-gap-default">
-              {[
-                { icon: 'music_note', label: 'Konser' },
-                { icon: 'sports_soccer', label: 'Sport' },
-                { icon: 'festival', label: 'Festival' },
-                { icon: 'school', label: 'Seminar' },
-                { icon: 'gallery_thumbnail', label: 'Pameran' },
-                { icon: 'construction', label: 'Workshop' },
-              ].map(({ icon, label }) => (
-                <div key={label} className="group flex flex-col items-center gap-3 p-6 bg-white card-shadow rounded-[14px] hover:border-primary transition-all cursor-pointer">
-                  <div className="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-3xl">{icon}</span>
-                  </div>
-                  <span className="font-body-md text-body-md font-medium">{label}</span>
+            <Link to="/discover" className="text-[#B22110] font-medium flex items-center gap-1 hover:underline">
+              Lihat Semua <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </Link>
+          </div>
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar px-[calc((100vw-1280px)/2+1.5rem)] pb-4">
+            {[
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwogDwE_KfH1dkfAakghdm3mnxRTQH2Bw96PgS9foxPUOD0EWsNTphUau9Ir-lBNWRU8C5WpWccdDy2h4ts1Cf_ni9Q3tI6tCftglLKzALhfVg3qAO7h9o7zC1K7HaVGSGCKJR_-tdjXD08C9-jwbx6DUI1c1CEXnwmiwZBfONnF7QgyPpjPgkFgu9e-Jj_ykP-w5E3_h76mRkIzD_uMgwbYLgEQ9Bjf7Zh1JqV1UWGVdDjbeOVF8gMg467B17qF7e6BjhdYelyzQ', badge: 'MUSIK', title: 'Java Jazz Festival 2024', date: '24 - 26 Mei 2024', location: 'JIExpo Kemayoran', price: 'Mulai Rp 450rb' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAm_wyNAgLNgKuDznlyxzcSLlU_qWLzwO215cAaETyP_dVu_aGRVKWkFwK05-S7qIEwwHkpEFLDrCFqSweFMSsCAWSdyyL8BZm5S-Sy4mkyYyPyRL-ia72XbULbPADCcWdZh5_Xd18EL1Zj4nJGE2S9LFyZakZQRU4m9DP9arDtwDtXFbJOXexRe-W5IwkdSeYc92TqbhivgaP7WcLDIyYK6bKMDETwpthDry3YPbYlnwAoMnStifoEb3tRWJhMMGuE9nfvE4mUO6c', badge: 'EXHIBITION', title: 'IndoTech Future Expo', date: '15 Juni 2024', location: 'ICE BSD City', price: 'Mulai Rp 75rb' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDgC_BOreddC_gRmj4tg59-W_DQ9yvJVE22Gf81QzUzqmUF8sFUu6emm35LM6Hg1maUWUIqbqu26HC41k7-dX7Zj_KnEgB0XhZOQZeUJFMUXwjI-jLSwal-fAFHszpF48lDoeB0EL1a3P4Y_Se71D4OVbC1xCJ1Fw09litlAoVKL1aZ0CeUnx4TTtS3kg-nL4bAydYdxn2Gx7mp5Ult3b75kyPiFFji1BNFnpUrcfVHMg_UHxbLp7redAlQF805qgdhAvY9ZKPNW58', badge: 'PARTY', title: 'Echoes of Tomorrow', date: '01 Juni 2024', location: 'SCBD Jakarta', price: 'Mulai Rp 200rb' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBfVHNmodW2e04wqWmeWpANV7gs3sXFMg-JRIWS7FCXQqEawXiYeFj1jRcmfYJSHm8pFxVFEIZSihXSoCfaIUX8sKFMWOsrVzTarfKqS6WK0e8qS4u54oFMbiVd5biLVaNtFdUO7NkODnEmU8eqZAPOxIT8kOxbD7cAM0z2fSgGCK5UjNKSL0w4LIGiIqy2hoXKZWs3hH7AhU3UUFFgfh7YnQhc51Wo86lMhFD5ha9_jC5gTq45AnFKn0RZoJiNt_d7YTTzlnmbqvQ', badge: 'WORKSHOP', title: 'UI/UX Design Masterclass', date: '10 Juli 2024', location: 'Kuningan City', price: 'FREE' },
+            ].map((ev) => (
+              <div key={ev.title} className="min-w-[280px] bg-white rounded-[14px] border-[0.5px] border-border-light overflow-hidden event-card-shadow group cursor-pointer" onClick={() => navigate('/discover')}>
+                <div className="relative overflow-hidden aspect-[16/9]">
+                  <img alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ev.img} />
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider text-[#B22110]">{ev.badge}</span>
                 </div>
-              ))}
-            </div>
+                <div className="p-4 space-y-2">
+                  <h3 className="font-bold text-body-md line-clamp-1">{ev.title}</h3>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
+                      <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                      <span>{ev.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-on-surface-variant text-caption">
+                      <span className="material-symbols-outlined text-[16px]">location_on</span>
+                      <span>{ev.location}</span>
+                    </div>
+                  </div>
+                  <div className="pt-2 flex justify-between items-center">
+                    <span className="text-[#B22110] font-bold">{ev.price}</span>
+                    <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">add_circle</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Trending Sekarang Section */}
-        <section data-reveal className="py-16 overflow-hidden">
-          <div className="max-w-[1280px] mx-auto px-container-padding">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-headline-md text-headline-md text-on-surface">Trending Sekarang</h2>
-              <a className="font-label-md text-label-md text-primary hover:underline" href="#">Lihat Semua</a>
+        {/* Section 3: Event Pilihan + Sidebar */}
+        <section className="max-w-[1280px] mx-auto px-container-padding grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-[#B22110] text-2xl" style={{ fontVariationSettings: '"FILL" 1' }}>calendar_today</span>
+                <h2 className="text-headline-md">Event Pilihan</h2>
+              </div>
+              <div className="flex bg-gray-100 p-1 rounded-lg">
+                <button className="px-4 py-1.5 text-caption font-bold bg-white rounded-md shadow-sm">Populer</button>
+                <button className="px-4 py-1.5 text-caption font-medium text-on-surface-variant">Minggu Ini</button>
+              </div>
             </div>
-            <div className="flex gap-gap-default overflow-x-auto no-scrollbar pb-8 -mx-container-padding px-container-padding">
+            <div className="space-y-4">
               {[
-                {
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-R23g0xqmyCnV2kyGdLbIHqaBfGDjJC4v4e7sZrx2y1kh-VANneEcHfHiYSp8hSojhtvLFoK-B-mRYaeXNrDFz9RyB-5M-TeXuBX-mQ7n7-oSTmazzPj6WA_6l58dt2Ht0kH59Clv9ilB-9sISAN65TisSSsqZssq77b9EzlAOR3LP0jt-QFUOnRHXwt9Bc5qZF7C06KDxwY38RKAlbCrZAZSNVTu2DhyDjW3ND4i-4laIxxl2Zn3eEapj0BWZzwwpQosYZTJyzk',
-                  alt: 'Music Festival',
-                  badge: 'Trending',
-                  title: 'Electronic Dream Festival 2024',
-                  location: 'Jakarta',
-                  date: '15 Okt 2024',
-                  price: 'Rp 450.000',
-                  stock: 'Sisa 20',
-                },
-                {
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCU1JEPzWYntEVZ2-5eHxBbdgS2bTQc6jjfsnirHgb_1RosnmlJlAnX_jG-JX_CxrsYCGCLX4EYlhz7P08C641U58cXGwP9hCOi7dOfHMDXkIWWSOPvu-i8RKtfvbeS9s06DgdzucM5s019cWx8Z9Te0h0_d0NDv4YgLggix8l4rv-bbVAwfpSQxo8Zp0eSLd662Uie-W5LgIxqDJa02_tzrSWSLRlz0A475dAlTFCgljxJE5FZsrvg5bVrY7iGVZeP8SCHJADHFeA',
-                  alt: 'Tech Seminar',
-                  title: 'AI Revolution Indonesia',
-                  location: 'Bandung',
-                  date: '22 Nov 2024',
-                  price: 'Rp 250.000',
-                  stock: 'Sisa 50',
-                },
-                {
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCiofYmOlkeHdee3akjenkzZRxo0dMi12F4Wpc5Jn0qScLOTl2FQcO5hA84tO9fZdUXocp2mU2kC6Uvs2FxAMmvWgHphj29YquwrlnMdHj1blpYdEkd5zK7TWAyOoXVIJIzXQ0J_Ju-41nOcpysPZnxN4HKvNFAYopRVim5SsCxf9OvI8Az4pECpLcn8BhyXm7no77036wDb5o4gGBPY9wHGxA8f6vlrine5Z2_k2RzeT5j24cx1oF7BEVm-If37g5748qCIcPZOz4',
-                  alt: 'Sport Event',
-                  title: 'National Basketball Cup',
-                  location: 'Surabaya',
-                  date: '05 Des 2024',
-                  price: 'Rp 150.000',
-                  stock: 'Sisa 100',
-                },
-                {
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPy_CQdc2eaVp3XD_7q70UCzMbLXsPDckkv0V9PXKHKjakCr6-OHmK4Yh5T0Q_Fy-BNz41zuATXh6alPUotENPLZXjYa7JnRGk1xY6PhslybyIOtO61gou1zsCLrNTN_Bru0jRxqGr5KUqF_QM88V2c7q4cGJuhuUzVOFkLN1EGOUFLLZBuwzG6I2nFOopJp-Ny_uxEfMUsUoWL7HGCWZtjJB1Ct-9xfU-AZ_XHiHbIq8as4g8IIho-9WA7QeaxWxQJ7FxqxP1z7c',
-                  alt: 'Cultural Festival',
-                  title: 'Pasar Malam Modern 2.0',
-                  location: 'Bali',
-                  date: '12 Jan 2025',
-                  price: 'Rp 75.000',
-                  stock: 'Terbatas',
-                },
-              ].map((event) => (
-                <div key={event.title} className="min-w-[280px] md:min-w-[320px] bg-white rounded-[14px] overflow-hidden card-shadow group cursor-pointer hover:shadow-lg transition-shadow">
-                  <div className="h-48 relative overflow-hidden">
-                    <img
-                      alt={event.alt}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      src={event.img}
-                    />
-                    {event.badge && (
-                      <div className="absolute top-3 right-3 bg-surface-container-low/90 backdrop-blur px-2 py-1 rounded-[10px]">
-                        <span className="font-caption text-caption text-primary font-bold">{event.badge}</span>
-                      </div>
-                    )}
+                { month: 'JUN', day: '20', weekday: 'SAB', badge: 'MUSIK', badgeColor: 'bg-red-50 text-[#B22110]', tag: '• Baru Saja Ditambah', title: 'Summer Sound Festival 2024', location: 'Stadion Utama GBK, Jakarta', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqaD5Sv0cEyS6bBR0gbrH3srFORlfItyKHScBU7ZZhMm_AiKyoD0nd5P8r7Dbu9hfmRJAt6Wtqp-7p4T7vhzR2-dkggjrtyCWTAqZZ3Eki1CzfD6tlntvEKJGM2Bq4B1wNd7G5l-GZaoa0kzxZspdhtoqhzd4Sg7hsr7SErIe3DctJZpS71PtLuY417JkHwoclPZmbAayHH4N5MvQw3ClAYfy4Yu_njkZm1NyzdOtM8fiCplId8Buq476gDG2qdx4CQdMlf2DWhsw' },
+                { month: 'JUN', day: '25', weekday: 'SEL', badge: 'TECH', badgeColor: 'bg-blue-50 text-blue-600', tag: '• Trending #1', title: 'World AI Summit Jakarta', location: 'Ritz Carlton Mega Kuningan', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBiTU9RA6_KIDfgbQwV9NNWN97YAiqeZkgChfYC6vVVQ0eezZjY8AF4o60PXLNAjem4-_ZbWQkBd8nY9G_D2sJkapC5xjvnF7h8kcFqOnRsDCG33kEFOQei3TvgS3IjOhSVGB6L_FHQkYPLB1LQvAlJLAq6nqloqTsA7K7MuLd5hQj4Bq0usNn6xPmx7pgHA3AmEPr5Cr2_7QI93f0po9Wz5FmwLsLGCuya9eD0K469roSJCc3k3VH4yd9fbVIWzMaGWrUQw1ihgYU' },
+                { month: 'JUL', day: '02', weekday: 'MIN', badge: 'SPORTS', badgeColor: 'bg-green-50 text-green-600', tag: '', title: 'Jakarta International Marathon', location: 'Area Monas, Jakarta Pusat', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCbYoSuMa9lVAsdtInRQI04UcsRVzfUMWBxaX6vNafmiYv4IgYkkST5AOOfF9IJO7NpWguUmoYoBBCckd1ha65I7laQwzGzAKWTB3-pArhVeR99SBrwt-hTuloUX6bgY3xE2JeEX2oG2QKc2yb31fsLpb52xFyzenDOiOmLPnLRS5dFyTEHmy4oh7P11-oP9md0UhaUGjJLJRcG5ehDYiB_eAIAxe4HNXZTHugRsYpScAXzYWr7i7nOLjuaKp39Ys0CbQyn6iF3Zxc' },
+              ].map((item) => (
+                <div key={item.title} className="flex items-center gap-6 p-4 rounded-xl border-[0.5px] border-border-light card-hover group cursor-pointer transition-all" onClick={() => navigate('/discover')}>
+                  <div className="w-16 flex flex-col items-center border-r border-border-light pr-6 shrink-0">
+                    <span className="text-caption font-bold text-on-surface-variant">{item.month}</span>
+                    <span className="text-2xl font-bold text-[#B22110]">{item.day}</span>
+                    <span className="text-caption text-on-surface-variant">{item.weekday}</span>
                   </div>
-                  <div className="p-3 flex flex-col gap-2">
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-1">{event.title}</h3>
-                    <div className="flex items-center gap-1 text-secondary">
-                      <span className="material-symbols-outlined text-[18px]">location_on</span>
-                      <span className="font-body-md text-body-md">{event.location}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${item.badgeColor}`}>{item.badge}</span>
+                      {item.tag && <span className="text-[10px] text-on-surface-variant">{item.tag}</span>}
                     </div>
-                    <div className="flex items-center gap-1 text-secondary">
-                      <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                      <span className="font-body-md text-body-md">{event.date}</span>
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-outline-variant/30 flex justify-between items-center">
-                      <span className="font-headline-sm text-headline-sm text-primary">{event.price}</span>
-                      <span className="bg-surface-container-low text-on-primary-fixed-variant px-2 py-1 rounded-[10px] text-[11px] font-medium">{event.stock}</span>
-                    </div>
+                    <h3 className="font-bold text-body-md truncate">{item.title}</h3>
+                    <p className="text-caption text-on-surface-variant flex items-center gap-1 mt-1">
+                      <span className="material-symbols-outlined text-sm">location_on</span> {item.location}
+                    </p>
+                  </div>
+                  <div className="w-40 aspect-[16/9] rounded-lg overflow-hidden flex-shrink-0">
+                    <img alt={item.title} className="w-full h-full object-cover" src={item.img} />
                   </div>
                 </div>
               ))}
             </div>
+            <button onClick={() => navigate('/discover')} className="w-full py-3 border border-border-light rounded-xl text-body-md font-medium text-on-surface-variant hover:bg-gray-50 transition-colors">
+              Muat Lebih Banyak
+            </button>
+          </div>
+
+          {/* Sidebar Promo */}
+          <div className="space-y-8">
+            <div className="w-full rounded-[14px] overflow-hidden border-[0.5px] border-border-light shadow-sm h-[600px]">
+              <img
+                alt="GateAI Matchmaking Poster"
+                className="w-full h-full object-cover"
+                src="public/gateai.png"
+              />
+            </div>
           </div>
         </section>
 
-        {/* Organizer Section */}
-        <section data-reveal className="bg-surface-container-low/30 py-20 border-y border-outline-variant/20">
+        {/* Section 4: Kategori Event */}
+        <section className="max-w-[1280px] mx-auto px-container-padding space-y-6">
+          <h2 className="text-headline-md">Telusuri Kategori</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              { icon: 'music_note', label: 'Musik' },
+              { icon: 'palette', label: 'Pameran' },
+              { icon: 'attractions', label: 'Wahana' },
+              { icon: 'sports_soccer', label: 'Olahraga' },
+              { icon: 'architecture', label: 'Workshop' },
+            ].map(({ icon, label }) => (
+              <div key={label} className="flex flex-col items-center justify-center p-6 border-[0.5px] border-border-light rounded-xl card-hover cursor-pointer space-y-3" onClick={() => navigate('/discover')}>
+                <span className="material-symbols-outlined text-[#B22110] text-3xl">{icon}</span>
+                <span className="text-caption font-bold">{label}</span>
+              </div>
+            ))}
+            <div className="flex flex-col items-center justify-center p-6 border border-[#B22110] rounded-xl bg-white cursor-pointer space-y-3" onClick={() => navigate('/discover')}>
+              <span className="material-symbols-outlined text-[#B22110] text-3xl">grid_view</span>
+              <span className="text-caption font-bold text-[#B22110]">Semua Kategori</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Event Terdekat */}
+        <section className="space-y-6">
+          <div className="max-w-[1280px] mx-auto px-container-padding flex items-center gap-4">
+            <h2 className="text-headline-md">Event Terdekat</h2>
+            <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full border border-border-light cursor-pointer">
+              <span className="text-[12px]">📍</span>
+              <span className="text-caption font-bold">Makassar</span>
+              <span className="material-symbols-outlined text-sm">expand_more</span>
+            </div>
+          </div>
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar px-[calc((100vw-1280px)/2+1.5rem)] pb-4">
+            {[
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdBdOkSGZLD1jCcVTryAatjulS3GTlE-Jytc1gFBR7EYufORn2DlzlKZFZKcc8ICrcqViTgNldTEVtoAPdsSN4bbwNAdnl_8Y0osKzYV0Go55ufiJos04BqBq1QYk8zM1EcH7Kmt8FAS2NlZDDb8M0TYvbUHgg1f5kJUDdf-Evlm42Qij8QhArmfxTlJ6tvzuihqGQnV9nIEzRbi6cLx-T_A89GlodcyGABs4OImUA86D1av2WRWyccWbLrVeJDTt3X8cfuc5wQR0', title: 'Makassar Food Festival', sub: 'Losari, 22-23 Juni' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCdgQDghL6u4x-QYYUidy5vjQ3RJiTXRtHuNcq9BoKTLeifzN4qBATalY8anFTk3np9PvdPnH6MSfTQXMWWQpKkdOw_oQoC6p4MzNSCGSM-fzrMEhWEAV-FJWBrLlrTdHHKUYYCJqT_UANBU1GpzwL-tGgYJoxjLkUvdnUq3S3uWI5fgd_H14_NHxUKTw2accdvZlDOwQcXZw6yubW2jUUCeRo76gZMeBmM-vyBruvXLFx7Pw6Zwz9Bu0u7-PtdLD1zA3pKBollNkQ', title: 'Sultan Hasanuddin Run', sub: 'Karebosi, 30 Juni' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAIcUXiNfqL4uGP2PwIp4xn806-M8Kj4_-Sb0YBBMNaO6DWLKRl4US1hvolFG-rolRi99vZQ77dhVQ5vTyV7gF4tEcBf9IQeVWfCacBbq4IR71LT33Zkrv6jy1ZFdhvYGBlXmFeXww3GXT0OySqJdu_eUzjroOaqS1VXzaKzz2cIa2g_zzApDw4zygqnP_FFngJsQSja0hrWER4bvLRypwqg8QvrKnLJG9xr4lnYlXFT47qQhdUVvGl-5n3vtyPqtf_Nm5Mc1mjf-0', title: 'Phinisi Digital Art Show', sub: 'CCC, 05-07 Juli' },
+              { img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDyjCTxlmF8vZnlP8AngJIrcap9E1AVUmPJXwSpG_lQbMUojzipNHPgjYlxRnmh50kkBBIzlnf7gnE4OZi5ltS0QuaVDW-CdZdaR-gMY-t-ZymEqNvyDnrlAP4CccBQRycmR5Fyg0DsP93dBBoUjUudTA05xBZKyzzXMiBnzoEx2S_EJ7Y9IxsR_VWVMkhuooGERnXXMowdrC0QVwmB4VkHgicL-miGPsn7EmAJTf3m305c1w-GWIh34JDUbALIQfgzx2VNO5x5mGI', title: 'Local Band Night', sub: 'Phinisi Point, Tiap Sabtu' },
+            ].map((item) => (
+              <div key={item.title} className="min-w-[240px] space-y-3 group cursor-pointer" onClick={() => navigate('/discover')}>
+                <div className="rounded-xl overflow-hidden border border-border-light aspect-[16/9]">
+                  <img className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300" src={item.img} alt={item.title} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-body-md">{item.title}</h4>
+                  <p className="text-caption text-on-surface-variant">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section 6: Kota Populer */}
+        <section className="max-w-[1280px] mx-auto px-container-padding space-y-6">
+          <h2 className="text-headline-md">Eksplor Kota Populer</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { name: 'Jakarta',    count: '120+', img: '/icon_jakarta_monas.png',          alt: 'Jakarta Monas' },
+              { name: 'Bandung',    count: '85+',  img: '/icon_bandung_gedung_sate.png',     alt: 'Bandung Gedung Sate' },
+              { name: 'Yogyakarta', count: '64+',  img: '/icon_yogyakarta_tugu.png',         alt: 'Tugu Yogyakarta' },
+              { name: 'Bali',       count: '92+',  img: '/icon_bali_temple.png',             alt: 'Bali Temple' },
+              { name: 'Surabaya',   count: '78+',  img: '/icon_surabaya_sura_baya.png',      alt: 'Surabaya' },
+              { name: 'Makassar',   count: '45+',  img: '/icon_makassar_phinisi.png',        alt: 'Makassar Phinisi' },
+              { name: 'Medan',      count: '38+',  img: '/icon_medan_istana_maimun.png',     alt: 'Medan Istana Maimun' },
+              { name: 'Semarang',   count: '52+',  img: '/icon_semarang_lawang_sewu.png',    alt: 'Semarang Lawang Sewu' },
+            ].map(({ name, count, img, alt }) => (
+              <div key={name} className="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform h-40" onClick={() => navigate('/city/' + name)}>
+                <div className="w-16 h-16 flex items-center justify-center">
+                  <img alt={alt} className="w-full h-full object-contain" src={img} />
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-[#B22110] text-body-md">{name}</p>
+                  <p className="text-caption text-secondary">{count} Event</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section 7: Organizer CTA */}
+        <section className="bg-surface-container-low/30 py-20 border-y border-border-light">
           <div className="max-w-[1280px] mx-auto px-container-padding">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
               <div className="max-w-2xl">
-                <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">Kelola Event dengan Lebih Aman &amp; Transparan</h2>
-                <p className="font-body-lg text-body-lg text-secondary">Bergabunglah sebagai mitra penyelenggara SecureGate dan nikmati kemudahan manajemen tiket dengan sistem keamanan berlapis.</p>
+                <h2 className="text-4xl font-bold text-on-surface mb-4 leading-tight">Kelola Event dengan Lebih Aman &amp; Transparan</h2>
+                <p className="text-body-lg text-secondary">Bergabunglah sebagai mitra penyelenggara SecureGate dan nikmati kemudahan manajemen tiket dengan sistem keamanan berlapis.</p>
               </div>
               <button
                 onClick={() => navigate('/organizer-register')}
-                className="coral-pill px-8 py-3 border-2 border-primary text-primary font-body-md text-body-md hover:bg-primary hover:text-on-primary transition-all font-bold whitespace-nowrap"
+                className="px-8 py-3 border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all rounded-[22px] whitespace-nowrap"
               >
                 Daftar Jadi Penyelenggara
               </button>
@@ -228,78 +319,108 @@ export default function LandingPage() {
                 { icon: 'verified_user', title: 'Sistem Anti-Fraud', desc: 'Teknologi verifikasi wajah dan QR code unik memastikan tidak ada tiket palsu di event Anda.' },
                 { icon: 'payments', title: 'Pencairan Dana Cepat', desc: 'Proses penyelesaian pembayaran yang transparan dan terjadwal langsung ke akun perusahaan Anda.' },
               ].map(({ icon, title, desc }) => (
-                <div key={title} className="p-8 bg-white rounded-2xl card-shadow border border-outline-variant/20 hover:border-primary/50 transition-colors group">
-                  <div className="w-12 h-12 bg-primary-container/20 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                <div key={title} className="p-8 bg-white rounded-2xl shadow-sm border border-border-light hover:border-primary/50 transition-colors group">
+                  <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-coral-red mb-6 group-hover:scale-110 transition-transform">
                     <span className="material-symbols-outlined text-3xl">{icon}</span>
                   </div>
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface mb-3">{title}</h3>
-                  <p className="font-body-md text-body-md text-secondary">{desc}</p>
+                  <h3 className="text-headline-sm mb-3">{title}</h3>
+                  <p className="text-body-md text-secondary">{desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Final CTA Section */}
-        <section data-reveal className="max-w-[1280px] mx-auto px-container-padding py-16">
+        {/* Section 8: Final CTA */}
+        <section className="max-w-[1280px] mx-auto px-container-padding">
           <div className="bg-primary-container/20 rounded-3xl p-12 flex flex-col items-center text-center gap-6 border border-primary/10">
-            <h2 className="font-headline-lg text-headline-lg text-primary">Siap untuk Pengalaman Baru?</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+            <h2 className="text-headline-lg text-primary">Siap untuk Pengalaman Baru?</h2>
+            <p className="text-body-lg text-on-surface-variant max-w-xl">
               Gabung dengan ribuan pengguna lainnya yang telah mempercayakan SecureGate untuk urusan tiket mereka. Cepat, Aman, dan Tanpa Ribet.
             </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => navigate('/register')}
-                className="coral-pill px-8 py-3 bg-primary text-on-primary font-body-md text-body-md hover:bg-primary/90 transition-all"
-              >
-                Mulai Sekarang
-              </button>
-            </div>
+            <button
+              onClick={() => navigate(isAuthenticated ? '/discover' : '/register')}
+              className="bg-primary text-white px-8 py-3 rounded-[22px] font-bold hover:bg-primary-container transition-all"
+            >
+              Mulai Sekarang
+            </button>
           </div>
         </section>
+
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-surface-container-lowest border-t border-outline-variant/20">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
-          <div className="flex flex-col gap-2 items-center md:items-start">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
-            <p className="font-caption text-caption text-secondary">© 2024 SecureGate. All rights reserved.</p>
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+      <footer className="w-full py-16 bg-[#F9F9F9] border-t border-border-light">
+        <div className="max-w-[1280px] mx-auto px-container-padding">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="space-y-6">
+              <span className="font-bold text-headline-sm text-secondary">SecureGate</span>
+              <p className="text-on-surface-variant text-body-md leading-relaxed">Platform terpercaya untuk pembelian tiket digital dengan keamanan berlapis dan transparansi total.</p>
+              <div className="flex gap-4">
+                {['public', 'share', 'mail'].map((icon) => (
+                  <a key={icon} href="#" className="w-10 h-10 rounded-full bg-white border border-border-light flex items-center justify-center text-on-surface-variant hover:text-coral-red transition-all">
+                    <span className="material-symbols-outlined text-lg">{icon}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Tentang Kami</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Profil Perusahaan', 'Karir', 'Blog', 'Terms of Service'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Informasi</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Pusat Bantuan', 'Panduan Keamanan', 'Privacy Policy', 'FAQ'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Kategori Event</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Konser Musik', 'Olahraga & Fitness', 'Pameran Seni', 'Workshop & Seminar'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a className="font-caption text-caption text-secondary-fixed-dim hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">Privacy Policy</a>
-            <a className="font-caption text-caption text-secondary-fixed-dim hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">Terms of Service</a>
-            <a className="font-caption text-caption text-secondary-fixed-dim hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">Help Center</a>
-            <a className="font-caption text-caption text-secondary-fixed-dim hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">Contact Us</a>
-          </div>
-          <div className="flex gap-4">
-            <span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer transition-colors">language</span>
-            <span className="material-symbols-outlined text-secondary hover:text-primary cursor-pointer transition-colors">share</span>
+          <div className="pt-8 border-t border-border-light flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-caption text-on-surface-variant">© 2024 SecureGate. Utilitarian Clarity. All rights reserved.</p>
+            <div className="flex gap-8 text-caption font-medium text-on-surface-variant">
+              {['Instagram', 'X / Twitter', 'TikTok'].map((s) => (
+                <a key={s} href="#" className="hover:text-on-surface transition-colors">{s}</a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
 
-      {/* BottomNavBar (Mobile only) */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface/80 backdrop-blur-md border-t border-outline-variant/30 rounded-t-xl">
-        <Link to="/" className="flex flex-col items-center justify-center text-primary bg-primary-fixed/20 rounded-full px-3 py-1">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>home</span>
-          <span className="font-label-md text-label-md">Home</span>
+      {/* ── BOTTOM NAV (mobile) ──────────────────────────────────────────── */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white border-t border-border-light flex justify-around items-center px-2 py-3">
+        <Link to="/" className="flex flex-col items-center gap-1 text-primary">
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: '"FILL" 1' }}>home</span>
+          <span className="text-[10px] font-medium">Home</span>
         </Link>
-        <Link to="/discover" className="flex flex-col items-center justify-center text-secondary">
+        <Link to="/discover" className="flex flex-col items-center gap-1 text-secondary">
           <span className="material-symbols-outlined">explore</span>
-          <span className="font-label-md text-label-md">Discover</span>
+          <span className="text-[10px] font-medium">Discover</span>
         </Link>
-        <Link to="/my-tickets" className="flex flex-col items-center justify-center text-secondary">
+        <Link to={isAuthenticated ? '/my-tickets' : '/login'} className="flex flex-col items-center gap-1 text-secondary">
           <span className="material-symbols-outlined">confirmation_number</span>
-          <span className="font-label-md text-label-md">My Tickets</span>
+          <span className="text-[10px] font-medium">Tickets</span>
         </Link>
-        <Link to="/wallet" className="flex flex-col items-center justify-center text-secondary">
+        <Link to={isAuthenticated ? '/wallet' : '/login'} className="flex flex-col items-center gap-1 text-secondary">
           <span className="material-symbols-outlined">account_balance_wallet</span>
-          <span className="font-label-md text-label-md">Wallet</span>
+          <span className="text-[10px] font-medium">Wallet</span>
         </Link>
-        <Link to="/profile" className="flex flex-col items-center justify-center text-secondary">
+        <Link to={isAuthenticated ? '/profile' : '/login'} className="flex flex-col items-center gap-1 text-secondary">
           <span className="material-symbols-outlined">person</span>
-          <span className="font-label-md text-label-md">Profile</span>
+          <span className="text-[10px] font-medium">Profile</span>
         </Link>
       </nav>
     </div>

@@ -19,6 +19,11 @@
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .coral-pill { border-radius: 22px; }
   .card-shadow { border: 0.5px solid #EBEBEB; }
+  .card-hover { transition: all 0.2s ease; }
+  .card-hover:hover { background-color: #F9F9F9; }
+  .event-card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 }

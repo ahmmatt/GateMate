@@ -14,6 +14,16 @@ export default function AppLayout() {
   const [showNotifPopup, setShowNotifPopup] = useState(false);
   const notifRef = useRef(null);
 
+  // Search States
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef(null);
+
+  // Scroll State
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     if (isAuthenticated) fetchNotifications();
   }, [isAuthenticated, location.pathname]);
@@ -23,10 +33,49 @@ export default function AppLayout() {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifPopup(false);
       }
+      // Note: Search popup close logic is now handled by the backdrop onClick and close button
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Handle scroll for navbar blur
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Live Search Logic
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const fetchSearch = async () => {
+      setIsSearching(true);
+      try {
+        let url = '/events';
+        if (searchQuery.trim()) {
+          url += `?search=${encodeURIComponent(searchQuery.trim())}`;
+        }
+        const res = await api.get(url);
+        let evs = res.data?.data || [];
+        
+        if (!searchQuery.trim()) {
+           // Filter upcoming only (start_date > now)
+           const now = new Date();
+           evs = evs.filter(e => new Date(e.start_date) > now);
+           // Sort by newly released (created_at desc)
+           evs.sort((a,b) => new Date(b.created_at || b.start_date) - new Date(a.created_at || a.start_date));
+        }
+        setSearchResults(evs.slice(0, 5));
+      } catch(e) {}
+      setIsSearching(false);
+    };
+
+    const delay = setTimeout(fetchSearch, 300);
+    return () => clearTimeout(delay);
+  }, [searchQuery, isSearchOpen]);
 
   const fetchNotifications = async () => {
     try {
@@ -57,11 +106,12 @@ export default function AppLayout() {
   };
 
   const navLink = (path, label) => {
-    const active = location.pathname === path;
+    const isExplore = label === 'Explore' && (location.pathname === '/' || location.pathname === '/discover');
+    const active = location.pathname === path || isExplore;
     return (
       <Link
         to={path}
-        className={`font-body-md text-body-md transition-colors ${active ? 'text-primary font-bold' : 'text-secondary hover:text-primary'}`}
+        className={`py-5 transition-colors ${active ? 'text-primary font-bold border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
       >
         {label}
       </Link>
@@ -69,7 +119,13 @@ export default function AppLayout() {
   };
 
   const getNavLinks = () => {
-    if (!isAuthenticated) return navLink('/', 'Explore');
+    if (!isAuthenticated) return (
+      <>
+        {navLink('/discover', 'Explore')}
+        {navLink('/login', 'My Tickets')}
+        {navLink('/login', 'Wallet')}
+      </>
+    );
     switch (user?.role) {
       case 'user': return (<>{navLink('/discover', 'Explore')}{navLink('/my-tickets', 'My Tickets')}{navLink('/wallet', 'Wallet')}</>);
       case 'admin': return (<>{navLink('/admin/dashboard', 'Dashboard Event')}{navLink('/admin/scanner', 'Scanner')}</>);
@@ -128,14 +184,33 @@ export default function AppLayout() {
   return (
     <div className="bg-background text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* TopNavBar */}
-      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/50">
-        <div className="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">SecureGate</Link>
-            <nav className="hidden md:flex gap-6 items-center">
-              {getNavLinks()}
-            </nav>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${
+        isScrolled 
+          ? 'bg-white/70 backdrop-blur-md border-border-light/50 shadow-sm' 
+          : 'bg-white border-border-light'
+      }`}>
+        <div className="flex justify-between items-center px-container-padding h-16 max-w-[1280px] mx-auto gap-gap-default">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all">
+            <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
+          </Link>
+          
+          {/* Navbar Search Trigger */}
+          <div className="flex-1 max-w-md hidden md:flex">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="relative w-full text-left focus:outline-none group"
+            >
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-hover:text-primary transition-colors">search</span>
+              <div className="w-full bg-[#F5F5F7] border border-border-light rounded-[10px] pl-10 pr-4 py-2 text-body-md text-on-surface-variant group-hover:border-[#F04E37] transition-all cursor-text">
+                Cari event...
+              </div>
+            </button>
           </div>
+
+          <nav className="hidden md:flex items-center gap-8">
+            {getNavLinks()}
+          </nav>
+
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
@@ -196,8 +271,7 @@ export default function AppLayout() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="font-body-md text-body-md font-bold text-primary">Sign In</Link>
-                <Link to="/register" className="px-4 py-2 bg-primary text-white rounded-full font-label-md text-label-md font-bold hover:bg-surface-tint transition-all">Sign Up</Link>
+                <Link to="/login" className="bg-[#B22110] text-white px-[22px] py-[10px] rounded-[22px] font-medium hover:bg-primary-container transition-all active:scale-95">Masuk</Link>
               </div>
             )}
             <div className="md:hidden text-primary">
@@ -227,10 +301,78 @@ export default function AppLayout() {
         </div>
       </footer>
 
-      {/* BottomNavBar (Mobile Only) */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-outline-variant/30 flex justify-around items-center px-2 py-3">
-        {getBottomNav()}
-      </nav>
+      {/* Bottom Nav untuk User & Unauthenticated Mobile */}
+      {getBottomNav()}
+
+      {/* Global Search Modal */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh]">
+          {/* Modal Backdrop (Blurred) */}
+          <div 
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={() => setIsSearchOpen(false)}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-2xl bg-white/70 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-[20px] overflow-hidden flex flex-col mx-4 transform transition-all">
+            {/* Big Search Input */}
+            <div className="relative border-b border-border-light/50 shrink-0">
+               <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-primary text-2xl">search</span>
+               <input 
+                 autoFocus
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-transparent pl-14 pr-12 py-5 text-lg focus:outline-none placeholder-secondary font-medium text-on-surface" 
+                 placeholder="Ketik untuk mencari event..." 
+                 type="text" 
+               />
+               <button onClick={() => setIsSearchOpen(false)} className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-secondary hover:text-on-surface transition-colors">
+                 <span className="material-symbols-outlined text-sm">close</span>
+               </button>
+            </div>
+
+            {/* Results Area */}
+            <div className="flex flex-col overflow-y-auto max-h-[55vh] no-scrollbar p-3">
+              <div className="px-3 py-2 shrink-0">
+                <p className="text-[11px] font-bold text-secondary uppercase tracking-widest">
+                  {searchQuery ? 'Hasil Pencarian' : 'Baru Rilis & Belum Dimulai'}
+                </p>
+              </div>
+              
+              {isSearching ? (
+                  <div className="py-12 text-center text-secondary text-sm flex flex-col items-center justify-center gap-3">
+                    <span className="material-symbols-outlined animate-spin text-3xl">progress_activity</span>
+                    Mencari event...
+                  </div>
+              ) : searchResults.length === 0 ? (
+                  <div className="py-12 flex flex-col items-center justify-center text-secondary">
+                    <span className="material-symbols-outlined text-5xl mb-3 opacity-30">search_off</span>
+                    <span className="text-sm">Tidak ada event yang ditemukan.</span>
+                  </div>
+              ) : (
+                  searchResults.map(ev => (
+                      <Link 
+                        key={ev.id || ev.id_event} 
+                        to={isAuthenticated ? `/events/${ev.id || ev.id_event}` : '/login'} 
+                        onClick={() => {setIsSearchOpen(false); setSearchQuery('');}}
+                        className="flex items-center gap-4 p-3 hover:bg-white/60 rounded-[14px] transition-colors border border-transparent hover:border-white/50 group cursor-pointer"
+                      >
+                        <img src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=100'} className="w-16 h-16 rounded-xl object-cover shadow-sm shrink-0" alt={ev.title} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-body-md font-bold text-on-surface group-hover:text-primary transition-colors truncate">{ev.title}</h4>
+                          <div className="flex items-center gap-1.5 text-xs text-secondary mt-1 font-medium">
+                            <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                            <span className="truncate">{new Date(ev.start_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})} • {ev.city || 'Online'}</span>
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1">arrow_forward</span>
+                      </Link>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* OTP Verification Modal — muncul global jika phone belum diverifikasi */}
       <OtpVerificationModal />
     </div>

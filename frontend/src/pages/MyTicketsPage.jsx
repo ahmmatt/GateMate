@@ -46,7 +46,7 @@ export default function MyTicketsPage() {
           <span>{formatDate(ev.start_date)}</span>
           <span className="text-[#f04e37]">{formatTime(ev.start_time)}</span>
         </div>
-        <div className="w-full aspect-[16/9] overflow-hidden rounded-lg bg-surface-container-low">
+        <div className="w-full aspect-[1024/412] overflow-hidden rounded-lg bg-surface-container-low">
           <img 
             alt={ev.title} 
             className="w-full h-full object-cover" 
@@ -129,7 +129,7 @@ export default function MyTicketsPage() {
             <span className="font-label-md text-label-md text-primary">{upcomingTickets.length} Active</span>
           </div>
           {upcomingTickets.length === 0 ? (
-            <div className="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-low rounded-2xl border border-outline-variant border-dashed">
+            <div className="col-span-full py-16 flex flex-col items-center justify-center">
               <span className="material-symbols-outlined text-secondary" style={{ fontSize: '48px' }}>confirmation_number</span>
               <p className="mt-4 font-body-lg text-secondary text-center">Anda belum memiliki tiket upcoming.</p>
               <Link to="/discover" className="mt-4 px-6 py-2 bg-primary text-on-primary rounded-full font-label-md font-bold hover:opacity-90 transition-opacity">
@@ -150,7 +150,7 @@ export default function MyTicketsPage() {
           </div>
           <div className="opacity-60 col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pastTickets.length === 0 ? (
-              <div className="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-low rounded-2xl border border-outline-variant border-dashed">
+              <div className="col-span-full py-16 flex flex-col items-center justify-center">
                 <span className="material-symbols-outlined text-secondary" style={{ fontSize: '48px' }}>history</span>
                 <p className="mt-4 font-body-lg text-secondary text-center">Belum ada riwayat tiket.</p>
               </div>

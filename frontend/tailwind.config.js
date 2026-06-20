@@ -10,41 +10,41 @@ export default {
       colors: {
         "on-secondary-fixed": "#1c1b1b",
         "surface-tint": "#b62413",
-        "surface-container-high": "#e9e8e7", // updated from blade
+        "surface-container-high": "#e9e8e7",
         "secondary": "#5f5e5e",
         "inverse-primary": "#ffb4a7",
         "secondary-container": "#e5e2e1",
         "on-primary": "#ffffff",
         "on-tertiary": "#ffffff",
-        "inverse-on-surface": "#f2f0f0", // updated
+        "inverse-on-surface": "#f2f0f0",
         "outline": "#8f706a",
-        "surface-container-low": "#f5f3f3", // updated
+        "surface-container-low": "#f5f3f3",
         "secondary-fixed": "#e5e2e1",
         "on-surface-variant": "#5b403c",
-        "surface-dim": "#dbdad9", // updated
+        "surface-dim": "#dbdad9",
         "on-secondary-container": "#656464",
         "tertiary": "#006579",
         "on-secondary": "#ffffff",
-        "surface-variant": "#e4e2e2", // updated
+        "surface-variant": "#e4e2e2",
         "on-tertiary-fixed-variant": "#004e5e",
         "on-error-container": "#93000a",
         "secondary-fixed-dim": "#c8c6c5",
         "on-primary-fixed-variant": "#910900",
         "surface-container-lowest": "#ffffff",
-        "on-background": "#1b1c1c", // updated
-        "inverse-surface": "#303031", // updated
+        "on-background": "#1b1c1c",
+        "inverse-surface": "#303031",
         "outline-variant": "#e3beb8",
-        "surface-container": "#efeded", // updated
+        "surface-container": "#efeded",
         "tertiary-fixed": "#b2ebff",
         "on-error": "#ffffff",
-        "on-surface": "#1b1c1c", // updated
-        "surface-bright": "#fbf9f8", // updated
+        "on-surface": "#1b1c1c",
+        "surface-bright": "#fbf9f8",
         "on-primary-container": "#fffbff",
-        "surface": "#fbf9f8", // updated
+        "surface": "#fbf9f8",
         "error": "#ba1a1a",
         "on-secondary-fixed-variant": "#474646",
         "error-container": "#ffdad6",
-        "surface-container-highest": "#e4e2e2", // updated
+        "surface-container-highest": "#e4e2e2",
         "on-primary-fixed": "#400200",
         "primary": "#b22110",
         "primary-container": "#d63b27",
@@ -53,14 +53,21 @@ export default {
         "tertiary-fixed-dim": "#68d4f3",
         "on-tertiary-fixed": "#001f27",
         "tertiary-container": "#007f99",
-        "background": "#fbf9f8", // updated
+        "background": "#fbf9f8",
         "primary-fixed-dim": "#ffb4a7",
+        "coral-red": "#F04E37",
+        "border-light": "#EBEBEB",
+        "navy-dark": "#0F1E3D"
       },
       borderRadius: {
         DEFAULT: "0.25rem",
         lg: "0.5rem",
         xl: "0.75rem",
         full: "9999px",
+        "card": "14px",
+        "banner": "24px",
+        "input": "10px",
+        "button": "22px"
       },
       spacing: {
         "sidebar-width": "240px",

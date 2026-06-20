@@ -333,16 +333,34 @@ class EventController extends Controller
     {
         $event = Event::where('id_admin', Auth::id())->findOrFail($id);
 
+        // Cek transaksi tiket
+        $ticketSales = \App\Models\Transaction::where('id_event', $event->id_event)->count();
+        // Cek transaksi tenant
+        $tenantSales = \App\Models\WalletTransaction::where('meta->event_id', $event->id_event)->count();
+
+        if ($ticketSales > 0 || $tenantSales > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat menghapus event yang sudah memiliki riwayat transaksi tiket atau penjualan tenant.',
+            ], 422);
+        }
+
         if ($event->banner_image && $event->banner_image !== 'default-banner.jpg'
             && file_exists(public_path('Media/uploads/' . $event->banner_image))) {
             unlink(public_path('Media/uploads/' . $event->banner_image));
         }
 
+        // Hapus akun tenant beserta datanya secara cascade
+        User::where('role', 'tenant')->where('id_event', $event->id_event)->delete();
+        
+        // Hapus seluruh transaksi revenue dan penarikan terkait event ini yang ada di dompet admin
+        WalletTransaction::where('meta->event_id', $event->id_event)->delete();
+
         $event->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Event berhasil dihapus secara permanen.',
+            'message' => 'Event beserta seluruh data tenant terkait berhasil dihapus secara permanen.',
         ]);
     }
 
@@ -504,20 +522,27 @@ class EventController extends Controller
         $event  = Event::where('id_admin', Auth::id())->findOrFail($eventId);
         $tenant = User::where('role', 'tenant')->where('id_event', $event->id_event)->findOrFail($tenantId);
 
-        $salesCount = WalletTransaction::where('meta->tenant_id', $tenant->id_user)->count();
+        // Cek apakah tenant sudah memiliki transaksi penjualan
+        $salesCount = \App\Models\WalletTransaction::where('meta->tenant_id', $tenant->id_user)->count();
 
         if ($salesCount > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak dapat menghapus tenant yang sudah memiliki transaksi penjualan.',
+                'message' => 'Tidak dapat menghapus tenant yang sudah memiliki riwayat transaksi penjualan.',
             ], 422);
         }
 
+        // Hapus transaksi revenue milik tenant yang tercatat di admin
+        \App\Models\WalletTransaction::where('type', 'tenant_revenue')
+            ->where('meta->tenant_id', $tenant->id_user)
+            ->delete();
+
+        // Hapus tenant, trigger cascade ke menus dan transaksi penarikan
         $tenant->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Tenant berhasil dihapus!',
+            'message' => 'Tenant beserta riwayat transaksinya berhasil dihapus!',
         ]);
     }
 

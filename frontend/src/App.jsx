@@ -18,6 +18,7 @@ import ProfilePage    from './pages/ProfilePage';
 import ETicketPage    from './pages/ETicketPage';
 import EventDetailPage from './pages/EventDetailPage';
 import ChatPage       from './pages/ChatPage';
+import CityEventsPage from './pages/CityEventsPage';
 
 // Admin / Tenant / Superadmin (Stand-alone Layouts built into the pages)
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -66,6 +67,7 @@ export default function App() {
         {/* Public pages using AppLayout */}
         <Route element={<AppLayout />}>
           <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/city/:cityName" element={<CityEventsPage />} />
         </Route>
 
         {/* Protected pages using AppLayout */}
