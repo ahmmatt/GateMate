@@ -286,17 +286,53 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-surface-container-lowest border-t border-outline-variant/20 mb-16 md:mb-0">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
-            <p className="font-caption text-caption text-secondary-fixed-dim">© 2026 SecureGate. All rights reserved.</p>
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+      <footer className="w-full py-16 bg-[#F9F9F9] border-t border-border-light mb-16 md:mb-0">
+        <div className="max-w-[1280px] mx-auto px-container-padding">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="space-y-6">
+              <span className="font-bold text-headline-sm text-secondary">SecureGate</span>
+              <p className="text-on-surface-variant text-body-md leading-relaxed">Platform terpercaya untuk pembelian tiket digital dengan keamanan berlapis dan transparansi total.</p>
+              <div className="flex gap-4">
+                {['public', 'share', 'mail'].map((icon) => (
+                  <a key={icon} href="#" className="w-10 h-10 rounded-full bg-white border border-border-light flex items-center justify-center text-on-surface-variant hover:text-coral-red transition-all">
+                    <span className="material-symbols-outlined text-lg">{icon}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Tentang Kami</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Profil Perusahaan', 'Karir', 'Blog', 'Terms of Service'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Informasi</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Pusat Bantuan', 'Panduan Keamanan', 'Privacy Policy', 'FAQ'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-6">
+              <h4 className="font-bold text-on-surface">Kategori Event</h4>
+              <ul className="space-y-3 text-on-surface-variant text-body-md">
+                {['Konser Musik', 'Olahraga & Fitness', 'Pameran Seni', 'Workshop & Seminar'].map((l) => (
+                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            {['Privacy Policy','Terms of Service','Help Center','Contact Us'].map(l => (
-              <a key={l} className="font-caption text-caption text-secondary-fixed-dim hover:text-primary hover:underline decoration-primary transition-colors duration-200" href="#">{l}</a>
-            ))}
+          <div className="pt-8 border-t border-border-light flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-caption text-on-surface-variant">© 2026 SecureGate. All rights reserved.</p>
+            <div className="flex gap-8 text-caption font-medium text-on-surface-variant">
+              {['Instagram', 'X / Twitter', 'TikTok'].map((s) => (
+                <a key={s} href="#" className="hover:text-on-surface transition-colors">{s}</a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
@@ -357,7 +393,7 @@ export default function AppLayout() {
                         onClick={() => {setIsSearchOpen(false); setSearchQuery('');}}
                         className="flex items-center gap-4 p-3 hover:bg-white/60 rounded-[14px] transition-colors border border-transparent hover:border-white/50 group cursor-pointer"
                       >
-                        <img src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=100'} className="w-16 h-16 rounded-xl object-cover shadow-sm shrink-0" alt={ev.title} />
+                        <img src={ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=100'} className="w-28 aspect-[2048/768] rounded-md object-cover shadow-sm shrink-0" alt={ev.title} />
                         <div className="flex-1 min-w-0">
                           <h4 className="text-body-md font-bold text-on-surface group-hover:text-primary transition-colors truncate">{ev.title}</h4>
                           <div className="flex items-center gap-1.5 text-xs text-secondary mt-1 font-medium">
