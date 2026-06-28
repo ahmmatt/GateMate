@@ -151,7 +151,7 @@ class EventController extends Controller
                 'end_time'         => $validated['end_time'],
                 'timezone'         => $validated['timezone'] ?? 'GMT+08:00',
                 'description'      => $validated['description'] ?? null,
-                'require_approval' => isset($validated['require_approval']),
+                'require_approval' => filter_var($validated['require_approval'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'custom_questions' => $questions,
                 'capacity_type'    => $validated['capacity_type'],
                 'max_capacity'     => $validated['capacity_type'] === 'limited'
@@ -162,7 +162,7 @@ class EventController extends Controller
                 'status'           => 'active',
             ]);
 
-            $isUnlimited = isset($validated['is_unlimited']);
+            $isUnlimited = filter_var($validated['is_unlimited'] ?? false, FILTER_VALIDATE_BOOLEAN);
             $capacity    = $isUnlimited ? 0 : ($validated['quota'] ?? 0);
 
             TicketTier::create([
