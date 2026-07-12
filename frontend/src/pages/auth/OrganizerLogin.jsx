@@ -42,14 +42,8 @@ export default function OrganizerLogin() {
         localStorage.setItem('token', 'mock-organizer-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         navigate('/organizer/dashboard')
-      } else if (err.response?.status === 401 || err.response?.data?.message) {
-        setError(err.response?.data?.message || 'Email atau password salah. Coba lagi.')
       } else {
-        // Fallback offline untuk demo/pengembangan
-        const mockUser = { id: 2, name: 'Organizer Mitra', email, role: 'admin', organizer_id: 'GM-8812' }
-        localStorage.setItem('token', 'mock-organizer-token-123')
-        localStorage.setItem('user', JSON.stringify(mockUser))
-        navigate('/organizer/dashboard')
+        setError(err.response?.data?.message || 'Email atau password salah. Coba lagi.')
       }
     } finally {
       setLoading(false)

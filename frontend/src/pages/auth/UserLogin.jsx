@@ -36,14 +36,15 @@ export default function UserLogin() {
 
       navigate('/events')
     } catch (err) {
-      console.warn('Backend API tidak terjangkau atau gagal, menggunakan fallback offline dengan role user...')
-      // Setup mock user untuk fallback offline testing
-      const mockUser = { id: 1, name: 'User Demo', email, role: 'user' }
-      localStorage.setItem('token', 'mock-token-offline')
-      localStorage.setItem('user', JSON.stringify(mockUser))
-      
-      navigate('/events')
-    } finally {
+      if (email === 'user@gatemate.com' && password === 'password123') {
+        console.warn('Menggunakan fallback offline dengan role user...')
+        const mockUser = { id: 1, name: 'User Demo', email, role: 'user' }
+        localStorage.setItem('token', 'mock-token-offline')
+        localStorage.setItem('user', JSON.stringify(mockUser))
+        navigate('/events')
+      } else {
+        setError(err.response?.data?.message || 'Email atau password salah. Silakan coba lagi.')
+      }
       setLoading(false)
     }
   }
