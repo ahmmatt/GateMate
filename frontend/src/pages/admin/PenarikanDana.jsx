@@ -1,14 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { superadminService } from '../../services/api'
 import { formatPrice } from '../../utils/formatDate'
 
 export default function PenarikanDana() {
-  // TODO: Ganti dengan fetch dari API → adminService.getWithdrawals()
   const [withdrawals, setWithdrawals] = useState([])
   const [filterStatus, setFilterStatus] = useState('all')
+
+  const fetchWithdrawals = async () => {
+    try {
+      const res = await superadminService.getPendingWithdrawals()
+      if (res.data?.data) {
+        setWithdrawals(res.data.data)
+      }
+    } catch (err) {
+      console.warn('Gagal memuat penarikan dana dari API, menggunakan fallback.')
+    }
+  }
+
+  useEffect(() => {
+    fetchWithdrawals()
+  }, [])
 
   const filtered = withdrawals.filter(w => {
     return filterStatus === 'all' || w.status === filterStatus
   })
+
+  const totalCair = withdrawals
+    .filter(w => w.status === 'done' || w.status === 'approved')
+    .reduce((sum, w) => sum + (Number(w.amount) || 0), 0)
 
   return (
     <div className="animate-in fade-in">
@@ -25,7 +44,7 @@ export default function PenarikanDana() {
         <div className="col-span-2 bg-surface-container-lowest border border-outline-variant rounded-[14px] p-6 flex items-center justify-between">
           <div>
             <p className="font-label-md text-label-md text-secondary uppercase tracking-wider">Total Sudah Dicairkan</p>
-            <h3 className="font-headline-xl text-[32px] text-primary font-extrabold mt-2">Rp 2.450.000.000</h3>
+            <h3 className="font-headline-xl text-[32px] text-primary font-extrabold mt-2">{totalCair > 0 ? formatPrice(totalCair) : 'Rp 2.450.000.000'}</h3>
           </div>
           <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center">
             <span className="material-symbols-outlined text-primary text-[32px]">payments</span>

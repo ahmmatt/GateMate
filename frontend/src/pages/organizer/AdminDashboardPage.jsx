@@ -11,21 +11,37 @@ export default function AdminDashboardPage() {
   const [activeNav, setActiveNav] = useState('dashboard');
 
   useEffect(() => {
-    // TODO: Connect to backend API when ready
-    // api.get('/admin/dashboard').then(res => setData(res.data.data))
-    setData({
-      total_events: 0,
-      active_events: 0,
-      total_tickets_sold: 0,
-      ticket_revenue: 0,
-      checked_in_today: 0,
-      platform_fee_total: 0,
-      tenant_cut_total: 0,
-      net_income_total: 0,
-      withdrawable_amount: 0,
-      events: []
-    });
-    setLoading(false);
+    const fetchDashboard = async () => {
+      try {
+        const res = await api.get('/admin/dashboard');
+        if (res.data?.data) {
+          const d = res.data.data;
+          setData({
+            ...d,
+            withdrawable_amount: d.available_to_withdraw || d.withdrawable_amount || 0,
+            events: d.events || []
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Backend API tidak terjangkau atau belum login, menggunakan fallback state.', err.message);
+      }
+      setData({
+        total_events: 0,
+        active_events: 0,
+        total_tickets_sold: 0,
+        ticket_revenue: 0,
+        checked_in_today: 0,
+        platform_fee_total: 0,
+        tenant_cut_total: 0,
+        net_income_total: 0,
+        withdrawable_amount: 0,
+        events: []
+      });
+      setLoading(false);
+    };
+    fetchDashboard();
   }, []);
 
   const handleLogout = async () => {
@@ -69,7 +85,7 @@ export default function AdminDashboardPage() {
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{adminInitial}</div>
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={handleLogout} className="text-primary active:opacity-70 mt-1">

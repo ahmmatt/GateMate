@@ -38,7 +38,7 @@ return new class extends Migration
             $table->enum('status', ['need_approval', 'awaiting_payment', 'approved', 'checked_in'])
                   ->default('awaiting_payment');
 
-            // Kolom AI SecureGate Matchmaking
+            // Kolom AI GateMate Matchmaking
             $table->text('vibe_bio')->nullable();
             $table->boolean('looking_for_match')->default(false);
 

@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\OtpController;
 // ─── Health Check / Ping ─────────────────────────────────────────────────────
 Route::get('/ping', fn () => response()->json([
     'success' => true,
-    'message' => 'SecureGate API is running.',
+    'message' => 'GateMate API is running.',
     'version' => '1.0.0',
     'timestamp' => now()->toIso8601String(),
 ]));
@@ -110,7 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/tickets/{id}/vibe', [\App\Http\Controllers\Api\MatchmakingController::class, 'setVibeBio']);
         Route::get('/tickets/{id}/matches', [\App\Http\Controllers\Api\MatchmakingController::class, 'getMatches']);
 
-        // Chat System (SecureGate Match)
+        // Chat System (GateMate Match)
         Route::get('/chat', [\App\Http\Controllers\Api\ChatController::class, 'getInbox']);
         Route::get('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'getMessages']);
         Route::post('/chat/{partnerId}', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);

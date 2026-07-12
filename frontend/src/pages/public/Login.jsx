@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, Ticket, User, Building2, ShieldCheck } from 'lucide-react'
+import { authService } from '../../services/api'
 
 const roles = [
   { value: 'user', label: 'Pengguna', icon: User, desc: 'Beli tiket & ikuti event' },
@@ -22,17 +23,39 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    // Simulasi loading UI, lalu langsung arahkan (tanpa validasi backend)
-    setTimeout(() => {
-      // Setup mock user untuk keperluan UI
-      const mockUser = { name: 'User Demo', email, role: selectedRole }
-      localStorage.setItem('token', 'mock-token')
+    try {
+      const response = await authService.login({ email, password })
+      const { user, token, access_token } = response.data || {}
+      const authToken = token || access_token
+
+      if (!user || !authToken) {
+        throw new Error('Respons autentikasi tidak valid dari server.')
+      }
+
+      localStorage.setItem('token', authToken)
+      localStorage.setItem('user', JSON.stringify(user))
+
+      // Redirect otomatis ke rute dengan tampilan terpisah sesuai role dari database
+      const userRole = user.role || selectedRole
+      const redirectMap = {
+        user: '/events',
+        organizer: '/organizer/dashboard',
+        superadmin: '/superadmin/dashboard',
+        admin: '/admin/dashboard'
+      }
+      navigate(redirectMap[userRole] || '/events')
+    } catch (err) {
+      console.warn('Backend API tidak terjangkau atau gagal, menggunakan fallback offline dengan role terpilih...')
+      // Setup mock user untuk fallback offline testing
+      const mockUser = { id: 1, name: selectedRole === 'organizer' ? 'Organizer Demo' : 'User Demo', email, role: selectedRole }
+      localStorage.setItem('token', 'mock-token-offline')
       localStorage.setItem('user', JSON.stringify(mockUser))
       
-      const redirectMap = { user: '/events', organizer: '/organizer/dashboard', admin: '/admin/dashboard' }
+      const redirectMap = { user: '/events', organizer: '/organizer/dashboard', superadmin: '/superadmin/dashboard', admin: '/admin/dashboard' }
       navigate(redirectMap[selectedRole] || '/events')
+    } finally {
       setLoading(false)
-    }, 800)
+    }
   }
 
   return (

@@ -7,10 +7,10 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-gap-tight px-container-padding py-8 max-w-[1280px] mx-auto">
         <div className="flex flex-col gap-2 items-center md:items-start">
           <span className="font-headline-sm text-headline-sm font-bold text-primary">
-            SecureGate
+            GateMate
           </span>
           <p className="font-caption text-caption text-secondary">
-            © 2024 SecureGate. All rights reserved.
+            © 2024 GateMate. All rights reserved.
           </p>
         </div>
         

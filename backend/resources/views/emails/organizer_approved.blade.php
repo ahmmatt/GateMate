@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Akun SecureGate Disetujui</title>
+    <title>Akun GateMate Disetujui</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 8px; border: 1px solid #ebebeb;">
-        <h2 style="color: #F04E37; text-align: center;">SecureGate</h2>
+        <h2 style="color: #F04E37; text-align: center;">GateMate</h2>
         <h3 style="color: #333333;">Halo, {{ $user->full_name }}!</h3>
         <p style="color: #555555; line-height: 1.6;">
-            Selamat! Akun penyelenggara (organizer) Anda untuk <strong>{{ $user->organization_name }}</strong> telah disetujui oleh tim kami. Anda sekarang dapat mulai mengelola event, memantau penjualan tiket, dan menggunakan semua fitur unggulan SecureGate.
+            Selamat! Akun penyelenggara (organizer) Anda untuk <strong>{{ $user->organization_name }}</strong> telah disetujui oleh tim kami. Anda sekarang dapat mulai mengelola event, memantau penjualan tiket, dan menggunakan semua fitur unggulan GateMate.
         </p>
         <p style="color: #555555; line-height: 1.6;">
             Berikut adalah detail login akun Anda yang telah digenerate otomatis oleh sistem:
@@ -26,7 +26,7 @@
         </div>
         <hr style="border: 0; border-top: 1px solid #eeeeee; margin: 30px 0;">
         <p style="color: #999999; font-size: 12px; text-align: center;">
-            &copy; {{ date('Y') }} SecureGate. All rights reserved.
+            &copy; {{ date('Y') }} GateMate. All rights reserved.
         </p>
     </div>
 </body>

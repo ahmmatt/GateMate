@@ -20,9 +20,19 @@ export default function AdminScannerPage() {
   const [recentLogs, setRecentLogs] = useState([]);
 
   useEffect(() => {
-    // TODO: Connect to backend API when ready
-    // api.get('/admin/events').then(...)
-    setEvents([]);
+    const fetchScannerEvents = async () => {
+      try {
+        const res = await api.get('/admin/events', { params: { status: 'active' } });
+        if (res.data?.data) {
+          setEvents(res.data.data);
+          return;
+        }
+      } catch (err) {
+        console.warn('Gagal memuat event untuk scanner dari API, menggunakan fallback.', err.message);
+      }
+      setEvents([]);
+    };
+    fetchScannerEvents();
   }, []);
 
   const handleScan = async (qrCode) => {
@@ -212,7 +222,7 @@ export default function AdminScannerPage() {
               )}
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={logout} className="text-primary active:opacity-70 mt-1">
@@ -318,7 +328,7 @@ export default function AdminScannerPage() {
                 <form onSubmit={handleManualEntry} className="flex gap-3">
                   <input 
                     className="flex-grow bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-all text-body-sm" 
-                    placeholder="Contoh: SG-99283-AX" 
+                    placeholder="Contoh: GM-99283-AX" 
                     type="text"
                     value={manualTicketId}
                     onChange={(e) => setManualTicketId(e.target.value)}

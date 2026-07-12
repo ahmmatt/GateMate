@@ -22,15 +22,16 @@ export default function AdminFinancePage() {
 
   const fetchData = async () => {
     setLoading(true);
-    // TODO: Connect to backend API when ready
-    // try {
-    //   const res = await api.get('/admin/finance');
-    //   setData(res.data.data);
-    // } catch (err) {
-    //   console.error(err);
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const res = await api.get('/admin/finance');
+      if (res.data?.data) {
+        setData(res.data.data);
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Gagal memuat finance dari API, menggunakan fallback.', err.message);
+    }
     setData({
       net_income_total: 0,
       available_to_withdraw: 0,
@@ -117,7 +118,7 @@ export default function AdminFinancePage() {
               )}
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={logout} className="text-primary active:opacity-70 mt-1">

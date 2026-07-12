@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
@@ -191,7 +191,7 @@ export default function AdminEventCreatePage() {
               )}
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={logout} className="text-primary active:opacity-70 mt-1">

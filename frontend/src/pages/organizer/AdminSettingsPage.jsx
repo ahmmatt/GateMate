@@ -94,7 +94,36 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       setLoading(true);
-      // TODO: Fetch from API when ready
+      try {
+        const res = await api.get('/admin/settings');
+        if (res.data?.data) {
+          const d = res.data.data;
+          setFormProfile({
+            full_name: d.full_name || '',
+            phone: d.phone || '',
+            organization_name: d.organization_name || '',
+            organization_type: d.organization_type || '',
+            organization_description: d.organization_description || '',
+            organization_address: d.organization_address || '',
+            organization_website: d.organization_website || '',
+            organization_instagram: d.organization_instagram || '',
+            organization_tiktok: d.organization_tiktok || '',
+            organization_twitter: d.organization_twitter || '',
+            bank_name: d.bank_name || '',
+            bank_account_number: d.bank_account_number || '',
+            bank_account_name: d.bank_account_name || '',
+          });
+          if (d.notification_prefs) {
+            setNotifPrefs(prev => ({ ...prev, ...d.notification_prefs }));
+          }
+          setProfilePicture(d.photo || null);
+          setLastUpdated(d.updated_at || '');
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Gagal memuat pengaturan dari API, menggunakan fallback.', err.message);
+      }
       setFormProfile({
         full_name: '',
         phone: '',
@@ -124,13 +153,15 @@ export default function AdminSettingsPage() {
   }, []);
 
   const fetchSessions = async () => {
-    // TODO: Connect to backend API when ready
-    // try {
-    //   const res = await api.get('/admin/settings/sessions');
-    //   setActiveSessions(res.data.data);
-    // } catch (err) {
-    //   console.error('Failed to fetch sessions:', err);
-    // }
+    try {
+      const res = await api.get('/admin/settings/sessions');
+      if (res.data?.data) {
+        setActiveSessions(res.data.data);
+        return;
+      }
+    } catch (err) {
+      console.warn('Failed to fetch sessions:', err.message);
+    }
     setActiveSessions([]);
   };
 
@@ -318,7 +349,7 @@ export default function AdminSettingsPage() {
               )}
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={handleLogout} className="text-primary active:opacity-70 mt-1">

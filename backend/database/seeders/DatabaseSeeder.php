@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
     {
         // ── 1. Buat Admin User ────────────────────────────────────────────────
         $admin = User::create([
-            'full_name' => 'SecureGate Organizer',
+            'full_name' => 'GateMate Organizer',
             'gender'    => 'Male',
-            'email'     => 'admin@securegate.com',
+            'email'     => 'admin@gatemate.com',
             'password'  => Hash::make('password123'),
             'role'      => 'admin',
         ]);
@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
 
         $eventOnline = Event::create([
             'id_admin'         => $admin->id_user,
-            'title'            => 'SecureGate Dev Bootcamp — Online',
+            'title'            => 'GateMate Dev Bootcamp — Online',
             'banner_image'     => 'default_banner.jpg',
             'category'         => 'Workshop & Training',
             'location_type'    => 'online',

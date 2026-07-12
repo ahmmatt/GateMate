@@ -1,21 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Search, Eye, CheckCircle, Ban, ChevronLeft, ChevronRight } from 'lucide-react'
+import { eventService } from '../../services/api'
 import { formatDate } from '../../utils/formatDate'
 
 export default function AdminManageEvents() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('Semua') // Semua, Active, Pending Review
+  const [events, setEvents] = useState([])
 
-  // TODO: Ganti dengan fetch dari API → adminService.getEvents()
-  // useEffect(() => { adminService.getEvents().then(res => setEvents(res.data.data)) }, [])
-  const events = []
+  const fetchEvents = async () => {
+    try {
+      const res = await eventService.getAll()
+      if (res.data?.data) {
+        setEvents(res.data.data)
+      } else if (Array.isArray(res.data)) {
+        setEvents(res.data)
+      }
+    } catch (err) {
+      console.warn('Gagal memuat event di superadmin dari API, menggunakan fallback.')
+    }
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
 
   const filteredEvents = events.filter(e => {
-    const matchSearch = e.title.toLowerCase().includes(search.toLowerCase()) || 
-                        e.location.toLowerCase().includes(search.toLowerCase()) ||
-                        e.organizer.toLowerCase().includes(search.toLowerCase())
-    const matchFilter = filter === 'Semua' || e.mockStatus === filter
+    const matchSearch = (e.title || '').toLowerCase().includes(search.toLowerCase()) || 
+                        (e.location || '').toLowerCase().includes(search.toLowerCase()) ||
+                        (e.organizer || e.organizer_name || '').toLowerCase().includes(search.toLowerCase())
+    const matchFilter = filter === 'Semua' || e.status === filter || e.mockStatus === filter
     return matchSearch && matchFilter
   })
 

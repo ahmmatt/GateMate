@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SecureGate - Event Saya</title>
+    <title>GateMate - Event Saya</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -124,7 +124,7 @@
 
 <!-- Mobile Top Bar -->
 <header class="flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant md:hidden fixed top-0 z-[60]">
-    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
+    <span class="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</span>
     <button class="active:scale-95 transition-transform">
         <span class="material-symbols-outlined text-primary">menu</span>
     </button>
@@ -133,7 +133,7 @@
 <!-- Side Navigation (Desktop) -->
 <aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
     <div class="px-6 mb-10">
-        <h2 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h2>
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
         <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
     <nav class="flex-1 space-y-1">

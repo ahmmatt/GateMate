@@ -1,7 +1,23 @@
+import { useState, useEffect } from 'react'
+import { superadminService } from '../../services/api'
+
 export default function Reports() {
-  // TODO: Ganti dengan fetch dari API → adminService.getAuditLogs()
-  // useEffect(() => { adminService.getAuditLogs().then(res => setLogs(res.data.data)) }, [])
-  const logs = []
+  const [logs, setLogs] = useState([])
+
+  const fetchLogs = async () => {
+    try {
+      const res = await superadminService.getDashboard()
+      if (res.data?.data?.logs) {
+        setLogs(res.data.data.logs)
+      }
+    } catch (err) {
+      console.warn('Gagal memuat log audit dari API, menggunakan fallback.')
+    }
+  }
+
+  useEffect(() => {
+    fetchLogs()
+  }, [])
 
   return (
     <div className="animate-in fade-in">

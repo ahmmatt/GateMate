@@ -53,7 +53,14 @@ function OrganizerGuard({ children }) {
 function AdminGuard({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (!user) return <Navigate to="/admin/login" replace />
-  if (user.role !== 'admin') return <Navigate to="/" replace />
+  if (user.role !== 'admin' && user.role !== 'superadmin') return <Navigate to="/" replace />
+  return children
+}
+
+function SuperadminGuard({ children }) {
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  if (!user) return <Navigate to="/superadmin/login" replace />
+  if (user.role !== 'superadmin' && user.role !== 'admin') return <Navigate to="/" replace />
   return children
 }
 
@@ -93,8 +100,9 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* ── Admin Auth ── */}
+      {/* ── Admin & Superadmin Secure Auth Routes ── */}
       <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/superadmin/login" element={<AdminLogin />} />
 
       {/* ── User Routes ── */}
       <Route element={<UserLayout />}>
@@ -112,7 +120,7 @@ export default function AppRoutes() {
       <Route path="/organizer/finance" element={<OrganizerGuard><AdminFinancePage /></OrganizerGuard>} />
       <Route path="/organizer/settings" element={<OrganizerGuard><AdminSettingsPage /></OrganizerGuard>} />
 
-      {/* ── /admin/* — shared routes (organizer pakai ini di navigasi internalnya) ── */}
+      {/* ── /admin/* — shared & admin routes ── */}
       <Route path="/admin/dashboard" element={<RoleSwitch OrganizerPage={OrganizerDashboard} AdminPage={AdminDashboard} />} />
       <Route path="/admin/events" element={<RoleSwitch OrganizerPage={ManageEvents} AdminPage={AdminManageEvents} />} />
       <Route path="/admin/events/create" element={<OrganizerGuard><CreateEvent /></OrganizerGuard>} />
@@ -121,12 +129,23 @@ export default function AppRoutes() {
       <Route path="/admin/finance" element={<OrganizerGuard><AdminFinancePage /></OrganizerGuard>} />
       <Route path="/admin/settings" element={<RoleSwitch OrganizerPage={AdminSettingsPage} AdminPage={Settings} />} />
 
-      {/* ── Admin-only Routes ── */}
-      <Route element={<AdminLayout />}>
+      {/* ── Admin-only Protected Routes ── */}
+      <Route element={<AdminGuard><AdminLayout /></AdminGuard>}>
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/organizers" element={<ManageOrganizers />} />
         <Route path="/admin/withdrawals" element={<PenarikanDana />} />
         <Route path="/admin/reports" element={<Reports />} />
+      </Route>
+
+      {/* ── Superadmin Dedicated Protected Routes (/superadmin/*) ── */}
+      <Route element={<SuperadminGuard><AdminLayout /></SuperadminGuard>}>
+        <Route path="/superadmin/dashboard" element={<AdminDashboard />} />
+        <Route path="/superadmin/users" element={<ManageUsers />} />
+        <Route path="/superadmin/organizers" element={<ManageOrganizers />} />
+        <Route path="/superadmin/withdrawals" element={<PenarikanDana />} />
+        <Route path="/superadmin/events" element={<AdminManageEvents />} />
+        <Route path="/superadmin/reports" element={<Reports />} />
+        <Route path="/superadmin/settings" element={<Settings />} />
       </Route>
 
       {/* ── Fallback ── */}

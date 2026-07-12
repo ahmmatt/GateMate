@@ -3,11 +3,11 @@ import { Outlet, Navigate, NavLink, useNavigate, useLocation } from 'react-route
 import { LogOut, Menu, X } from 'lucide-react'
 
 const navItems = [
-  { path: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
-  { path: '/admin/organizers', icon: 'verified_user', label: 'Verifikasi Organizer' },
-  { path: '/admin/withdrawals', icon: 'account_balance_wallet', label: 'Penarikan Dana' },
-  { path: '/admin/reports', icon: 'history', label: 'Audit Log' },
-  { path: '/admin/settings', icon: 'settings', label: 'Pengaturan' },
+  { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+  { path: '/organizers', icon: 'verified_user', label: 'Verifikasi Organizer' },
+  { path: '/withdrawals', icon: 'account_balance_wallet', label: 'Penarikan Dana' },
+  { path: '/reports', icon: 'history', label: 'Audit Log' },
+  { path: '/settings', icon: 'settings', label: 'Pengaturan' },
 ]
 
 export default function AdminLayout({ children }) {
@@ -18,10 +18,13 @@ export default function AdminLayout({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
   if (!user) return <Navigate to="/admin/login" replace />
-  if (user.role !== 'admin') return <Navigate to={`/${user.role}/dashboard`} replace />
+  if (user.role !== 'admin' && user.role !== 'superadmin') return <Navigate to="/" replace />
+
+  const isSuperadmin = user.role === 'superadmin' || location.pathname.startsWith('/superadmin')
+  const basePath = isSuperadmin ? '/superadmin' : '/admin'
 
   const getPageTitle = () => {
-    const activeItem = navItems.find(item => location.pathname.startsWith(item.path))
+    const activeItem = navItems.find(item => location.pathname.startsWith(`${basePath}${item.path}`) || location.pathname.startsWith(`/admin${item.path}`))
     return activeItem ? activeItem.label : 'Dashboard'
   }
 
@@ -54,7 +57,7 @@ export default function AdminLayout({ children }) {
           <div className="px-6 flex justify-between items-center">
             <div>
               <span className="font-headline-md text-headline-md font-bold text-primary">GateMate</span>
-              <p className="text-secondary font-label-sm mt-1">Superadmin</p>
+              <p className="text-secondary font-label-sm mt-1">{isSuperadmin ? 'Superadmin Portal' : 'Admin Portal'}</p>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-secondary hover:text-primary">
               <X className="w-5 h-5" />
@@ -63,11 +66,12 @@ export default function AdminLayout({ children }) {
           
           <nav className="flex-1 space-y-1">
             {navItems.map((item) => {
-              const isActive = location.pathname.startsWith(item.path)
+              const fullPath = `${basePath}${item.path}`
+              const isActive = location.pathname.startsWith(fullPath) || location.pathname.startsWith(`/admin${item.path}`)
               return (
                 <NavLink
                   key={item.path}
-                  to={item.path}
+                  to={fullPath}
                   className={`flex items-center gap-3 px-6 py-3 transition-colors duration-200 group ${
                     isActive 
                       ? 'border-l-4 border-primary text-primary font-bold bg-surface-container'
@@ -93,20 +97,20 @@ export default function AdminLayout({ children }) {
         <div className="px-6 mt-auto">
           <div className="flex items-center gap-3 p-3 mb-6 rounded-lg bg-surface-container-low">
             <img 
-              alt="Superadmin Profile" 
+              alt="Profile Avatar" 
               className="w-10 h-10 rounded-full border border-surface-container-high object-cover" 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-6s-ZrbXtqyD5-0kyZ5Di_SKWhUcDsD2ObcErz3-1Zkr2Wu6R3oonR1MXjHDs2u7IgAwBodaXouPxjeWqOYRQGyz53wjhkozlUWS3eCoqV3iOu7DgefVAx7bUFAKtMIZ0wVaLpoEZJhMLcmz0UdzEWaojLYmt0EPU77ApM1JgZxoagks-96yUTvC_XaamTjgKAyqTnlf47QWfLFWzQmhroq9c9vu2710X2udj3O_kM3WC8yI6bof-UvHUx0MiOxBs3RTcAq09fps"
             />
             <div>
               <p className="font-body-md text-on-surface font-semibold truncate w-24" title={user.name}>{user.name}</p>
-              <p className="text-secondary text-label-sm">Superadmin</p>
+              <p className="text-secondary text-label-sm capitalize">{isSuperadmin ? 'Superadmin' : 'Admin'}</p>
             </div>
           </div>
           <button 
             onClick={() => {
               localStorage.removeItem('token')
               localStorage.removeItem('user')
-              navigate('/admin/login')
+              navigate(isSuperadmin ? '/superadmin/login' : '/admin/login')
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-outline text-primary font-medium rounded-full hover:bg-surface-container transition-colors"
           >

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Buat Event Baru - SecureGate</title>
+<title>Buat Event Baru - GateMate</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -76,7 +76,7 @@
 <!-- Side Navigation Bar -->
 <nav class="fixed left-0 top-0 h-screen w-[240px] flex flex-col py-stack-lg border-r border-outline-variant bg-surface z-40 hidden md:flex">
     <div class="px-gutter mb-10">
-        <h2 class="font-h2 text-h2 font-black text-primary">SecureGate</h2>
+        <h2 class="font-h2 text-h2 font-black text-primary">GateMate</h2>
         <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
     <ul class="flex-1 space-y-1">

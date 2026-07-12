@@ -18,17 +18,21 @@ export default function AdminEventsPage() {
 
   const fetchEvents = async () => {
     setLoading(true);
-    // TODO: Connect to backend API when ready
-    // try {
-    //   const res = await api.get('/admin/events', { params: { search: currentSearch, status: currentStatus } });
-    //   setEvents(res.data.data || []);
-    // } catch (err) {
-    //   console.error(err);
-    // } finally {
-    //   setLoading(false);
-    // }
-    setEvents([]);
-    setLoading(false);
+    try {
+      const res = await api.get('/admin/events', { params: { search: currentSearch, status: currentStatus } });
+      if (res.data?.data) {
+        setEvents(res.data.data);
+      } else if (Array.isArray(res.data)) {
+        setEvents(res.data);
+      } else {
+        setEvents([]);
+      }
+    } catch (err) {
+      console.warn('Gagal memuat event dari API, menggunakan fallback list kosong.', err.message);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -120,7 +124,7 @@ export default function AdminEventsPage() {
               )}
               <div className="ml-2 overflow-hidden">
                 <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: SG-{user?.id_user || '1'}</p>
+                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
               </div>
             </div>
             <button onClick={logout} className="text-primary active:opacity-70 mt-1">

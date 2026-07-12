@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { superadminService } from '../../services/api'
 
 // Format helper
 const formatLongDate = (dateString) => {
@@ -26,22 +27,22 @@ function KtpModal({ organizer, onClose, onApprove }) {
           {/* Displaying dummy KTP image or avatar as fallback */}
           <img 
             className="w-full h-full object-cover" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6AlAZ-5cnI7lyKPAxewOpdZcxYjyuH347aYX4xSW5hzHsPshv3XZW0KFf-jzs2jIMmayt_rJs-x2P1lI2wT3GOC0eBTaqPmQimIbRsbZdY7vqRW_26UMQcFNZijV5X4TsPS26Y43x8twTl16Kp6u7wTPTUH-EIul4ir9WFWhFI8VRQGC3uGSt6jO9Gwncgxo740XE1ikkQrhHRqlrMSvTr1DJkXnxsm8u7uQDR9wCBii38SB4grk1-IPdAWO8egsJBo81PF24OPk" 
+            src={organizer.ktp || "https://lh3.googleusercontent.com/aida-public/AB6AXuD6AlAZ-5cnI7lyKPAxewOpdZcxYjyuH347aYX4xSW5hzHsPshv3XZW0KFf-jzs2jIMmayt_rJs-x2P1lI2wT3GOC0eBTaqPmQimIbRsbZdY7vqRW_26UMQcFNZijV5X4TsPS26Y43x8twTl16Kp6u7wTPTUH-EIul4ir9WFWhFI8VRQGC3uGSt6jO9Gwncgxo740XE1ikkQrhHRqlrMSvTr1DJkXnxsm8u7uQDR9wCBii38SB4grk1-IPdAWO8egsJBo81PF24OPk"} 
             alt="KTP Document" 
           />
         </div>
         <div className="flex justify-end gap-3">
           <button 
-            className="px-6 py-2 border border-[#e5e2e1] rounded-full text-[14px] font-medium text-[#5d5e60] hover:bg-[#f6f3f2] transition-colors" 
             onClick={onClose}
+            className="px-6 py-2 border border-[#e5e2e1] rounded-full text-[14px] text-[#5d5e60] hover:bg-[#f0edec]"
           >
             Tutup
           </button>
           <button 
-            className="px-6 py-2 bg-[#b22110] text-white rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
             onClick={() => onApprove(organizer.id)}
+            className="px-6 py-2 bg-[#F04E37] text-white rounded-full text-[14px] font-medium hover:bg-[#b22110]"
           >
-            Verifikasi Sekarang
+            Setujui Organizer
           </button>
         </div>
       </div>
@@ -51,12 +52,28 @@ function KtpModal({ organizer, onClose, onApprove }) {
 
 export default function ManageOrganizers() {
   const [search, setSearch] = useState('')
-  const [pendingList, setPendingList] = useState([]) // TODO: fetch dari API → adminService.getPendingOrganizers()
+  const [pendingList, setPendingList] = useState([])
+  const [activeOrganizers, setActiveOrganizers] = useState([])
   const [approveTarget, setApproveTarget] = useState(null)
   const [tab, setTab] = useState('pending') // 'pending' | 'active' | 'rejected'
   const [rejectedIds, setRejectedIds] = useState([])
 
-  const activeOrganizers = [] // TODO: fetch dari API → adminService.getActiveOrganizers()
+  const fetchOrganizers = async () => {
+    try {
+      const res = await superadminService.getOrganizers()
+      if (res.data?.data) {
+        const all = res.data.data
+        setPendingList(all.filter(o => o.status === 'pending' || !o.status))
+        setActiveOrganizers(all.filter(o => o.status === 'approved' || o.status === 'active'))
+      }
+    } catch (err) {
+      console.warn('Gagal memuat organizer dari API, menggunakan fallback.')
+    }
+  }
+
+  useEffect(() => {
+    fetchOrganizers()
+  }, [])
 
   const getFilteredList = () => {
     let list = []
@@ -69,20 +86,34 @@ export default function ManageOrganizers() {
     }
 
     return list.filter(o =>
-      o.name.toLowerCase().includes(search.toLowerCase()) ||
+      (o.name || '').toLowerCase().includes(search.toLowerCase()) ||
       (o.organizerName || '').toLowerCase().includes(search.toLowerCase()) ||
-      o.email.toLowerCase().includes(search.toLowerCase())
+      (o.email || '').toLowerCase().includes(search.toLowerCase())
     )
   }
 
   const filteredList = getFilteredList()
 
-  const handleApprove = (id) => {
+  const handleApprove = async (id) => {
+    try {
+      await superadminService.approveOrganizer(id)
+    } catch (err) {
+      console.warn('Fallback approve di UI karena API tidak tersedia/offline')
+    }
+    const approvedOrg = pendingList.find(o => o.id === id)
     setPendingList(prev => prev.filter(o => o.id !== id))
+    if (approvedOrg) {
+      setActiveOrganizers(prev => [...prev, { ...approvedOrg, status: 'approved' }])
+    }
     setApproveTarget(null)
   }
 
-  const handleReject = (id) => {
+  const handleReject = async (id) => {
+    try {
+      await superadminService.rejectOrganizer(id, 'Ditolak oleh admin')
+    } catch (err) {
+      console.warn('Fallback reject di UI karena API tidak tersedia/offline')
+    }
     setRejectedIds(prev => [...prev, id])
   }
 

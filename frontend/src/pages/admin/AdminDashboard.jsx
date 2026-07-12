@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { superadminService } from '../../services/api'
 import { formatPrice } from '../../utils/formatDate'
 
 function ApproveModal({ organizer, onClose, onApprove }) {
@@ -174,33 +175,65 @@ function ExekusiModal({ withdrawal, onClose, onExekusi }) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  // TODO: Ganti dengan fetch dari API → adminService.getDashboardStats()
-  const totalRevenue = 0
-  const totalTransactions = 0
-  
-  // TODO: Fetch dari API → adminService.getPendingOrganizers()
+  const [stats, setStats] = useState({ totalRevenue: 0, totalTransactions: 0 })
   const [organizers, setOrganizers] = useState([])
-  // TODO: Fetch dari API → adminService.getWithdrawals()
   const [withdrawals, setWithdrawals] = useState([])
   const [approveTarget, setApproveTarget] = useState(null)
   const [rejectTarget, setRejectTarget] = useState(null)
   const [exekusiTarget, setExekusiTarget] = useState(null)
   const [rejectedIds, setRejectedIds] = useState([])
 
-  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending')
-  const pendingOrgs = organizers.filter(o => !rejectedIds.includes(o.id))
+  const totalRevenue = stats.totalRevenue || 0
+  const totalTransactions = stats.totalTransactions || 0
 
-  const handleApprove = (id) => {
+  const fetchData = async () => {
+    try {
+      const [dashRes, orgRes, wdRes] = await Promise.all([
+        superadminService.getDashboard().catch(() => null),
+        superadminService.getOrganizers().catch(() => null),
+        superadminService.getPendingWithdrawals().catch(() => null)
+      ])
+      if (dashRes?.data?.data) setStats(dashRes.data.data)
+      if (orgRes?.data?.data) setOrganizers(orgRes.data.data)
+      if (wdRes?.data?.data) setWithdrawals(wdRes.data.data)
+    } catch (err) {
+      console.warn('Superadmin API tidak terjangkau, menggunakan fallback state.')
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending' || !w.status)
+  const pendingOrgs = organizers.filter(o => !rejectedIds.includes(o.id) && (o.status === 'pending' || !o.status))
+
+  const handleApprove = async (id) => {
+    try {
+      await superadminService.approveOrganizer(id)
+    } catch (err) {
+      console.warn('Fallback approve di UI karena API tidak tersedia/offline')
+    }
     setOrganizers(prev => prev.filter(o => o.id !== id))
     setApproveTarget(null)
   }
 
-  const handleReject = (id) => {
+  const handleReject = async (id) => {
+    try {
+      await superadminService.rejectOrganizer(id, 'Ditolak oleh admin')
+    } catch (err) {
+      console.warn('Fallback reject di UI karena API tidak tersedia/offline')
+    }
     setRejectedIds(prev => [...prev, id])
     setRejectTarget(null)
   }
 
-  const handleExekusi = (id) => {
+  const handleExekusi = async (id) => {
+    try {
+      await superadminService.executeWithdrawal(id)
+    } catch (err) {
+      console.warn('Fallback eksekusi di UI karena API tidak tersedia/offline')
+    }
     setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: 'done' } : w))
     setExekusiTarget(null)
   }

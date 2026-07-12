@@ -8,7 +8,7 @@ export default function CTASection() {
           Siap untuk Pengalaman Baru?
         </h2>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-          Gabung dengan ribuan pengguna lainnya yang telah mempercayakan SecureGate untuk urusan tiket mereka. 
+          Gabung dengan ribuan pengguna lainnya yang telah mempercayakan GateMate untuk urusan tiket mereka. 
           Cepat, Aman, dan Tanpa Ribet.
         </p>
         <div className="flex gap-4">

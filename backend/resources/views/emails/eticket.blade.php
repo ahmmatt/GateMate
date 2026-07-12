@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>E-Ticket SecureGate</title>
+    <title>E-Ticket GateMate</title>
     <style>
         /* ── Reset ─── */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -258,7 +258,7 @@
 
     {{-- ── Header ── --}}
     <div class="header">
-        <div class="header-brand">SecureGate</div>
+        <div class="header-brand">GateMate</div>
         <div class="header-title">🎟️ E-Ticket Anda Siap!</div>
         <div class="header-sub">Pembayaran telah dikonfirmasi</div>
     </div>
@@ -268,7 +268,7 @@
         {{-- ── Event Hero ── --}}
         <div class="event-hero">
             <div class="event-tag">{{ $transaction->event->category ?? 'Event' }}</div>
-            <div class="event-name">{{ $transaction->event->title ?? 'Event SecureGate' }}</div>
+            <div class="event-name">{{ $transaction->event->title ?? 'Event GateMate' }}</div>
         </div>
 
         {{-- ── Perforation ── --}}
@@ -338,11 +338,11 @@
 
     {{-- ── Footer ── --}}
     <div class="footer">
-        <p class="footer-brand">SecureGate</p>
+        <p class="footer-brand">GateMate</p>
         <p>Email ini dikirim secara otomatis. Mohon jangan membalas email ini.<br>
            Butuh bantuan? Hubungi panitia event terkait.</p>
         <p style="margin-top:8px; color:#334155;">
-            © {{ date('Y') }} SecureGate · Tiket Aman, Acara Lancar.
+            © {{ date('Y') }} GateMate · Tiket Aman, Acara Lancar.
         </p>
     </div>
 

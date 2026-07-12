@@ -1,14 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, Search, UserCheck, UserX, Trash2, MoreHorizontal } from 'lucide-react'
+import { userService } from '../../services/api'
 import { formatDateShort } from '../../utils/formatDate'
 
 export default function ManageUsers() {
   const [search, setSearch] = useState('')
-  // TODO: Ganti dengan fetch dari API → userService.getAll() atau adminService.getUsers()
-  const users = []
+  const [users, setUsers] = useState([])
+
+  const fetchUsers = async () => {
+    try {
+      const res = await userService.getAll()
+      if (res.data?.data) {
+        setUsers(res.data.data)
+      } else if (Array.isArray(res.data)) {
+        setUsers(res.data)
+      }
+    } catch (err) {
+      console.warn('Gagal memuat daftar pengguna dari API, menggunakan fallback.')
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
   const filtered = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+    (u.name || u.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (

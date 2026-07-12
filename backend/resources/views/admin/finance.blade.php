@@ -2,7 +2,7 @@
 <html class="light" lang="id"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>SecureGate - Keuangan</title>
+<title>GateMate - Keuangan</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -134,7 +134,7 @@
 <!-- Sidebar Navigation -->
 <aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
     <div class="px-6 mb-10">
-        <h2 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h2>
+        <h2 class="font-h2 text-h2 font-black text-on-surface">GateMate</h2>
         <p class="font-caption text-caption text-secondary">Organizer</p>
     </div>
     <nav class="flex-1 space-y-1">
