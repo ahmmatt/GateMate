@@ -98,11 +98,11 @@ export default function AppRoutes() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/organizer/login" element={<OrganizerLogin />} />
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* ── Role-Specific Secure Auth Routes ── */}
-      <Route path="/organizer/login" element={<OrganizerLogin />} />
+      {/* ── Admin & Superadmin Secure Auth Routes ── */}
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/superadmin/login" element={<AdminLogin />} />
 

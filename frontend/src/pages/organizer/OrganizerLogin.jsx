@@ -57,7 +57,7 @@ export default function OrganizerLogin() {
   }
 
   return (
-    <div className="bg-[#fff8f6] text-[#271815] min-h-screen flex flex-col font-sans">
+    <div className="text-[#271815] flex flex-col font-sans flex-grow items-center justify-center relative overflow-hidden px-4 py-12">
       <style>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.88);
@@ -66,15 +66,15 @@ export default function OrganizerLogin() {
           border: 1px solid #EBEBEB;
         }
         .coral-pill-primary {
-          background-color: #F04E37;
+          background-color: #b22110;
           border-radius: 22px;
           padding: 12px 22px;
           color: white;
           transition: all 0.2s;
         }
         .coral-pill-primary:hover {
-          background-color: #d63b27;
-          box-shadow: 0 4px 12px rgba(240, 78, 55, 0.25);
+          background-color: #911b0d;
+          box-shadow: 0 4px 12px rgba(178, 33, 16, 0.25);
         }
         .coral-pill-primary:active {
           opacity: 0.85;
@@ -88,31 +88,14 @@ export default function OrganizerLogin() {
         }
         .input-base:focus {
           outline: none;
-          border-color: #F04E37;
-          box-shadow: 0 0 0 3px rgba(240, 78, 55, 0.12);
+          border-color: #b22110;
+          box-shadow: 0 0 0 3px rgba(178, 33, 16, 0.12);
         }
       `}</style>
 
-      {/* TopNavBar */}
-      <header className="w-full top-0 sticky bg-[#fff8f6]/80 backdrop-blur-md border-b border-[#e3beb8]/40 z-50">
-        <nav className="flex justify-between items-center h-16 px-6 max-w-[1280px] mx-auto">
-          <Link to="/" className="text-[20px] font-extrabold text-[#b22110] tracking-tight flex items-center gap-2">
-            <span>GateMate</span>
-            <span className="text-xs bg-[#b22110] text-white px-2 py-0.5 rounded-full font-medium tracking-normal">Mitra</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/register" className="text-[14px] text-[#b22110] font-bold hover:underline">
-              Daftar Jadi Penyelenggara
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      {/* Main Content: Center Split Layout */}
-      <main className="flex-grow flex items-center justify-center relative overflow-hidden px-4 py-12">
-        {/* Atmospheric Background Elements */}
-        <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[#F04E37]/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-[#007f99]/10 rounded-full blur-[100px] pointer-events-none"></div>
+      {/* Atmospheric Background Elements */}
+      <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[#b22110]/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-[#007f99]/10 rounded-full blur-[100px] pointer-events-none"></div>
         
         <div className="w-full max-w-[1100px] grid md:grid-cols-2 items-center gap-12 relative z-10">
           {/* Left Side: Branding/Visual Khusus Organizer */}
@@ -171,39 +154,13 @@ export default function OrganizerLogin() {
                 </div>
               )}
 
-              {/* Social Login */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <button 
-                  type="button"
-                  onClick={() => alert('Demo: Fitur login Google khusus Organizer')}
-                  className="flex items-center justify-center gap-2 py-3 border border-[#e3beb8] rounded-xl hover:bg-[#fff0ee] transition-colors active:scale-95"
-                >
-                  <img alt="Google" className="w-5 h-5" src="data:image/png;base64,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" />
-                  <span className="text-[12px] font-semibold text-[#271815]">Google</span>
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => alert('Demo: Fitur login Apple khusus Organizer')}
-                  className="flex items-center justify-center gap-2 py-3 border border-[#e3beb8] rounded-xl hover:bg-[#fff0ee] transition-colors active:scale-95"
-                >
-                  <img alt="Apple" className="w-5 h-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADhklEQVR4AdSZWahNURzGd5TMU0jmEBKZiowpT4ryoBDxgAdTeCISmfKgCCWFEkkpRKHEiykernnI8GBOJIQMhd93b/t2Wu2z91nD3qer77fX2nuv9V//79xjn73WahQ18H9FG+jC57URxkEQFWlgLRk/g3XQGIKoCAOdyfQabIZmID3UIQR5G+hFkrdgNMR6QuUDBFGeBpqT4RnQX4CiXifqawEqeRrYSX6DwNR+84LPeV4GepPUfDB1kAvPIZjyMrCQDM3YSnwl14PKHCQp+HQungY9Av9RvoOroMdiV8okTUy42Idrr+AuHIE50Bq8lGZgCZHfw3GYCkqAItJ/yjFU9Fh8TXkDtsAsmAZroB8kSQkP5sZsOAxvYRs0BSclGehAJCW1h7ITZGkkDZT0UcqTIDPtKStRCxqtAv1OUNjLNKCEawijpCgKk/6aToOZBnYRpTsUKf1WOP82lBqYQtYzoGjt9hmw1MB2n0COfT/S7wI4KzYwkwj9oWjpkeo1ZmxgrlcU986P3LvW9ZQBMb7utPDjH98RlfxwgrSEaqiJ76AyMMA3iEf/oR59a7vKQLvaWuYhlwbDiNoKnCUDlf7sOw+S0lFTzEUp9zNvyYD39zBzlPQGehfqkd6k/F0Z+Fr+diF39A04x0htwFoy8Nm6V/gOAwl5H8aClWRAExWrTjk17kbcBWAlGXhs1SPfxgdsw8vAGzq9hGpL60VXbJOQAfXxeiNUgABYf/oaMzZwSidV5DtjO60XxQbOEiDYch+xbKX59yfbTmofG/jLySGohn4yqPNkKjZAjGiHDlVAU0rNzJyGLjWgNRotODkFcuz0hX5bwVmlBhRE6zu/VCkILad4vQmYBrT0t6mg5DWW83c/ztE0oOtaWbunSs4sDxE/yYDiztMhR/YRW8uQFH4qZ0DbQpMJ/RtCS/tjK0IFLWdA8c9z0GozRVDpw1lNxA0lLKXupDQDCqiJxiQq3yCUtLS+nmAxi6lfBCdlGVDQSxw0+b5NmSU912uiKHpAwx+QpWM0GALOC1yVGCB+pEmPTCzmxPzV1Ku4nufa1GjL/RGgzT2t/U+grvccc9p6h+u6p00R7fhw6qZKDcTR91LpCNr/1S6NZlE9Odfu+1NKU5e5sAw03+1LOQq0w6P1IN3j1E+2BuLRXlC5DpoMUVQkbfLdpKW2rSjCyNVAmNEDRGnwBv4DAAD//44sHKQAAAAGSURBVAMAsy17YX9OrloAAAAASUVORK5CYII=" />
-                  <span className="text-[12px] font-semibold text-[#271815]">Apple</span>
-                </button>
-              </div>
-
-              <div className="relative mb-8 flex items-center">
-                <div className="flex-grow border-t border-[#e3beb8]/60"></div>
-                <span className="mx-4 text-[11px] text-[#5b403c] bg-transparent">atau email organizer</span>
-                <div className="flex-grow border-t border-[#e3beb8]/60"></div>
-              </div>
-
               {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-1.5">
                   <label 
                     htmlFor="email"
                     className={`text-[12px] font-medium ml-1 transition-colors ${
-                      focusedField === 'email' ? 'text-[#F04E37]' : 'text-[#5b403c]'
+                      focusedField === 'email' ? 'text-[#b22110]' : 'text-[#5b403c]'
                     }`}
                   >
                     Email Organizer / Mitra
@@ -226,7 +183,7 @@ export default function OrganizerLogin() {
                     <label 
                       htmlFor="password"
                       className={`text-[12px] font-medium transition-colors ${
-                        focusedField === 'password' ? 'text-[#F04E37]' : 'text-[#5b403c]'
+                        focusedField === 'password' ? 'text-[#b22110]' : 'text-[#5b403c]'
                       }`}
                     >
                       Password
@@ -287,26 +244,6 @@ export default function OrganizerLogin() {
             </div>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="w-full mt-auto bg-[#fff0ee] border-t border-[#e3beb8]/50">
-        <div className="flex flex-col md:flex-row justify-between items-center py-8 px-6 max-w-[1280px] mx-auto gap-4">
-          <div className="text-[16px] font-bold text-[#b22110] flex items-center gap-2">
-            <span>GateMate</span>
-            <span className="text-[10px] bg-[#ffdad4] text-[#910900] px-2 py-0.5 rounded-full uppercase">Mitra Portal</span>
-          </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Terms of Service</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Organizer Agreement</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Mitra Support</a>
-          </div>
-          <div className="text-[11px] text-[#5b403c] opacity-70">
-            © 2026 GateMate Organizer Portal. All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

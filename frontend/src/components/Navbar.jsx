@@ -24,7 +24,7 @@ export default function Navbar() {
     return '/user/tickets'
   }
 
-  const isLoginPage = location.pathname === '/login'
+  const isLoginPage = location.pathname === '/login' || location.pathname === '/organizer/login'
   const isRegisterPage = location.pathname === '/register'
 
   return (
