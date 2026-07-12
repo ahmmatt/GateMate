@@ -1,178 +1,211 @@
-import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import TopUpModal from '../../components/modals/TopUpModal'
+import { useState, useEffect, useRef } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
+import api from '../../services/api';
+import useAuthStore from '../../store/useAuthStore';
 
-const transactions = [
-  {
-    id: 1,
-    type: 'in',
-    title: 'Top Up Wallet',
-    subtitle: 'BCA Virtual Account',
-    date: '15 Okt 2024, 14:20',
-    amount: '+Rp 500.000',
-    amountClass: 'text-[#2E7D32]',
-    iconBg: 'bg-[#E8F5E9]',
-    iconColor: 'text-[#2E7D32]',
-    icon: 'north_east',
-  },
-  {
-    id: 2,
-    type: 'out',
-    title: 'Tiket Konser Arctic Monkeys',
-    subtitle: 'Berhasil',
-    date: '12 Okt 2024, 09:15',
-    amount: '-Rp 1.250.000',
-    amountClass: 'text-[#F04E37]',
-    iconBg: 'bg-[#fff0ee]',
-    iconColor: 'text-[#F04E37]',
-    icon: 'south_west',
-  },
-  {
-    id: 3,
-    type: 'out',
-    title: 'Parkir GBK Senayan',
-    subtitle: 'Berhasil',
-    date: '11 Okt 2024, 18:45',
-    amount: '-Rp 15.000',
-    amountClass: 'text-[#F04E37]',
-    iconBg: 'bg-[#fff0ee]',
-    iconColor: 'text-[#F04E37]',
-    icon: 'south_west',
-  },
-  {
-    id: 4,
-    type: 'in',
-    title: 'Top Up Wallet',
-    subtitle: 'Mandiri Transfer',
-    date: '10 Okt 2024, 10:00',
-    amount: '+Rp 1.000.000',
-    amountClass: 'text-[#2E7D32]',
-    iconBg: 'bg-[#E8F5E9]',
-    iconColor: 'text-[#2E7D32]',
-    icon: 'north_east',
-  },
-]
+const MIDTRANS_CLIENT_KEY = import.meta.env.VITE_MIDTRANS_CLIENT_KEY || 'Mid-client-tagqO0YtUtBkIEIA';
 
-export default function Wallet() {
-  const navigate = useNavigate()
-  const cardRef = useRef(null)
-  const [cardStyle, setCardStyle] = useState({ '--x': '50%', '--y': '50%' })
-  const [isTopUpOpen, setIsTopUpOpen] = useState(false)
+export default function WalletPage() {
+  const { user } = useAuthStore();
+  const [walletData, setWalletData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showTopup, setShowTopup] = useState(false);
+  const [topupAmount, setTopupAmount] = useState('100000');
+  const [topupLoading, setTopupLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const handleMouseMove = (e) => {
-    const rect = cardRef.current.getBoundingClientRect()
-    setCardStyle({
-      '--x': `${e.clientX - rect.left}px`,
-      '--y': `${e.clientY - rect.top}px`,
-    })
-  }
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [tenantIdInput, setTenantIdInput] = useState('');
+  const [scanError, setScanError] = useState('');
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [tenantInfo, setTenantInfo] = useState(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  const CHIPS = [50000, 100000, 200000, 500000];
+
+  useEffect(() => {
+    fetchWallet();
+    // Load Midtrans Snap
+    if (!document.getElementById('midtrans-snap')) {
+      const script = document.createElement('script');
+      script.id = 'midtrans-snap';
+      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+      script.setAttribute('data-client-key', MIDTRANS_CLIENT_KEY);
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  const fetchWallet = async () => {
+    try {
+      const res = await api.get('/wallet');
+      setWalletData(res.data.data);
+      setTransactions(res.data.data?.transactions || []);
+    } catch (_) {}
+    finally { setLoading(false); }
+  };
+
+  const handleTopup = async () => {
+    const amount = parseInt(topupAmount.replace(/[^0-9]/g, ''));
+    if (!amount || amount < 10000) { alert('Minimal top-up adalah Rp 10.000'); return; }
+    setTopupLoading(true);
+    try {
+      const res = await api.post('/wallet/topup', { amount });
+      const snapToken = res.data.data?.snap_token;
+      if (snapToken && window.snap) {
+        window.snap.pay(snapToken, {
+          onSuccess: () => { setToast('Top-up berhasil!'); setShowTopup(false); fetchWallet(); },
+          onPending: () => { setToast('Menunggu pembayaran...'); setShowTopup(false); },
+          onError: () => alert('Pembayaran gagal!'),
+          onClose: () => {},
+        });
+      }
+    } catch (err) { alert(err.response?.data?.message || 'Gagal memproses top-up'); }
+    finally { setTopupLoading(false); }
+  };
+
+  const handleQrSuccess = async (decodedText) => {
+    try {
+      const res = await api.get(`/wallet/tenant/${decodedText}`);
+      setTenantInfo({ id: decodedText, ...res.data.data });
+      setShowScanModal(false);
+      setShowPaymentModal(true);
+      setScanError('');
+      setTenantIdInput('');
+    } catch (err) {
+      setScanError('Tenant tidak ditemukan atau ID salah.');
+    }
+  };
+
+  const handleScanSubmit = async (e) => {
+    e.preventDefault();
+    if (!tenantIdInput) return;
+    handleQrSuccess(tenantIdInput);
+  };
+
+  const scannerRef = useRef(null);
+
+  useEffect(() => {
+    let html5QrCode;
+    
+    if (showScanModal) {
+      // Delay to ensure the DOM element is rendered
+      setTimeout(() => {
+        const qrElement = document.getElementById("qr-reader");
+        if (qrElement && !scannerRef.current) {
+          html5QrCode = new Html5Qrcode("qr-reader");
+          scannerRef.current = html5QrCode;
+
+          html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+              // On success
+              html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                scannerRef.current = null;
+                handleQrSuccess(decodedText);
+              }).catch(console.error);
+            },
+            () => {} // Ignore empty frames
+          ).catch((err) => {
+            setScanError('Kamera tidak tersedia. Silakan masukkan ID manual.');
+            console.error(err);
+          });
+        }
+      }, 300);
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().then(() => {
+          scannerRef.current.clear();
+        }).catch(console.error).finally(() => {
+          scannerRef.current = null;
+        });
+      }
+    };
+  }, [showScanModal]);
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    const amount = parseInt(paymentAmount.replace(/[^0-9]/g, ''));
+    if (!amount || amount < 1000) { alert('Minimal pembayaran adalah Rp 1.000'); return; }
+    setPaymentLoading(true);
+    try {
+      const res = await api.post(`/wallet/pay/${tenantInfo.id}`, { amount });
+      setToast(`Pembayaran Rp ${amount.toLocaleString('id-ID')} ke ${tenantInfo.full_name} berhasil!`);
+      setShowPaymentModal(false);
+      setPaymentAmount('');
+      fetchWallet();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal memproses pembayaran');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const formatRp = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+  const formatDate = (d) => d ? new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+  const TX_TYPE_LABEL = { topup: 'Top-up Saldo', ticket_refund: 'Refund Tiket', tenant_revenue: 'Pendapatan Tenant', payment: 'Pembayaran QR', withdrawal: 'Penarikan Dana', ticket_purchase: 'Pembayaran Tiket' };
+  const isIncome = (type) => ['topup', 'ticket_refund', 'tenant_revenue'].includes(type);
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <span className="material-symbols-outlined text-primary animate-spin" style={{ fontSize: '36px' }}>progress_activity</span>
+    </div>
+  );
 
   return (
-    <div>
-      {/* Material Symbols */}
-      <style>{`
-        .wallet-shine::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.18) 0%, transparent 55%);
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.3s;
-          border-radius: inherit;
-        }
-        .wallet-shine:hover::before {
-          opacity: 1;
-        }
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          font-family: 'Material Symbols Outlined';
-          display: inline-block;
-          line-height: 1;
-          vertical-align: middle;
-        }
-      `}</style>
+    <div className="max-w-[1280px] mx-auto">
+      {toast && (
+        <div className="mb-4 bg-[#E8F5E9] border border-[#2E7D32] text-[#2E7D32] px-4 py-3 rounded-lg flex items-center gap-2 font-body-md text-body-md shadow-sm">
+          <span className="material-symbols-outlined">check_circle</span> {toast}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-        {/* ── Main Wallet Section ── */}
-        <div className="lg:col-span-8 flex flex-col gap-5">
-
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gap-default items-start">
+        {/* Main Section */}
+        <div className="lg:col-span-8 flex flex-col gap-gap-default">
           {/* Balance Card */}
-          <div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            className="wallet-shine relative rounded-[22px] p-8 text-white flex flex-col gap-6 shadow-sm overflow-hidden"
-            style={{
-              background: '#F04E37',
-              ...cardStyle,
-            }}
-          >
-            {/* Decorative icon */}
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-              <span className="material-symbols-outlined" style={{ fontSize: 120 }}>account_balance_wallet</span>
+          <div className="rounded-[22px] p-8 text-white relative overflow-hidden flex flex-col gap-6 shadow-sm" style={{ background: '#F04E37', boxShadow: '0 10px 30px -10px rgba(178,33,16,0.3)' }}>
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <span className="material-symbols-outlined" style={{ fontSize: '120px' }}>account_balance_wallet</span>
             </div>
-
             <div className="z-10">
-              <p className="text-xs font-semibold opacity-80 uppercase tracking-wider mb-2">Total Saldo</p>
-              <h1 className="text-[32px] font-bold leading-tight">Rp 2.500.000</h1>
+              <p className="font-label-md text-label-md opacity-80 uppercase tracking-wider mb-2">Total Saldo</p>
+              <h1 className="font-headline-lg text-headline-lg font-bold">{formatRp(walletData?.wallet_balance)}</h1>
             </div>
-
-            <div className="flex z-10">
-              <button 
-                onClick={() => setIsTopUpOpen(true)}
-                className="bg-white text-[#F04E37] px-[22px] py-[10px] rounded-[22px] text-xs font-bold transition-all hover:bg-[#fff0ee] active:scale-95"
-              >
-                Top Up
-              </button>
-            </div>
-          </div>
-
-          {/* Action Row */}
-          <div className="flex gap-4">
-            <button 
-              onClick={() => setIsTopUpOpen(true)}
-              className="flex-1 flex items-center justify-center gap-2 border border-[#F04E37] text-[#F04E37] bg-transparent rounded-[22px] px-[22px] py-[10px] text-xs font-bold hover:bg-[#fff0ee] transition-all active:scale-95"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add_circle</span>
-              Top Up
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 border border-[#F04E37] text-[#F04E37] bg-transparent rounded-[22px] px-[22px] py-[10px] text-xs font-bold hover:bg-[#fff0ee] transition-all active:scale-95">
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>qr_code_scanner</span>
-              Scan QR / Bayar
-            </button>
           </div>
 
           {/* Transaction History */}
-          <div
-            className="bg-white rounded-[14px] p-6 flex flex-col gap-4"
-            style={{ border: '0.5px solid #EBEBEB' }}
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-base font-semibold text-[#271815]">Riwayat Transaksi</h3>
-              <button className="text-[#b22110] text-xs font-semibold hover:underline">Lihat Semua</button>
+          <div className="bg-surface-container-lowest rounded-[14px] border border-[#EBEBEB] p-6 flex flex-col gap-gap-tight">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">Riwayat Transaksi</h3>
+              <button className="text-primary font-label-md text-label-md hover:underline">Lihat Semua</button>
             </div>
-
             <div className="flex flex-col">
-              {transactions.map((tx, idx) => (
-                <div
-                  key={tx.id}
-                  className={`flex items-center justify-between py-4 px-2 -mx-2 rounded-lg hover:bg-[#F9F9F9] transition-colors ${idx < transactions.length - 1 ? 'border-b border-[#EBEBEB]' : ''}`}
-                >
-                  {/* Left */}
+              {transactions.length === 0 ? (
+                <div className="text-center py-8 text-secondary font-body-md">Belum ada riwayat transaksi.</div>
+              ) : transactions.map((tx, i) => (
+                <div key={i} className="flex items-center justify-between py-4 border-b border-[#EBEBEB] hover:bg-[#F9F9F9] transition-colors px-2 -mx-2 rounded-lg">
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.iconBg}`}>
-                      <span className={`material-symbols-outlined ${tx.iconColor}`} style={{ fontSize: 20 }}>{tx.icon}</span>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isIncome(tx.type) ? 'bg-[#E8F5E9]' : 'bg-surface-container-low'}`}>
+                      <span className="material-symbols-outlined" style={{ color: isIncome(tx.type) ? '#2E7D32' : '#F04E37' }}>{isIncome(tx.type) ? 'north_east' : 'south_west'}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#271815]">{tx.title}</p>
-                      <p className="text-[11px] text-[#5f5e5e]">{tx.date}</p>
+                      <p className="font-body-lg text-body-lg font-medium text-on-surface">{TX_TYPE_LABEL[tx.type] || tx.type}</p>
+                      <p className="font-caption text-caption text-secondary">{formatDate(tx.created_at)}</p>
                     </div>
                   </div>
-                  {/* Right */}
                   <div className="text-right">
-                    <p className={`text-sm font-bold ${tx.amountClass}`}>{tx.amount}</p>
-                    <p className="text-[11px] text-[#5f5e5e]">{tx.subtitle}</p>
+                    <p className="font-body-lg text-body-lg font-bold" style={{ color: isIncome(tx.type) ? '#2E7D32' : '#F04E37' }}>
+                      {isIncome(tx.type) ? '+' : '-'}{formatRp(tx.amount)}
+                    </p>
+                    <p className="font-caption text-caption text-secondary capitalize">{tx.status}</p>
                   </div>
                 </div>
               ))}
@@ -180,83 +213,176 @@ export default function Wallet() {
           </div>
         </div>
 
-        {/* ── Sidebar Widgets ── */}
-        <div className="lg:col-span-4 flex flex-col gap-5">
-
-          {/* Promo Card */}
-          <div
-            className="bg-white rounded-[14px] p-4 flex flex-col gap-4"
-            style={{ border: '0.5px solid #EBEBEB' }}
-          >
-            <h3 className="text-base font-semibold text-[#271815]">Promo Spesial</h3>
-            <div className="rounded-xl overflow-hidden relative aspect-[16/9]">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxaKtqJYTnd5vmyKfHJ9HiZRZSyC54NUQrmkntby3PMCzvidaNOodHa6zjxsPEevnzQb5RKGWhGI6AWDDsWzHDzns5TvNlqqM0THCmmQGTKBYmn7xD51OzW9orQdD985g1i9CdTlyZs6V9Pt_dkk3zp7uSAuclJWNm16FmfWopYjIXyODOgZxq97Wod5Lw1IE9km7VQD7eX_WVxdHeBWkZfboU_mnpA8VOZp0Y6tH20uW5eH0xDeL0uBbFXkqf7licndpEFhZnP7E"
-                alt="Concert Promo"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-4 flex items-end">
-                <p className="text-white text-xs font-medium">Cashback 20% Tiket Konser!</p>
-              </div>
-            </div>
-          </div>
-
+        {/* Sidebar */}
+        <div className="lg:col-span-4 flex flex-col gap-gap-default">
           {/* Security Info */}
-          <div
-            className="rounded-[14px] p-4 flex gap-4"
-            style={{ background: '#FFF0EE', border: '0.5px solid #F9DCD7' }}
-          >
-            <span className="material-symbols-outlined text-[#F04E37]" style={{ fontVariationSettings: "'FILL' 1" }}>shield_lock</span>
+          <div className="rounded-[14px] p-4 border border-[#F9DCD7] flex gap-4" style={{ background: '#FFF0EE' }}>
+            <span className="material-symbols-outlined" style={{ color: '#F04E37', fontVariationSettings: "'FILL' 1" }}>shield_lock</span>
             <div>
-              <p className="text-sm font-bold text-[#271815] mb-1">Keamanan Terjamin</p>
-              <p className="text-[11px] text-[#5b403c]">Transaksi dilindungi dengan enkripsi end-to-end dan otentikasi dua faktor.</p>
+              <p className="font-body-md text-body-md font-bold text-on-surface mb-1">Keamanan Terjamin</p>
+              <p className="font-caption text-caption text-on-surface-variant">Transaksi dilindungi dengan enkripsi end-to-end dan otentikasi dua faktor.</p>
             </div>
           </div>
 
-          {/* Wallet Settings */}
-          <div
-            className="bg-white rounded-[14px] p-6 flex flex-col gap-4"
-            style={{ border: '0.5px solid #EBEBEB' }}
-          >
-            <h3 className="text-base font-semibold text-[#271815]">Pengaturan Wallet</h3>
+          {/* Quick Actions (Replacing Quick Settings) */}
+          <div className="bg-surface-container-lowest rounded-[14px] border border-[#EBEBEB] p-6 flex flex-col gap-4">
+            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">Aksi Cepat</h3>
+            
+            <button onClick={() => setShowTopup(true)} className="flex items-center justify-between w-full py-4 text-left hover:bg-[#FFF0EE] transition-colors rounded-[12px] px-4 -mx-2 group border border-transparent hover:border-[#F9DCD7]">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#FFF0EE] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#F04E37]">add_card</span>
+                </div>
+                <div>
+                  <span className="block font-body-lg text-body-lg font-bold text-on-surface">Top Up Saldo</span>
+                  <span className="block font-caption text-caption text-secondary">Isi ulang wallet via Midtrans</span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-secondary text-[20px] group-hover:text-[#F04E37] transition-colors">chevron_right</span>
+            </button>
 
-            <div className="flex flex-col gap-1">
-              {/* Metode Pembayaran */}
-              <button className="group flex items-center justify-between w-full py-3 px-2 -mx-2 rounded-lg hover:bg-[#F9F9F9] transition-colors text-left">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#5f5e5e] group-hover:text-[#b22110] transition-colors">credit_card</span>
-                  <span className="text-sm text-[#271815]">Metode Pembayaran</span>
+            <button onClick={() => setShowScanModal(true)} className="flex items-center justify-between w-full py-4 text-left hover:bg-[#FFF0EE] transition-colors rounded-[12px] px-4 -mx-2 group border border-transparent hover:border-[#F9DCD7]">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#FFF0EE] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[#F04E37]">qr_code_scanner</span>
                 </div>
-                <span className="material-symbols-outlined text-[#5f5e5e]" style={{ fontSize: 18 }}>chevron_right</span>
-              </button>
+                <div>
+                  <span className="block font-body-lg text-body-lg font-bold text-on-surface">Scan QR / Bayar</span>
+                  <span className="block font-caption text-caption text-secondary">Bayar tenant dengan mudah</span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-secondary text-[20px] group-hover:text-[#F04E37] transition-colors">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-              {/* Ubah PIN */}
-              <button className="group flex items-center justify-between w-full py-3 px-2 -mx-2 rounded-lg hover:bg-[#F9F9F9] transition-colors text-left">
+      {/* Top Up Modal */}
+      {showTopup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="relative bg-surface-container-lowest w-full max-w-md rounded-[20px] shadow-2xl overflow-hidden border border-[#EBEBEB]">
+            <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center bg-white">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Top Up Balance</h2>
+              <button onClick={() => setShowTopup(false)} className="text-on-surface-variant hover:text-primary transition-colors"><span className="material-symbols-outlined">close</span></button>
+            </div>
+            <div className="p-6">
+              <div className="text-center mb-2 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Enter Amount</div>
+              <div className="flex items-center justify-center gap-2 border-b-2 border-outline-variant focus-within:border-primary transition-all pb-2 mb-8">
+                <span className="text-headline-md font-bold text-on-surface-variant">Rp</span>
+                <input
+                  className="bg-transparent border-none focus:ring-0 text-[40px] font-bold text-on-surface w-full max-w-[280px] text-center p-0 outline-none"
+                  value={Number(topupAmount.replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID')}
+                  onChange={(e) => setTopupAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="0"
+                  type="text"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-3 mb-10">
+                {CHIPS.map(chip => (
+                  <button key={chip} onClick={() => setTopupAmount(String(chip))}
+                    className={`px-6 py-3 rounded-full border font-label-md text-label-md transition-all active:scale-95 ${topupAmount === String(chip) ? 'bg-primary text-white border-primary' : 'border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary'}`}>
+                    Rp {chip.toLocaleString('id-ID')}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center justify-between p-4 bg-surface-container-low border border-[#EBEBEB] rounded-[10px] mb-8">
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#5f5e5e] group-hover:text-[#b22110] transition-colors">lock</span>
-                  <span className="text-sm text-[#271815]">Ubah PIN Wallet</span>
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-outline-variant p-1">
+                    <img alt="Midtrans" className="w-full h-auto grayscale opacity-80" src="https://midtrans.com/assets/img/midtrans-logo.svg" />
+                  </div>
+                  <div>
+                    <div className="font-headline-sm text-headline-sm">Midtrans</div>
+                    <div className="font-caption text-caption text-on-surface-variant">Virtual Account, CC, E-wallet</div>
+                  </div>
                 </div>
-                <span className="material-symbols-outlined text-[#5f5e5e]" style={{ fontSize: 18 }}>chevron_right</span>
-              </button>
-
-              {/* Notifikasi — toggle aktif */}
-              <button className="group flex items-center justify-between w-full py-3 px-2 -mx-2 rounded-lg hover:bg-[#F9F9F9] transition-colors text-left">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#5f5e5e] group-hover:text-[#b22110] transition-colors">notifications</span>
-                  <span className="text-sm text-[#271815]">Notifikasi Transaksi</span>
-                </div>
-                {/* Toggle On */}
-                <div className="w-10 h-5 bg-[#b22110] rounded-full relative flex-shrink-0">
-                  <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full" />
-                </div>
+                <span className="material-symbols-outlined text-primary">check_circle</span>
+              </div>
+              <button onClick={handleTopup} disabled={topupLoading}
+                className="w-full bg-[#F04E37] text-white py-4 rounded-full font-headline-sm text-headline-sm hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-70"
+                style={{ boxShadow: '0 10px 30px -10px rgba(178,33,16,0.3)' }}>
+                {topupLoading ? 'Memproses...' : 'Lanjutkan Pembayaran'}
               </button>
             </div>
           </div>
         </div>
+      )}
 
+      {/* Scan QR Modal (Simulasi) */}
+      <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm ${showScanModal ? '' : 'hidden'}`}>
+        <div className="relative bg-surface-container-lowest w-full max-w-md rounded-[20px] shadow-2xl overflow-hidden border border-[#EBEBEB]">
+          <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center bg-white">
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">Scan QR Tenant</h2>
+            <button onClick={() => { setShowScanModal(false); setScanError(''); }} className="text-on-surface-variant hover:text-primary transition-colors">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div className="p-6 flex flex-col gap-6 items-center">
+            <div id="qr-reader" className="w-full max-w-[280px] h-auto rounded-xl overflow-hidden shadow-sm border border-outline-variant relative min-h-[200px] flex items-center justify-center bg-surface-container-low">
+              <span className="material-symbols-outlined text-secondary absolute z-0" style={{ fontSize: '48px' }}>qr_code_scanner</span>
+            </div>
+            <p className="text-secondary font-body-md text-center">
+              Arahkan kamera ke QR Code Tenant. Atau masukkan ID Tenant secara manual di bawah ini:
+            </p>
+            <form onSubmit={handleScanSubmit} className="w-full flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Contoh ID: 15"
+                className="w-full p-4 border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none text-center font-bold text-lg"
+                value={tenantIdInput}
+                onChange={(e) => setTenantIdInput(e.target.value)}
+                required={showScanModal}
+              />
+              {scanError && <p className="text-[#F04E37] text-sm text-center">{scanError}</p>}
+              <button type="button" onClick={handleScanSubmit} className="w-full py-4 mt-2 rounded-full bg-primary text-white font-bold hover:brightness-110 active:scale-95 transition-all">
+                Lanjutkan
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
 
-      <TopUpModal isOpen={isTopUpOpen} onClose={() => setIsTopUpOpen(false)} />
+      {/* Payment Modal */}
+      {showPaymentModal && tenantInfo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="relative bg-surface-container-lowest w-full max-w-md rounded-[20px] shadow-2xl overflow-hidden border border-[#EBEBEB]">
+            <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center bg-white">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pembayaran ke Tenant</h2>
+              <button onClick={() => setShowPaymentModal(false)} className="text-on-surface-variant hover:text-primary transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6 flex flex-col gap-6">
+              <div className="flex items-center gap-4 p-4 border border-outline-variant rounded-xl bg-surface-container-low">
+                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl">
+                  {tenantInfo.full_name?.[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-headline-sm text-on-surface">{tenantInfo.full_name}</h3>
+                  <p className="font-caption text-secondary text-sm">Tenant di {tenantInfo.event?.title}</p>
+                </div>
+              </div>
+              <form onSubmit={handlePaymentSubmit} className="w-full flex flex-col gap-4">
+                <div>
+                  <label className="block font-label-md text-secondary mb-2">Jumlah Pembayaran</label>
+                  <div className="relative flex items-center justify-center p-6 bg-surface-container-low border border-[#EBEBEB] rounded-[16px]">
+                    <span className="absolute left-6 font-headline-sm text-secondary">Rp</span>
+                    <input
+                      className="bg-transparent border-none focus:ring-0 text-[32px] font-bold text-on-surface w-full max-w-[280px] text-center p-0 outline-none pl-10"
+                      value={Number(paymentAmount.replace(/[^0-9]/g, '') || 0).toLocaleString('id-ID')}
+                      onChange={(e) => setPaymentAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder="0"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <button type="submit" disabled={paymentLoading} className="w-full mt-2 py-4 rounded-full bg-[#F04E37] text-white font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-70">
+                  {paymentLoading ? 'Memproses...' : 'Bayar Sekarang'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
