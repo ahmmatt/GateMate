@@ -324,7 +324,7 @@ export default function OrganizerLogin() {
 
               <p className="mt-6 text-center text-[14px] text-[#5b403c]">
                 Belum jadi mitra Organizer?{' '}
-                <Link to="/register" className="text-[#b22110] font-bold hover:underline">
+                <Link to="/organizer/register" className="text-[#b22110] font-bold hover:underline">
                   Daftar Sekarang
                 </Link>
               </p>

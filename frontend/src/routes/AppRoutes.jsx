@@ -9,8 +9,8 @@ import AdminLayout from '../layouts/AdminLayout'
 import Home from '../pages/public/Home'
 import Events from '../pages/public/Events'
 import EventDetail from '../pages/public/EventDetail'
-import Login from '../pages/public/Login'
-import Register from '../pages/public/Register'
+import UserLogin from '../pages/auth/UserLogin'
+import UserRegister from '../pages/auth/UserRegister'
 import AttendeeList from '../pages/events/[id]/attendees'
 import MatchmakingResults from '../pages/user/MatchmakingResults'
 import Chat from '../pages/user/Chat'
@@ -30,7 +30,8 @@ import CheckIn from '../pages/organizer/AdminScannerPage'
 import AdminEventShowPage from '../pages/organizer/AdminEventShowPage'
 import AdminFinancePage from '../pages/organizer/AdminFinancePage'
 import AdminSettingsPage from '../pages/organizer/AdminSettingsPage'
-import OrganizerLogin from '../pages/organizer/OrganizerLogin'
+import OrganizerLogin from '../pages/auth/OrganizerLogin'
+import OrganizerRegister from '../pages/auth/OrganizerRegister'
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/AdminDashboard'
@@ -39,7 +40,7 @@ import ManageOrganizers from '../pages/admin/ManageOrganizers'
 import Reports from '../pages/admin/Reports'
 import PenarikanDana from '../pages/admin/PenarikanDana'
 import AdminManageEvents from '../pages/admin/AdminManageEvents'
-import AdminLogin from '../pages/admin/AdminLogin'
+import AdminLogin from '../pages/auth/AdminLogin'
 import Settings from '../pages/admin/Settings'
 
 // ── Guards ──────────────────────────────────────────────────────────────────
@@ -97,9 +98,10 @@ export default function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<UserLogin />} />
+        <Route path="/register" element={<UserRegister />} />
         <Route path="/organizer/login" element={<OrganizerLogin />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/organizer/register" element={<OrganizerRegister />} />
       </Route>
 
       {/* ── Admin & Superadmin Secure Auth Routes ── */}

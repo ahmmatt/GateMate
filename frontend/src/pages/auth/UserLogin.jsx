@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../../services/api'
 
-export default function Login() {
+export default function UserLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -85,8 +85,6 @@ export default function Login() {
         }
       `}</style>
 
-      
-
       {/* Main Content: Center Split Layout */}
       <main className="flex-grow flex items-center justify-center relative overflow-hidden px-4 py-12">
         {/* Atmospheric Background Elements */}
@@ -149,84 +147,65 @@ export default function Login() {
                 <div className="flex-grow border-t border-[#e3beb8]/60"></div>
               </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-1.5">
-                  <label 
-                    htmlFor="email"
-                    className={`text-[12px] font-medium ml-1 transition-colors ${
-                      focusedField === 'email' ? 'text-[#b22110]' : 'text-[#5b403c]'
-                    }`}
-                  >
-                    Email
-                  </label>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#5b403c]">Email Address</label>
                   <input 
-                    id="email"
+                    required 
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="nama@email.com" 
+                    className="input-base w-full px-4 py-3 text-[14px] text-[#271815]"
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
-                    required
-                    placeholder="nama@email.com" 
-                    className="w-full h-12 px-4 input-base text-[14px] text-[#271815]"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center px-1">
-                    <label 
-                      htmlFor="password"
-                      className={`text-[12px] font-medium transition-colors ${
-                        focusedField === 'password' ? 'text-[#b22110]' : 'text-[#5b403c]'
-                      }`}
-                    >
-                      Password
-                    </label>
-                    <a href="#" onClick={(e) => { e.preventDefault(); alert('Fitur pemulihan kata sandi sedang dalam maintenance.'); }} className="text-[12px] font-medium text-[#b22110] hover:underline">
-                      Lupa Password?
-                    </a>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#5b403c]">Password</label>
+                    <a href="#" className="text-[11px] text-[#b22110] hover:underline">Lupa Password?</a>
                   </div>
                   <input 
-                    id="password"
+                    required 
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••" 
+                    className="input-base w-full px-4 py-3 text-[14px] text-[#271815]"
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    required
-                    placeholder="••••••••" 
-                    className="w-full h-12 px-4 input-base text-[14px] text-[#271815]"
                   />
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full coral-pill-primary text-[14px] font-bold mt-4 shadow-sm flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Memproses...</span>
-                    </>
-                  ) : (
-                    <span>Masuk</span>
-                  )}
-                </button>
+                <div className="pt-2">
+                  <button 
+                    disabled={loading}
+                    type="submit" 
+                    className="coral-pill-primary w-full font-bold text-[14px] tracking-wide shadow-sm flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Memproses...</span>
+                      </>
+                    ) : (
+                      <span>Masuk ke GateMate</span>
+                    )}
+                  </button>
+                </div>
               </form>
 
-              <p className="mt-6 text-center text-[14px] text-[#5b403c]">
-                Belum punya akun?{' '}
-                <Link to="/register" className="text-[#b22110] font-bold hover:underline">
-                  Daftar Sekarang
-                </Link>
-              </p>
-
-              {/* Teks masuk sebagai organizer sesuai permintaan */}
-              <div className="mt-6 pt-5 border-t border-[#EBEBEB] text-center">
-                <p className="text-[13px] text-[#5b403c] flex flex-col sm:flex-row items-center justify-center gap-1.5">
-                  <span>Penyelenggara Acara atau Kasir?</span>
+              <div className="mt-8 pt-6 border-t border-[#e3beb8]/40 text-center space-y-2">
+                <p className="text-[13px] text-[#5b403c]">
+                  Belum memiliki akun?{' '}
+                  <Link to="/register" className="text-[#b22110] font-bold hover:underline">
+                    Daftar Sekarang &rarr;
+                  </Link>
+                </p>
+                <p className="text-[13px] text-[#5b403c]">
+                  Mitra Penyelenggara?{' '}
                   <Link 
                     to="/organizer/login" 
                     className="text-[#b22110] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1.5 bg-[#b22110]/10 border border-[#b22110]/20 rounded-full transition-all hover:bg-[#b22110]/15"
@@ -239,8 +218,6 @@ export default function Login() {
           </div>
         </div>
       </main>
-
-      
     </div>
   )
 }

@@ -1,10 +1,9 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, User, ChevronDown } from 'lucide-react'
 
-export default function Register() {
+export default function UserRegister() {
   const navigate = useNavigate()
-  const [selectedRole, setSelectedRole] = useState('user')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -38,23 +37,26 @@ export default function Register() {
         name: form.name,
         email: form.email,
         gender: form.gender,
-        role: selectedRole,
+        role: 'user',
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name)}&background=b22110&color=fff`,
       }
       localStorage.setItem('token', 'dummy-token-' + Date.now())
       localStorage.setItem('user', JSON.stringify(user))
-      navigate(selectedRole === 'organizer' ? '/organizer/dashboard' : '/')
+      navigate('/')
       setLoading(false)
     }, 800)
   }
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-6 bg-[#fff8f6]">
       {/* Sign Up Card */}
-      <div className="bg-white w-full max-w-[440px] rounded-[14px] border border-[#EBEBEB] p-8 md:p-10 transition-all duration-300 shadow-sm animate-slide-up">
+      <div className="bg-white w-full max-w-[460px] rounded-[14px] border border-[#EBEBEB] p-8 md:p-10 transition-all duration-300 shadow-sm animate-slide-up">
         <div className="text-center mb-8">
-          <h1 className="text-[#271815] text-xl font-bold mb-2">Buat Akun Baru</h1>
-          <p className="text-[#5f5e5e] text-sm">Lengkapi data diri untuk mulai mengamankan tiket Anda.</p>
+          <span className="inline-block px-3.5 py-1 bg-[#b22110]/10 text-[#b22110] text-[11px] font-bold rounded-full mb-3 uppercase tracking-wider border border-[#b22110]/20">
+            Portal Pengguna
+          </span>
+          <h1 className="text-[#271815] text-xl font-bold mb-2">Buat Akun Pengguna</h1>
+          <p className="text-[#5f5e5e] text-sm">Lengkapi data diri untuk mulai membeli tiket & mengikuti event GateMate.</p>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
@@ -137,36 +139,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Daftar Sebagai */}
-          <div className="space-y-1.5">
-            <label
-              className={`text-xs font-semibold ml-1 transition-colors duration-200 ${
-                focusedField === 'role' ? 'text-[#b22110]' : 'text-[#5f5e5e]'
-              }`}
-              htmlFor="role"
-            >
-              Daftar Sebagai
-            </label>
-            <div className="relative">
-              <select
-                id="role"
-                name="role"
-                className="w-full bg-[#F5F5F7] border border-[#EBEBEB] rounded-[10px] px-4 py-3 text-sm focus:border-[#b22110] transition-colors appearance-none cursor-pointer text-[#271815] outline-none"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                onFocus={() => setFocusedField('role')}
-                onBlur={() => setFocusedField(null)}
-                required
-              >
-                <option value="user">Pengguna (Beli tiket & ikuti event)</option>
-                <option value="organizer">Organizer (Buat & kelola event)</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#5f5e5e]">
-                <ChevronDown className="w-5 h-5" />
-              </div>
-            </div>
-          </div>
-
           {/* Password */}
           <div className="space-y-1.5">
             <label
@@ -242,7 +214,7 @@ export default function Register() {
 
           {/* Action Button */}
           <button
-            className="w-full bg-[#b22110] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all mt-4 flex justify-center items-center gap-2"
+            className="w-full bg-[#b22110] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all mt-4 flex justify-center items-center gap-2 shadow-sm"
             type="submit"
             disabled={loading}
           >
@@ -255,12 +227,12 @@ export default function Register() {
                 Memproses...
               </>
             ) : (
-              'Buat Akun'
+              'Buat Akun Pengguna'
             )}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 pt-6 border-t border-[#EBEBEB] text-center space-y-3">
           <p className="text-[#5f5e5e] text-sm">
             Sudah punya akun?
             <Link
@@ -270,10 +242,19 @@ export default function Register() {
               Masuk
             </Link>
           </p>
+          <p className="text-[#5f5e5e] text-sm">
+            Ingin menjadi mitra EO?
+            <Link
+              className="text-[#b22110] font-semibold hover:underline inline-flex items-center gap-1 ml-1 px-3 py-1 bg-[#b22110]/10 border border-[#b22110]/20 rounded-full transition-all hover:bg-[#b22110]/15"
+              to="/organizer/register"
+            >
+              Daftar sebagai Penyelenggara &rarr;
+            </Link>
+          </p>
         </div>
 
         {/* Terms check */}
-        <div className="mt-8 pt-6 border-t border-[#EBEBEB] text-center">
+        <div className="mt-6 pt-4 border-t border-[#EBEBEB]/60 text-center">
           <p className="text-[11px] text-[#5f5e5e] px-4 leading-relaxed">
             Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> GateMate.
           </p>
@@ -282,4 +263,3 @@ export default function Register() {
     </div>
   )
 }
-
