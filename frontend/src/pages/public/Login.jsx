@@ -232,7 +232,6 @@ export default function Login() {
                     className="text-[#b22110] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1.5 bg-[#b22110]/10 border border-[#b22110]/20 rounded-full transition-all hover:bg-[#b22110]/15"
                   >
                     <span>Masuk sebagai Organizer</span>
-                    <span>&rarr;</span>
                   </Link>
                 </p>
               </div>
