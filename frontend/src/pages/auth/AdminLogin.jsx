@@ -19,11 +19,12 @@ export default function AdminLogin() {
 
     try {
       const response = await authService.login({ email, password })
-      const { user, token, access_token } = response.data || {}
+      const payload = response.data?.data || response.data || {}
+      const { user, token, access_token } = payload
       const authToken = token || access_token
 
       if (!user || !authToken) {
-        throw new Error('Respons autentikasi tidak valid dari server.')
+        throw new Error(response.data?.message || 'Respons autentikasi tidak valid dari server.')
       }
 
       // Verifikasi keamanan route: pastikan hanya role superadmin yang bisa masuk
