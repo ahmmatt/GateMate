@@ -26,9 +26,9 @@ export default function AdminLogin() {
         throw new Error('Respons autentikasi tidak valid dari server.')
       }
 
-      // Verifikasi keamanan route: pastikan hanya role superadmin/admin yang bisa masuk
-      if (user.role !== 'superadmin' && user.role !== 'admin') {
-        setError('Keamanan Sistem: Akses ditolak. Akun Anda tidak memiliki otorisasi Superadmin/Admin.')
+      // Verifikasi keamanan route: pastikan hanya role superadmin yang bisa masuk
+      if (user.role !== 'superadmin') {
+        setError('Keamanan Sistem: Akses ditolak. Akun Anda tidak memiliki otorisasi Superadmin.')
         setLoading(false)
         return
       }
@@ -36,18 +36,18 @@ export default function AdminLogin() {
       localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
       
-      const targetRoute = user.role === 'superadmin' ? '/superadmin/dashboard' : '/admin/dashboard'
+      const targetRoute = '/superadmin/dashboard'
       navigate(targetRoute)
     } catch (err) {
       console.warn('Backend login tidak terjangkau atau gagal, memeriksa kredensial fallback offline...')
       // Graceful fallback offline khusus untuk superadmin demo saat API offline
-      if ((email === 'superadmin@gatemate.com' || email === 'admin@gatemate.com') && password === 'password123') {
-        const mockRole = email === 'superadmin@gatemate.com' ? 'superadmin' : 'admin'
+      if (email === 'superadmin@gatemate.com' && password === 'password123') {
+        const mockRole = 'superadmin'
         const mockUser = { id: 1, name: 'Superadmin GateMate', email, role: mockRole }
         localStorage.setItem('token', 'mock-superadmin-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         
-        navigate(mockRole === 'superadmin' ? '/superadmin/dashboard' : '/admin/dashboard')
+        navigate('/superadmin/dashboard')
       } else {
         setError(err.response?.data?.message || err.message || 'Email atau password salah. Coba lagi.')
       }

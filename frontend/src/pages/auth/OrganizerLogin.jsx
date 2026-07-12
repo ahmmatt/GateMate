@@ -24,8 +24,8 @@ export default function OrganizerLogin() {
         throw new Error('Respons autentikasi tidak valid dari server.')
       }
 
-      // Verifikasi keamanan khusus organizer
-      if (user.role !== 'organizer') {
+      // Verifikasi keamanan khusus organizer (DB role 'admin')
+      if (user.role !== 'admin') {
         setError('Keamanan Portal: Akses ditolak. Akun Anda bukan akun Organizer. Silakan masuk melalui portal pengguna biasa.')
         setLoading(false)
         return
@@ -38,7 +38,7 @@ export default function OrganizerLogin() {
     } catch (err) {
       console.warn('Backend API tidak terjangkau atau gagal, memeriksa kredensial fallback offline organizer...')
       if (email === 'organizer@gatemate.com' && password === 'password123') {
-        const mockUser = { id: 2, name: 'Organizer Demo GateMate', email, role: 'organizer', organizer_id: 'GM-9921' }
+        const mockUser = { id: 2, name: 'Organizer Demo GateMate', email, role: 'admin', organizer_id: 'GM-9921' }
         localStorage.setItem('token', 'mock-organizer-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         navigate('/organizer/dashboard')
@@ -46,7 +46,7 @@ export default function OrganizerLogin() {
         setError(err.response?.data?.message || 'Email atau password salah. Coba lagi.')
       } else {
         // Fallback offline untuk demo/pengembangan
-        const mockUser = { id: 2, name: 'Organizer Mitra', email, role: 'organizer', organizer_id: 'GM-8812' }
+        const mockUser = { id: 2, name: 'Organizer Mitra', email, role: 'admin', organizer_id: 'GM-8812' }
         localStorage.setItem('token', 'mock-organizer-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         navigate('/organizer/dashboard')

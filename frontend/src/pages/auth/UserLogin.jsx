@@ -24,8 +24,9 @@ export default function UserLogin() {
         throw new Error('Respons autentikasi tidak valid dari server.')
       }
 
+      // Verifikasi keamanan portal: pastikan hanya role user yang bisa masuk
       if (user.role !== 'user') {
-        setError(`Keamanan Portal: Akses ditolak. Akun Anda terdeteksi sebagai ${user.role}. Silakan masuk melalui portal khusus ${user.role}.`)
+        setError('Akses ditolak. Silakan login melalui portal Penyelenggara/Admin.')
         setLoading(false)
         return
       }

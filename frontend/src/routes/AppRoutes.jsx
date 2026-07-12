@@ -48,28 +48,28 @@ import Settings from '../pages/admin/Settings'
 function OrganizerGuard({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (!user) return <Navigate to="/login" replace />
-  if (user.role !== 'organizer') return <Navigate to={`/${user.role}/dashboard`} replace />
+  if (user.role !== 'admin') return <Navigate to={`/`} replace />
   return children
 }
 
 function AdminGuard({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (!user) return <Navigate to="/admin/login" replace />
-  if (user.role !== 'admin' && user.role !== 'superadmin') return <Navigate to="/" replace />
+  if (user.role !== 'superadmin') return <Navigate to="/" replace />
   return children
 }
 
 function SuperadminGuard({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (!user) return <Navigate to="/superadmin/login" replace />
-  if (user.role !== 'superadmin' && user.role !== 'admin') return <Navigate to="/" replace />
+  if (user.role !== 'superadmin') return <Navigate to="/" replace />
   return children
 }
 
 // Helper: render organizer page atau admin page berdasarkan role user
 function RoleSwitch({ OrganizerPage, AdminPage }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
-  if (user?.role === 'organizer') {
+  if (user?.role === 'admin') {
     return <OrganizerGuard><OrganizerPage /></OrganizerGuard>
   }
   return (
