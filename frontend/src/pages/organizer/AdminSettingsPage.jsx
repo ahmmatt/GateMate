@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
+import OrganizerSidebar from '../../components/OrganizerSidebar';
 
 export default function AdminSettingsPage() {
   const { user, logout } = useAuthStore();
@@ -32,14 +33,6 @@ export default function AdminSettingsPage() {
     bank_account_name: '',
   });
 
-  // Notification prefs state
-  const [notifPrefs, setNotifPrefs] = useState({
-    email_notifications: true,
-    system_alerts: true,
-    ticket_sales: true,
-    daily_report: false,
-  });
-
   // Security state
   const [formSecurity, setFormSecurity] = useState({
     current_password: '',
@@ -59,25 +52,11 @@ export default function AdminSettingsPage() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [lastUpdated, setLastUpdated] = useState('');
 
-  const NAV = [
-    { key: 'dashboard', icon: 'dashboard', label: 'Dashboard', to: '/admin/dashboard' },
-    { key: 'events', icon: 'event', label: 'Event Saya', to: '/admin/events' },
-    { key: 'scanner', icon: 'qr_code_scanner', label: 'Scanner', to: '/admin/scanner' },
-    { key: 'finance', icon: 'payments', label: 'Keuangan', to: '/admin/finance' },
-    { key: 'settings', icon: 'settings', label: 'Pengaturan', to: '/admin/settings' },
-  ];
-
   const TABS = [
     { key: 'profile', label: 'Profil Akun', icon: 'person' },
     { key: 'organization', label: 'Detail Organisasi', icon: 'business' },
     { key: 'security', label: 'Keamanan', icon: 'lock' },
-    { key: 'notifications', label: 'Notifikasi', icon: 'notifications' },
   ];
-
-  const handleLogout = async () => {
-    try { await api.post('/auth/logout'); } catch (_) {}
-    logout(); navigate('/login');
-  };
 
   const showSuccess = (msg) => {
     setSuccessMsg(msg);
@@ -113,10 +92,7 @@ export default function AdminSettingsPage() {
             bank_account_number: d.bank_account_number || '',
             bank_account_name: d.bank_account_name || '',
           });
-          if (d.notification_prefs) {
-            setNotifPrefs(prev => ({ ...prev, ...d.notification_prefs }));
-          }
-          setProfilePicture(d.photo || null);
+            setProfilePicture(d.photo || null);
           setLastUpdated(d.updated_at || '');
           setLoading(false);
           return;
@@ -179,24 +155,11 @@ export default function AdminSettingsPage() {
     setSaving(true);
     try {
       await api.post('/admin/settings/profile', {
-        ...formProfile,
-        notification_prefs: notifPrefs,
+        ...formProfile
       });
       showSuccess('Pengaturan berhasil disimpan!');
     } catch (err) {
       showError(err.response?.data?.message || 'Gagal menyimpan pengaturan.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSaveNotifications = async () => {
-    setSaving(true);
-    try {
-      await api.post('/admin/settings/profile', { notification_prefs: notifPrefs });
-      showSuccess('Preferensi notifikasi berhasil disimpan!');
-    } catch (err) {
-      showError(err.response?.data?.message || 'Gagal menyimpan preferensi.');
     } finally {
       setSaving(false);
     }
@@ -322,62 +285,11 @@ export default function AdminSettingsPage() {
   );
 
   return (
-    <div className="bg-background text-on-surface min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
-
-      {/* ── Sidebar (Desktop) ── */}
-      <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
-        <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
-          <p className="font-caption text-caption text-secondary">Organizer</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          {NAV.map(({ key, icon, label, to }) => (
-            <Link key={key} to={to}
-              className={`flex items-center px-6 py-3 transition-colors cursor-pointer font-body-sm text-body-sm ${key === 'settings' ? 'border-l-4 border-primary bg-primary-fixed text-primary font-bold' : 'text-secondary hover:bg-surface-container-low'}`}>
-              <span className="material-symbols-outlined mr-3">{icon}</span>
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="px-6 mt-auto space-y-1">
-          <div className="pt-4 border-t border-outline-variant flex items-center justify-between">
-            <div className="flex items-center">
-              {profilePicture ? (
-                <img alt="Profile" className="w-8 h-8 rounded-full object-cover" src={profilePicture} />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">{adminInitial}</div>
-              )}
-              <div className="ml-2 overflow-hidden">
-                <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
-              </div>
-            </div>
-            <button onClick={handleLogout} className="text-primary active:opacity-70 mt-1">
-              <span className="material-symbols-outlined text-[20px]">logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Top Nav (sticky) ── */}
-      <header className="flex justify-between items-center w-full h-[64px] px-page-padding lg:pl-[264px] bg-surface border-b-[0.5px] border-outline-variant sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <button className="lg:hidden p-2 text-on-surface">
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-          <h2 className="font-h3 text-h3 font-black text-on-surface">Pengaturan</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          {profilePicture ? (
-            <img alt="Profile" className="w-8 h-8 rounded-full object-cover md:hidden" src={profilePicture} />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm md:hidden">{adminInitial}</div>
-          )}
-        </div>
-      </header>
+    <div className="bg-surface text-on-surface min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <OrganizerSidebar activeNav="settings" />
 
       {/* ── Main Content ── */}
-      <main className="lg:pl-[240px] min-h-screen pb-24 md:pb-10">
+      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-10 w-full relative">
         <div className="max-w-[1200px] mx-auto p-6 space-y-6">
 
           {/* Page Header */}
@@ -768,36 +680,6 @@ export default function AdminSettingsPage() {
                   </div>
                 )}
 
-                {/* ═══ TAB: NOTIFIKASI ═══ */}
-                {activeTab === 'notifications' && (
-                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                    <div className="flex items-center gap-2 mb-6">
-                      <span className="material-symbols-outlined text-primary">notifications_active</span>
-                      <h3 className="font-h3 text-h3 text-on-surface">Preferensi Notifikasi</h3>
-                    </div>
-                    <div className="space-y-0 divide-y divide-outline-variant">
-                      {[
-                        { key: 'email_notifications', label: 'Notifikasi Email', desc: 'Dapatkan pembaruan penjualan tiket langsung di email Anda.', icon: 'email' },
-                        { key: 'system_alerts', label: 'Peringatan Sistem', desc: 'Notifikasi browser untuk laporan harian dan pemindaian.', icon: 'warning' },
-                        { key: 'ticket_sales', label: 'Penjualan Tiket', desc: 'Notifikasi real-time setiap ada tiket yang terjual.', icon: 'confirmation_number' },
-                        { key: 'daily_report', label: 'Laporan Harian', desc: 'Ringkasan penjualan dan statistik event setiap hari pukul 08:00.', icon: 'bar_chart' },
-                      ].map(item => (
-                        <div key={item.key} className="flex items-center justify-between py-5 first:pt-0 last:pb-0">
-                          <div className="flex items-start gap-3 flex-1 pr-6">
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${notifPrefs[item.key] ? 'bg-primary-fixed text-primary' : 'bg-surface-container text-secondary'}`}>
-                              <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                            </div>
-                            <div>
-                              <p className="font-body-sm text-body-sm font-bold text-on-surface">{item.label}</p>
-                              <p className="text-secondary font-caption text-caption">{item.desc}</p>
-                            </div>
-                          </div>
-                          <Toggle checked={notifPrefs[item.key]} onToggle={() => setNotifPrefs(p => ({ ...p, [item.key]: !p[item.key] }))} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* ─── Right Sidebar ─── (hidden on security tab since it uses full-width layout) */}
@@ -869,32 +751,6 @@ export default function AdminSettingsPage() {
           )}
         </div>
       </main>
-
-      {/* ── Mobile Bottom Nav ── */}
-      <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-        <Link to="/admin/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">grid_view</span>
-          <span className="font-label-md text-label-md">Dashboard</span>
-        </Link>
-        <Link to="/admin/events" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">confirmation_number</span>
-          <span className="font-label-md text-label-md">Events</span>
-        </Link>
-        <Link to="/admin/scanner" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
-            <span className="material-symbols-outlined">center_focus_weak</span>
-          </div>
-          <span className="font-label-md text-label-md mt-1">Scan</span>
-        </Link>
-        <Link to="/admin/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">account_balance_wallet</span>
-          <span className="font-label-md text-label-md">Finance</span>
-        </Link>
-        <Link to="/admin/settings" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">settings</span>
-          <span className="font-label-md text-label-md">Settings</span>
-        </Link>
-      </nav>
 
     </div>
   );

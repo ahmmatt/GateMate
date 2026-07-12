@@ -1,13 +1,14 @@
-import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
+import OrganizerSidebar from '../../components/OrganizerSidebar';
 
 export default function AdminEventCreatePage() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(''); // Keep for backward compatibility if needed
+  const [error, setError] = useState('');
   const [statusModal, setStatusModal] = useState({ show: false, type: '', message: '' });
   const [activeTab, setActiveTab] = useState('tab-info');
 
@@ -146,100 +147,11 @@ export default function AdminEventCreatePage() {
   };
 
   return (
-    <div className="bg-surface font-body-lg text-on-surface min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Side Navigation (Desktop) */}
-      <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
-        <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
-          <p className="font-caption text-caption text-secondary">Organizer</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">dashboard</span>
-            <span className="font-body-sm text-body-sm">Dashboard</span>
-          </Link>
-          <Link to="/admin/events" className="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer">
-            <span className="material-symbols-outlined mr-3">event</span>
-            <span className="font-body-sm text-body-sm">Event Saya</span>
-          </Link>
-          <Link to="/admin/scanner" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">qr_code_scanner</span>
-            <span className="font-body-sm text-body-sm">Scanner</span>
-          </Link>
-          <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">payments</span>
-            <span className="font-body-sm text-body-sm">Keuangan</span>
-          </Link>
-          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">settings</span>
-            <span className="font-body-sm text-body-sm">Pengaturan</span>
-          </Link>
-        </nav>
-        <div className="px-6 mt-auto space-y-1">
-          <a className="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
-            <span className="material-symbols-outlined mr-3">help</span>
-            <span className="font-body-sm text-body-sm">Bantuan</span>
-          </a>
-          <div className="pt-4 border-t border-outline-variant flex items-center justify-between">
-            <div className="flex items-center">
-              {user?.profile_picture ? (
-                <img alt="Profile" className="w-8 h-8 rounded-full object-cover bg-surface-container-high" src={`http://localhost:8000/Media/uploads/${user.profile_picture}`}/>
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                  {(user?.full_name || 'O').charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="ml-2 overflow-hidden">
-                <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
-              </div>
-            </div>
-            <button onClick={logout} className="text-primary active:opacity-70 mt-1">
-              <span className="material-symbols-outlined text-[20px]">logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
+    <div className="bg-surface font-body-lg text-on-surface min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <OrganizerSidebar activeNav="events" />
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-        <Link to="/admin/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">grid_view</span>
-          <span className="font-label-md text-label-md">Dashboard</span>
-        </Link>
-        <Link to="/admin/events" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">confirmation_number</span>
-          <span className="font-label-md text-label-md">Events</span>
-        </Link>
-        <Link to="/admin/scanner" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
-            <span className="material-symbols-outlined">center_focus_weak</span>
-          </div>
-          <span className="font-label-md text-label-md mt-1">Scan</span>
-        </Link>
-        <Link to="/admin/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">account_balance_wallet</span>
-          <span className="font-label-md text-label-md">Finance</span>
-        </Link>
-      </nav>
-
-      {/* Top App Bar */}
-      <header className="flex justify-between items-center h-16 px-6 fixed top-0 left-0 right-0 md:ml-[240px] bg-surface border-b border-outline-variant z-30">
-        <div className="flex items-center gap-4">
-          <button className="md:hidden p-2 text-secondary">
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-          <h1 className="font-h3 text-h3 text-on-surface">Buat Event Baru</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="hover:bg-surface-container-low rounded-full p-2 text-secondary transition-all">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="pt-20 pb-24 md:ml-[240px] min-h-screen">
+      {/* Main Content Workspace */}
+      <main className="md:ml-[240px] pt-[64px] md:pt-[64px] min-h-screen w-full relative">
         <form onSubmit={handleSubmit} className="w-full">
           <div className="max-w-[800px] mx-auto px-6 py-6">
             {/* Step Navigation */}

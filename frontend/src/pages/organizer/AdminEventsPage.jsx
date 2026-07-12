@@ -4,6 +4,7 @@ import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
+import OrganizerSidebar from '../../components/OrganizerSidebar';
 
 dayjs.locale('id');
 
@@ -71,71 +72,11 @@ export default function AdminEventsPage() {
   };
 
   return (
-    <div className="bg-background text-on-surface min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Mobile Top Bar */}
-      <header className="flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant md:hidden fixed top-0 z-[60]">
-        <span className="font-h1-mobile text-h1-mobile font-bold text-primary">GateMate</span>
-        <button className="active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-primary">menu</span>
-        </button>
-      </header>
-
-      {/* Side Navigation (Desktop) */}
-      <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-6 z-40">
-        <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
-          <p className="font-caption text-caption text-secondary">Organizer</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">dashboard</span>
-            <span className="font-body-sm text-body-sm">Dashboard</span>
-          </Link>
-          <Link to="/admin/events" className="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer">
-            <span className="material-symbols-outlined mr-3">event</span>
-            <span className="font-body-sm text-body-sm">Event Saya</span>
-          </Link>
-          <Link to="/admin/scanner" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">qr_code_scanner</span>
-            <span className="font-body-sm text-body-sm">Scanner</span>
-          </Link>
-          <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">payments</span>
-            <span className="font-body-sm text-body-sm">Keuangan</span>
-          </Link>
-          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">settings</span>
-            <span className="font-body-sm text-body-sm">Pengaturan</span>
-          </Link>
-        </nav>
-        <div className="px-6 mt-auto space-y-1">
-          <a className="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
-            <span className="material-symbols-outlined mr-3">help</span>
-            <span className="font-body-sm text-body-sm">Bantuan</span>
-          </a>
-          <div className="pt-4 border-t border-outline-variant flex items-center justify-between">
-            <div className="flex items-center">
-              {user?.profile_picture ? (
-                <img alt="Organizer Profile" className="w-8 h-8 rounded-full object-cover bg-surface-container-high" src={`http://localhost:8000/Media/uploads/${user.profile_picture}`}/>
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                  {(user?.full_name || 'O').charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="ml-2 overflow-hidden">
-                <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
-              </div>
-            </div>
-            <button onClick={logout} className="text-primary active:opacity-70 mt-1">
-              <span className="material-symbols-outlined text-[20px]">logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
+    <div className="bg-surface text-on-surface min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <OrganizerSidebar activeNav="events" />
 
       {/* Main Content Canvas */}
-      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-20 md:pb-0">
+      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-20 md:pb-0 w-full">
         <div className="max-w-[1200px] mx-auto p-6">
           
           {/* Header Section */}

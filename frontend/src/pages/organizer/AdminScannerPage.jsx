@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
+import OrganizerSidebar from '../../components/OrganizerSidebar';
 import { Html5Qrcode } from 'html5-qrcode';
 import dayjs from 'dayjs';
 
@@ -177,84 +178,11 @@ export default function AdminScannerPage() {
         #reader { width: 100% !important; height: 100% !important; border: none !important; }
         #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
       `}} />
-
-      {/* Side Navigation (Desktop) */}
-      <aside className="w-[240px] h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant hidden md:flex flex-col py-page-padding z-40">
-        <div className="px-6 mb-10">
-          <h2 className="font-h2 text-h2 font-black text-primary">GateMate</h2>
-          <p className="font-caption text-caption text-secondary">Organizer</p>
-        </div>
-        <nav className="flex-1 space-y-1">
-          <Link to="/admin/dashboard" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">dashboard</span>
-            <span className="font-body-sm text-body-sm">Dashboard</span>
-          </Link>
-          <Link to="/admin/events" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">event</span>
-            <span className="font-body-sm text-body-sm">Event Saya</span>
-          </Link>
-          <Link to="/admin/scanner" className="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer">
-            <span className="material-symbols-outlined mr-3">qr_code_scanner</span>
-            <span className="font-body-sm text-body-sm">Scanner</span>
-          </Link>
-          <Link to="/admin/finance" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">payments</span>
-            <span className="font-body-sm text-body-sm">Keuangan</span>
-          </Link>
-          <Link to="/admin/settings" className="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
-            <span className="material-symbols-outlined mr-3">settings</span>
-            <span className="font-body-sm text-body-sm">Pengaturan</span>
-          </Link>
-        </nav>
-        <div className="px-6 mt-auto space-y-1">
-          <a className="flex items-center py-3 text-secondary hover:text-on-surface transition-colors cursor-pointer" href="#">
-            <span className="material-symbols-outlined mr-3">help</span>
-            <span className="font-body-sm text-body-sm">Bantuan</span>
-          </a>
-          <div className="pt-4 border-t border-outline-variant flex items-center justify-between">
-            <div className="flex items-center">
-              {user?.profile_picture ? (
-                <img alt="Organizer Profile" className="w-8 h-8 rounded-full object-cover bg-surface-container-high" src={`http://localhost:8000/Media/uploads/${user.profile_picture}`}/>
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                  {(user?.full_name || 'O').charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="ml-2 overflow-hidden">
-                <p className="font-label-md text-label-md font-bold truncate">{user?.full_name || 'Organizer'}</p>
-                <p className="font-caption text-caption text-secondary">ID: GM-{user?.id_user || '1'}</p>
-              </div>
-            </div>
-            <button onClick={logout} className="text-primary active:opacity-70 mt-1">
-              <span className="material-symbols-outlined text-[20px]">logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Top App Bar */}
-      <header className="flex justify-between items-center h-16 px-6 fixed top-0 left-0 right-0 md:ml-[240px] bg-surface border-b border-outline-variant z-30">
-        <div className="flex items-center gap-4">
-          <h1 className="font-h3 text-[24px] font-black text-primary md:hidden tracking-tight">GateMate</h1>
-          <div className="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant focus-within:border-primary transition-all w-80">
-            <span className="material-symbols-outlined text-secondary text-[20px]">search</span>
-            <input className="bg-transparent border-none focus:ring-0 text-body-sm font-body-sm w-full ml-2" placeholder="Cari tiket, nama, atau ID..." type="text"/>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="hover:bg-surface-container-low rounded-full p-2 text-secondary transition-all">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <div className="h-8 w-[1px] bg-outline-variant mx-2"></div>
-          <span className="font-label-md text-label-md text-secondary hidden md:block">
-            {dayjs ? dayjs().locale('id').format('dddd, DD MMM YYYY') : new Date().toLocaleDateString('id-ID')}
-          </span>
-        </div>
-      </header>
+      <OrganizerSidebar activeNav="scanner" />
 
       {/* Main Content Area */}
-      <main className="pt-16 md:ml-[240px] min-h-screen pb-24 md:pb-0">
-        <div className="max-w-[1200px] mx-auto p-6 md:p-6">
+      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-0 w-full relative">
+        <div className="max-w-[1200px] mx-auto p-6">
           <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="font-h1 text-[32px] leading-10 font-medium text-on-surface tracking-tight">Pemindaian Tiket</h2>
