@@ -1,66 +1,7 @@
 export default function Reports() {
-  const logs = [
-    {
-      id: 1,
-      date: '14 Okt 2023',
-      time: '09:42:15 WIB',
-      adminInitial: 'BS',
-      adminName: 'Budi Santoso',
-      adminColor: 'bg-primary-fixed text-on-primary-fixed',
-      activityClass: 'bg-green-100 text-green-800 border-green-200',
-      activityText: 'Approved Organizer',
-      targetName: 'Kreatif Event Solo',
-      targetSub: 'ID: ORG-88219'
-    },
-    {
-      id: 2,
-      date: '14 Okt 2023',
-      time: '08:15:22 WIB',
-      adminInitial: 'DW',
-      adminName: 'David Wijaya',
-      adminColor: 'bg-secondary-container text-on-secondary-container',
-      activityClass: 'bg-blue-100 text-blue-800 border-blue-200',
-      activityText: 'Updated Platform Fee',
-      targetName: 'Settings: Global Commission',
-      targetSub: '2.5% → 2.8%'
-    },
-    {
-      id: 3,
-      date: '13 Okt 2023',
-      time: '16:55:01 WIB',
-      adminInitial: 'SA',
-      adminName: 'Siti Aminah',
-      adminColor: 'bg-tertiary-container text-on-tertiary-container',
-      activityClass: 'bg-orange-100 text-orange-800 border-orange-200',
-      activityText: 'Executed Withdrawal',
-      targetName: 'IDR 12.500.000',
-      targetSub: 'Target: BCA 881023***'
-    },
-    {
-      id: 4,
-      date: '13 Okt 2023',
-      time: '14:20:10 WIB',
-      adminInitial: 'BS',
-      adminName: 'Budi Santoso',
-      adminColor: 'bg-primary-fixed text-on-primary-fixed',
-      activityClass: 'bg-red-100 text-red-800 border-red-200',
-      activityText: 'Rejected Withdrawal',
-      targetName: 'IDR 50.000.000',
-      targetSub: 'Reason: Unmatched Identity'
-    },
-    {
-      id: 5,
-      date: '13 Okt 2023',
-      time: '11:05:44 WIB',
-      adminInitial: 'DW',
-      adminName: 'David Wijaya',
-      adminColor: 'bg-secondary-container text-on-secondary-container',
-      activityClass: 'bg-gray-100 text-gray-800 border-gray-200',
-      activityText: 'Updated Profile',
-      targetName: 'Admin Settings',
-      targetSub: 'Password Rotation'
-    }
-  ]
+  // TODO: Ganti dengan fetch dari API → adminService.getAuditLogs()
+  // useEffect(() => { adminService.getAuditLogs().then(res => setLogs(res.data.data)) }, [])
+  const logs = []
 
   return (
     <div className="animate-in fade-in">

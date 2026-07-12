@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import {
   ArrowRight,
@@ -7,7 +7,6 @@ import {
   MapPin, Calendar, Ticket,
   Home as HomeIcon, Compass, Wallet, User,
 } from 'lucide-react'
-import { dummyEvents } from '../../data/dummyEvents'
 
 /* ── Data ──────────────────────────────────────────── */
 const features = [
@@ -53,12 +52,9 @@ const sisa = (event) => event.maxAttendees - event.soldTickets
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null)
 
-  const trendingEvents = selectedCategory
-    ? dummyEvents.filter(e => 
-        e.category.toLowerCase() === selectedCategory.toLowerCase() || 
-        (selectedCategory === 'Sport' && e.category === 'Olahraga')
-      )
-    : dummyEvents.slice(0, 4)
+  // TODO: Ganti dengan fetch dari API → eventService.getAll({ category: selectedCategory })
+  // useEffect(() => { eventService.getAll().then(res => setEvents(res.data.data)) }, [selectedCategory])
+  const trendingEvents = []
 
   return (
     <div className="bg-[#fff8f6] text-[#271815]">

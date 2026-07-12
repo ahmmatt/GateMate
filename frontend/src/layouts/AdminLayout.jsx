@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Outlet, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { LogOut, Menu, X } from 'lucide-react'
 
@@ -10,7 +10,7 @@ const navItems = [
   { path: '/admin/settings', icon: 'settings', label: 'Pengaturan' },
 ]
 
-export default function AdminLayout() {
+export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -146,7 +146,7 @@ export default function AdminLayout() {
 
       {/* Main Content Area */}
       <main className="md:ml-[240px] pt-24 px-4 md:px-8 pb-stack-lg max-w-[1200px] mx-auto min-h-screen">
-        <Outlet />
+        {children || <Outlet />}
       </main>
     </div>
   )

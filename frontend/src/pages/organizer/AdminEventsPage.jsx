@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
@@ -18,16 +18,17 @@ export default function AdminEventsPage() {
 
   const fetchEvents = async () => {
     setLoading(true);
-    try {
-      const res = await api.get('/admin/events', {
-        params: { search: currentSearch, status: currentStatus }
-      });
-      setEvents(res.data.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Connect to backend API when ready
+    // try {
+    //   const res = await api.get('/admin/events', { params: { search: currentSearch, status: currentStatus } });
+    //   setEvents(res.data.data || []);
+    // } catch (err) {
+    //   console.error(err);
+    // } finally {
+    //   setLoading(false);
+    // }
+    setEvents([]);
+    setLoading(false);
   };
 
   useEffect(() => {

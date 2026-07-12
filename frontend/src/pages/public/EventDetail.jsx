@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Calendar, MapPin, Clock, Info, Navigation, ArrowLeft, X, ChevronDown } from 'lucide-react'
-import { dummyEvents } from '../../data/dummyEvents'
 import { formatDate, formatPrice } from '../../utils/formatDate'
 
 // ─── Purchase Confirmation Modal ──────────────────────────────────────────────
@@ -154,9 +153,10 @@ function PurchaseModal({ event, tier, onClose, onConfirm }) {
 export default function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const event = dummyEvents.find(e => e.id === parseInt(id))
-
-  const [modalTier, setModalTier] = useState(null) // null = closed, or tier object
+  // TODO: Ganti dengan fetch dari API → eventService.getById(id)
+  // useEffect(() => { eventService.getById(id).then(res => setEvent(res.data.data)) }, [id])
+  const [event, setEvent] = useState(null)
+  const [modalTier, setModalTier] = useState(null)
 
   if (!event) {
     return (

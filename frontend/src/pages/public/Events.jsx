@@ -1,10 +1,9 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Search, MapPin, Calendar, Heart, ChevronDown, X, Ticket,
   Home as HomeIcon, Compass, Wallet, User
 } from 'lucide-react'
-import { dummyEvents } from '../../data/dummyEvents'
 
 const formatPrice = (price) =>
   price === 0
@@ -35,8 +34,9 @@ export default function Events() {
     { name: 'Bali' }
   ]
 
-  const getCityEventCount = (cityName) => {
-    return dummyEvents.filter(e => e.city.toLowerCase() === cityName.toLowerCase()).length
+  const getCityEventCount = (_cityName) => {
+    // TODO: Ganti dengan data count dari API
+    return 0
   }
 
   const toggleLike = (eventId) => {
@@ -45,24 +45,9 @@ export default function Events() {
     )
   }
 
-  // Filtering
-  const filtered = dummyEvents.filter(event => {
-    // Search filter
-    const matchSearch = event.title.toLowerCase().includes(search.toLowerCase()) ||
-      event.city.toLowerCase().includes(search.toLowerCase()) ||
-      event.location.toLowerCase().includes(search.toLowerCase())
-    
-    // Category filter mapping
-    const matchCategory = activeCategory === 'Semua' || 
-      event.category === activeCategory ||
-      (activeCategory === 'Sport' && event.category === 'Olahraga') ||
-      (activeCategory === 'Workshop' && (event.category === 'Bisnis' || event.category === 'Teknologi'))
-      
-    // City filter
-    const matchCity = activeCity === 'Semua' || event.city.toLowerCase() === activeCity.toLowerCase()
-
-    return matchSearch && matchCategory && matchCity
-  }).sort((a, b) => {
+  // TODO: Ganti dengan fetch dari API → eventService.getAll({ search, category, city, sort })
+  // useEffect(() => { eventService.getAll(params).then(res => setEvents(res.data.data)) }, [search, activeCategory, activeCity, sortBy])
+  const filtered = [].sort((a, b) => {
     if (sortBy === 'price-asc') return a.price - b.price
     if (sortBy === 'price-desc') return b.price - a.price
     if (sortBy === 'date') return new Date(a.date) - new Date(b.date)

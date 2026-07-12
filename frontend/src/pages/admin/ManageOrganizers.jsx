@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { dummyUsers } from '../../data/dummyUsers'
-import { dummyPendingOrganizers } from '../../data/dummyWithdrawals'
 
 // Format helper
 const formatLongDate = (dateString) => {
@@ -53,12 +51,12 @@ function KtpModal({ organizer, onClose, onApprove }) {
 
 export default function ManageOrganizers() {
   const [search, setSearch] = useState('')
-  const [pendingList, setPendingList] = useState(dummyPendingOrganizers)
+  const [pendingList, setPendingList] = useState([]) // TODO: fetch dari API → adminService.getPendingOrganizers()
   const [approveTarget, setApproveTarget] = useState(null)
   const [tab, setTab] = useState('pending') // 'pending' | 'active' | 'rejected'
   const [rejectedIds, setRejectedIds] = useState([])
 
-  const activeOrganizers = dummyUsers.filter(u => u.role === 'organizer')
+  const activeOrganizers = [] // TODO: fetch dari API → adminService.getActiveOrganizers()
 
   const getFilteredList = () => {
     let list = []

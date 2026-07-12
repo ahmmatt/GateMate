@@ -1,8 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { dummyEvents } from '../../data/dummyEvents'
-import { dummyUsers } from '../../data/dummyUsers'
-import { dummyWithdrawals, dummyPendingOrganizers } from '../../data/dummyWithdrawals'
 import { formatPrice } from '../../utils/formatDate'
 
 function ApproveModal({ organizer, onClose, onApprove }) {
@@ -177,11 +174,14 @@ function ExekusiModal({ withdrawal, onClose, onExekusi }) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
-  const totalRevenue = dummyEvents.reduce((sum, e) => sum + (e.price * e.soldTickets), 0)
-  const totalTransactions = dummyEvents.reduce((sum, e) => sum + e.soldTickets, 0)
+  // TODO: Ganti dengan fetch dari API → adminService.getDashboardStats()
+  const totalRevenue = 0
+  const totalTransactions = 0
   
-  const [organizers, setOrganizers] = useState(dummyPendingOrganizers)
-  const [withdrawals, setWithdrawals] = useState(dummyWithdrawals)
+  // TODO: Fetch dari API → adminService.getPendingOrganizers()
+  const [organizers, setOrganizers] = useState([])
+  // TODO: Fetch dari API → adminService.getWithdrawals()
+  const [withdrawals, setWithdrawals] = useState([])
   const [approveTarget, setApproveTarget] = useState(null)
   const [rejectTarget, setRejectTarget] = useState(null)
   const [exekusiTarget, setExekusiTarget] = useState(null)

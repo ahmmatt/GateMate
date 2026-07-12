@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Users, Search, UserCheck, UserX, Trash2, MoreHorizontal } from 'lucide-react'
-import { dummyUsers } from '../../data/dummyUsers'
 import { formatDateShort } from '../../utils/formatDate'
 
 export default function ManageUsers() {
   const [search, setSearch] = useState('')
-  const users = dummyUsers.filter(u => u.role === 'user')
+  // TODO: Ganti dengan fetch dari API → userService.getAll() atau adminService.getUsers()
+  const users = []
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
@@ -20,13 +20,9 @@ export default function AdminScannerPage() {
   const [recentLogs, setRecentLogs] = useState([]);
 
   useEffect(() => {
-    api.get('/admin/events')
-      .then(res => {
-        const activeEvents = res.data.data.filter(e => e.status === 'active');
-        setEvents(activeEvents);
-        if (activeEvents.length > 0) setSelectedEventId(activeEvents[0].id_event);
-      })
-      .catch(console.error);
+    // TODO: Connect to backend API when ready
+    // api.get('/admin/events').then(...)
+    setEvents([]);
   }, []);
 
   const handleScan = async (qrCode) => {

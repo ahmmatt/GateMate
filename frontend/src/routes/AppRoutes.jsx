@@ -1,4 +1,4 @@
-﻿import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 // Layouts
 import PublicLayout from '../layouts/PublicLayout'
@@ -63,7 +63,13 @@ function RoleSwitch({ OrganizerPage, AdminPage }) {
   if (user?.role === 'organizer') {
     return <OrganizerGuard><OrganizerPage /></OrganizerGuard>
   }
-  return <AdminGuard><AdminPage /></AdminGuard>
+  return (
+    <AdminGuard>
+      <AdminLayout>
+        <AdminPage />
+      </AdminLayout>
+    </AdminGuard>
+  )
 }
 
 // ── Routes ───────────────────────────────────────────────────────────────────

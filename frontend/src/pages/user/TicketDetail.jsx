@@ -1,13 +1,14 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { dummyTickets } from '../../data/dummyTickets';
 import MatchmakingLoader from '../../components/modals/MatchmakingLoader';
 import VibeBioForm from '../../components/modals/VibeBioForm';
 
 export default function TicketDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const ticket = dummyTickets.find(t => t.id === id);
+  // TODO: Ganti dengan fetch dari API → ticketService.getById(id)
+  // useEffect(() => { ticketService.getById(id).then(res => setTicket(res.data.data)) }, [id])
+  const [ticket, setTicket] = useState(null);
   const [isMatching, setIsMatching] = useState(false);
   const [isVibeBioOpen, setIsVibeBioOpen] = useState(false);
 

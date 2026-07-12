@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import { Ticket } from 'lucide-react'
 import TicketCard from '../../components/TicketCard'
-import { dummyTickets } from '../../data/dummyTickets'
 
 export default function MyTickets() {
   const [filter, setFilter] = useState('active') // Default to 'active' for Upcoming
   
-  // Merge dummy tickets with purchased tickets from local storage
-  const localTickets = JSON.parse(localStorage.getItem('purchased_tickets') || '[]')
-  const allTickets = [...localTickets, ...dummyTickets]
+  // TODO: Ganti dengan fetch dari API → ticketService.getMyTickets()
+  // const allTickets = [] // diisi dari response API backend
+  const allTickets = []
   
   const filtered = allTickets.filter(t => t.status === filter)
   const activeCount = allTickets.filter(t => t.status === 'active').length

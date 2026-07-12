@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { dummyWithdrawals } from '../../data/dummyWithdrawals'
 import { formatPrice } from '../../utils/formatDate'
 
 export default function PenarikanDana() {
-  const [withdrawals, setWithdrawals] = useState(dummyWithdrawals)
+  // TODO: Ganti dengan fetch dari API → adminService.getWithdrawals()
+  const [withdrawals, setWithdrawals] = useState([])
   const [filterStatus, setFilterStatus] = useState('all')
 
   const filtered = withdrawals.filter(w => {

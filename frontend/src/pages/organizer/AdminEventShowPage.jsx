@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
@@ -23,14 +23,24 @@ export default function AdminEventShowPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    try {
-      const res = await api.get(`/admin/events/${id}`);
-      setData(res.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Connect to backend API when ready
+    // try {
+    //   const res = await api.get(`/admin/events/${id}`);
+    //   setData(res.data.data);
+    // } catch (err) {
+    //   console.error(err);
+    // } finally {
+    //   setLoading(false);
+    // }
+    setData({
+      event: { title: '', ticket_tiers: [] },
+      stats: { ticket_revenue: 0, platform_fee: 0, tenant_cut: 0, net_income: 0, available_to_withdraw: 0 },
+      tenants: [],
+      pending_withdrawals: [],
+      ticket_buyers: [],
+      event_withdrawals: []
+    });
+    setLoading(false);
   };
 
   useEffect(() => {

@@ -1,20 +1,15 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Search, Eye, CheckCircle, Ban, ChevronLeft, ChevronRight } from 'lucide-react'
-import { dummyEvents } from '../../data/dummyEvents'
 import { formatDate } from '../../utils/formatDate'
 
 export default function AdminManageEvents() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('Semua') // Semua, Active, Pending Review
 
-  // Simulate active vs pending review for display purposes
-  const events = dummyEvents.map((e, index) => ({
-    ...e,
-    mockStatus: index === 1 ? 'Pending Review' : index === 2 ? 'Ended' : 'Active',
-    organizer: index === 1 ? 'Bandung Connect' : 'LiveNation ID',
-    organizerType: index === 1 ? 'Basic Organizer' : 'Pro Organizer'
-  }))
+  // TODO: Ganti dengan fetch dari API → adminService.getEvents()
+  // useEffect(() => { adminService.getEvents().then(res => setEvents(res.data.data)) }, [])
+  const events = []
 
   const filteredEvents = events.filter(e => {
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase()) || 

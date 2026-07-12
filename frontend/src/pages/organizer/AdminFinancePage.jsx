@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import api from '../../lib/api';
@@ -22,14 +22,22 @@ export default function AdminFinancePage() {
 
   const fetchData = async () => {
     setLoading(true);
-    try {
-      const res = await api.get('/admin/finance');
-      setData(res.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Connect to backend API when ready
+    // try {
+    //   const res = await api.get('/admin/finance');
+    //   setData(res.data.data);
+    // } catch (err) {
+    //   console.error(err);
+    // } finally {
+    //   setLoading(false);
+    // }
+    setData({
+      net_income_total: 0,
+      available_to_withdraw: 0,
+      pending_withdrawals: 0,
+      transactions: []
+    });
+    setLoading(false);
   };
 
   useEffect(() => {

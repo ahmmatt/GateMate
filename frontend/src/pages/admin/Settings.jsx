@@ -91,31 +91,9 @@ export default function Settings() {
                   </tr>
                 </thead>
                 <tbody className="font-body-md">
-                  <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                    <td className="px-8 py-4 font-bold text-on-surface">192.168.1.102</td>
-                    <td className="px-8 py-4">
-                      <span className="px-3 py-1 bg-primary-fixed text-primary text-[11px] font-bold rounded-full">Primary</span>
-                    </td>
-                    <td className="px-8 py-4 text-right">
-                      <button className="text-error font-label-md hover:underline px-2 transition-all">Remove</button>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-outline-variant bg-[#F9F9F9] hover:bg-surface-container-lowest transition-colors">
-                    <td className="px-8 py-4 font-bold text-on-surface">104.22.1.45</td>
-                    <td className="px-8 py-4">
-                      <span className="px-3 py-1 bg-surface-container-high text-secondary text-[11px] font-bold rounded-full">Office VPN</span>
-                    </td>
-                    <td className="px-8 py-4 text-right">
-                      <button className="text-error font-label-md hover:underline px-2 transition-all">Remove</button>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                    <td className="px-8 py-4 font-bold text-on-surface">202.155.12.9</td>
-                    <td className="px-8 py-4">
-                      <span className="px-3 py-1 bg-surface-container-high text-secondary text-[11px] font-bold rounded-full">Personal</span>
-                    </td>
-                    <td className="px-8 py-4 text-right">
-                      <button className="text-error font-label-md hover:underline px-2 transition-all">Remove</button>
+                  <tr>
+                    <td colSpan="3" className="px-8 py-6 text-center text-secondary text-body-md">
+                      Belum ada IP Address yang di-whitelist.
                     </td>
                   </tr>
                 </tbody>

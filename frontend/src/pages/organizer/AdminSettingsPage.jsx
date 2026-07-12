@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
@@ -94,47 +94,44 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       setLoading(true);
-      try {
-        const res = await api.get('/admin/settings');
-        const d = res.data.data;
-        setFormProfile({
-          full_name: d.full_name || '',
-          phone: d.phone || '',
-          organization_name: d.organization_name || '',
-          organization_type: d.organization_type || '',
-          organization_description: d.organization_description || '',
-          organization_address: d.organization_address || '',
-          organization_website: d.organization_website || '',
-          organization_instagram: d.organization_instagram || '',
-          organization_tiktok: d.organization_tiktok || '',
-          organization_twitter: d.organization_twitter || '',
-          bank_name: d.bank_name || '',
-          bank_account_number: d.bank_account_number || '',
-          bank_account_name: d.bank_account_name || '',
-        });
-        if (d.notification_prefs) setNotifPrefs(d.notification_prefs);
-        setProfilePicture(d.profile_picture || null);
-        if (d.created_at) {
-          setLastUpdated(new Date(d.created_at).toLocaleDateString('id-ID', {
-            day: '2-digit', month: 'long', year: 'numeric',
-          }));
-        }
-      } catch (err) {
-        console.error('Failed to fetch settings:', err);
-      } finally {
-        setLoading(false);
-      }
+      // TODO: Fetch from API when ready
+      setFormProfile({
+        full_name: '',
+        phone: '',
+        organization_name: '',
+        organization_type: '',
+        organization_description: '',
+        organization_address: '',
+        organization_website: '',
+        organization_instagram: '',
+        organization_tiktok: '',
+        organization_twitter: '',
+        bank_name: '',
+        bank_account_number: '',
+        bank_account_name: '',
+      });
+      setNotifPrefs({
+        email_notifications: true,
+        system_alerts: true,
+        ticket_sales: true,
+        daily_report: false,
+      });
+      setProfilePicture(null);
+      setLastUpdated('');
+      setLoading(false);
     };
     fetchSettings();
   }, []);
 
   const fetchSessions = async () => {
-    try {
-      const res = await api.get('/admin/settings/sessions');
-      setActiveSessions(res.data.data);
-    } catch (err) {
-      console.error('Failed to fetch sessions:', err);
-    }
+    // TODO: Connect to backend API when ready
+    // try {
+    //   const res = await api.get('/admin/settings/sessions');
+    //   setActiveSessions(res.data.data);
+    // } catch (err) {
+    //   console.error('Failed to fetch sessions:', err);
+    // }
+    setActiveSessions([]);
   };
 
   useEffect(() => {

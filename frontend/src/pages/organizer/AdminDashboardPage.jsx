@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
@@ -11,10 +11,21 @@ export default function AdminDashboardPage() {
   const [activeNav, setActiveNav] = useState('dashboard');
 
   useEffect(() => {
-    api.get('/admin/dashboard')
-      .then(res => setData(res.data.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    // TODO: Connect to backend API when ready
+    // api.get('/admin/dashboard').then(res => setData(res.data.data))
+    setData({
+      total_events: 0,
+      active_events: 0,
+      total_tickets_sold: 0,
+      ticket_revenue: 0,
+      checked_in_today: 0,
+      platform_fee_total: 0,
+      tenant_cut_total: 0,
+      net_income_total: 0,
+      withdrawable_amount: 0,
+      events: []
+    });
+    setLoading(false);
   }, []);
 
   const handleLogout = async () => {
