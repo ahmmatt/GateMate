@@ -85,7 +85,7 @@ export default function AdminEventsPage() {
               <h2 className="font-h1 text-h1 text-on-surface">Event Saya</h2>
               <p className="font-body-sm text-body-sm text-secondary">Kelola semua tiket dan jadwal acara Anda di sini.</p>
             </div>
-            <Link to="/admin/events/create" className="inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-none">
+            <Link to="/organizer/events/create" className="inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-none">
               <span className="material-symbols-outlined font-bold text-[20px]">add</span>
               <span className="font-label-lg text-label-lg font-normal">Event Baru</span>
             </Link>
@@ -123,7 +123,7 @@ export default function AdminEventsPage() {
                 <span className="material-symbols-outlined text-5xl text-outline-variant mb-4">calendar_month</span>
                 <h3 className="font-h3 text-h3 text-on-surface mb-2">Belum Ada Event</h3>
                 <p className="font-body-sm text-body-sm text-secondary mb-6">Mulai buat event pertama Anda dan jual tiket dengan aman.</p>
-                <Link to="/admin/events/create" className="inline-flex items-center justify-center space-x-2 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-none">
+                <Link to="/organizer/events/create" className="inline-flex items-center justify-center space-x-2 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-none">
                   <span className="material-symbols-outlined font-bold">add</span>
                   <span className="font-label-md text-label-md font-bold uppercase tracking-wider">Buat Event Pertama</span>
                 </Link>
@@ -180,7 +180,7 @@ export default function AdminEventsPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end space-x-1">
-                            <Link to={`/admin/events/${event.id}`} className="p-2 text-primary hover:bg-primary-fixed rounded transition-colors" title="Detail">
+                            <Link to={`/organizer/events/${event.id}`} className="p-2 text-primary hover:bg-primary-fixed rounded transition-colors" title="Detail">
                               <span className="material-symbols-outlined text-[18px]">visibility</span>
                             </Link>
                             <button onClick={() => handleDelete(event.id)} className="p-2 text-error hover:bg-error-container rounded transition-colors" title="Hapus">
@@ -200,21 +200,21 @@ export default function AdminEventsPage() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-        <Link to="/admin/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">grid_view</span>
           <span className="font-label-md text-label-md">Dashboard</span>
         </Link>
-        <Link to="/admin/events" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/events" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">confirmation_number</span>
           <span className="font-label-md text-label-md">Events</span>
         </Link>
-        <Link to="/admin/scanner" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/check-in" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
             <span className="material-symbols-outlined">center_focus_weak</span>
           </div>
           <span className="font-label-md text-label-md mt-1">Scan</span>
         </Link>
-        <Link to="/admin/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">account_balance_wallet</span>
           <span className="font-label-md text-label-md">Finance</span>
         </Link>

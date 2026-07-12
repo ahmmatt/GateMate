@@ -4,10 +4,10 @@ import api from '../lib/api';
 
 const NAV = [
   { key: 'dashboard', icon: 'dashboard', label: 'Dashboard', to: '/organizer/dashboard' },
-  { key: 'events', icon: 'event', label: 'Event Saya', to: '/admin/events' },
-  { key: 'scanner', icon: 'qr_code_scanner', label: 'Scanner', to: '/admin/scanner' },
-  { key: 'finance', icon: 'payments', label: 'Keuangan', to: '/admin/finance' },
-  { key: 'settings', icon: 'settings', label: 'Pengaturan', to: '/admin/settings' },
+  { key: 'events', icon: 'event', label: 'Event Saya', to: '/organizer/events' },
+  { key: 'scanner', icon: 'qr_code_scanner', label: 'Scanner', to: '/organizer/check-in' },
+  { key: 'finance', icon: 'payments', label: 'Keuangan', to: '/organizer/finance' },
+  { key: 'settings', icon: 'settings', label: 'Pengaturan', to: '/organizer/settings' },
 ];
 
 export default function OrganizerSidebar({ activeNav }) {

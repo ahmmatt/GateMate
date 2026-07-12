@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
               <button className="flex items-center px-4 h-10 bg-surface-container border border-outline-variant rounded-lg text-on-surface font-label-md text-label-md active:scale-95 transition-transform" style={{ borderWidth: '0.5px' }}>
                 <span className="material-symbols-outlined text-[18px] mr-2">download</span>Laporan
               </button>
-              <Link to="/admin/events/create" className="flex items-center px-4 h-10 bg-primary text-on-primary rounded-lg font-label-md text-label-md active:scale-95 transition-all shadow-sm">
+              <Link to="/organizer/events/create" className="flex items-center px-4 h-10 bg-primary text-on-primary rounded-lg font-label-md text-label-md active:scale-95 transition-all shadow-sm">
                 <span className="material-symbols-outlined text-[18px] mr-2">add</span>Event Baru
               </Link>
             </div>
@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
           <section className="bg-surface-container-lowest border border-outline-variant rounded-[14px] overflow-hidden mb-12" style={{ borderWidth: '0.5px' }}>
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center" style={{ borderBottomWidth: '0.5px' }}>
               <h3 className="text-[20px] font-bold">Event Mendatang</h3>
-              <Link to="/admin/events" className="text-primary font-label-md text-label-md hover:underline">Lihat Semua</Link>
+              <Link to="/organizer/events" className="text-primary font-label-md text-label-md hover:underline">Lihat Semua</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
                   {loading ? (
                     <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary">Memuat data...</td></tr>
                   ) : !data?.events?.length ? (
-                    <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary">Belum ada event. <Link to="/admin/events/create" className="text-primary hover:underline">Buat event pertama Anda.</Link></td></tr>
+                    <tr><td colSpan={5} className="px-6 py-8 text-center text-secondary">Belum ada event. <Link to="/organizer/events/create" className="text-primary hover:underline">Buat event pertama Anda.</Link></td></tr>
                   ) : data.events.slice(0, 5).map(ev => {
                     const pct = ev.sold && ev.capacity ? Math.min(100, Math.round((ev.sold / ev.capacity) * 100)) : 0;
                     return (
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <Link to={`/admin/events/${ev.id}`} className="text-primary active:opacity-70">
+                          <Link to={`/organizer/events/${ev.id}`} className="text-primary active:opacity-70">
                             <span className="material-symbols-outlined">more_vert</span>
                           </Link>
                         </td>

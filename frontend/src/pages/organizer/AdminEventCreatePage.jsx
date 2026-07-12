@@ -130,7 +130,7 @@ export default function AdminEventCreatePage() {
       });
       setStatusModal({ show: true, type: 'success', message: 'Event berhasil dipublikasikan!' });
       setTimeout(() => {
-        navigate(`/admin/events/${res.data.data.id || res.data.data.id_event}`);
+        navigate(`/organizer/events/${res.data.data.id || res.data.data.id_event}`);
       }, 1500);
     } catch (err) {
       let errMsg = 'Gagal membuat event. Periksa kembali input Anda.';

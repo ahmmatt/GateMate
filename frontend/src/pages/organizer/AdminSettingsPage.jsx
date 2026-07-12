@@ -295,7 +295,7 @@ export default function AdminSettingsPage() {
           {/* Page Header */}
           <div className="pt-2">
             <nav className="flex items-center space-x-2 text-secondary font-label-md text-label-md mb-2">
-              <Link to="/admin/dashboard" className="cursor-pointer hover:text-primary transition-colors">Dashboard</Link>
+              <Link to="/organizer/dashboard" className="cursor-pointer hover:text-primary transition-colors">Dashboard</Link>
               <span className="material-symbols-outlined text-[14px]">chevron_right</span>
               <span className="text-on-surface-variant">Pengaturan</span>
             </nav>

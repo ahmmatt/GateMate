@@ -423,21 +423,21 @@ export default function AdminScannerPage() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-        <Link to="/admin/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">grid_view</span>
           <span className="font-label-md text-label-md">Dashboard</span>
         </Link>
-        <Link to="/admin/events" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/events" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">confirmation_number</span>
           <span className="font-label-md text-label-md">Events</span>
         </Link>
-        <Link to="/admin/scanner" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/check-in" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
           <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
             <span className="material-symbols-outlined">center_focus_weak</span>
           </div>
           <span className="font-label-md text-label-md mt-1">Scan</span>
         </Link>
-        <Link to="/admin/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
+        <Link to="/organizer/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
           <span className="material-symbols-outlined">account_balance_wallet</span>
           <span className="font-label-md text-label-md">Finance</span>
         </Link>
