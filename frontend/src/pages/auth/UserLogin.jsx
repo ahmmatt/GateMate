@@ -24,17 +24,16 @@ export default function UserLogin() {
         throw new Error('Respons autentikasi tidak valid dari server.')
       }
 
+      if (user.role !== 'user') {
+        setError(`Keamanan Portal: Akses ditolak. Akun Anda terdeteksi sebagai ${user.role}. Silakan masuk melalui portal khusus ${user.role}.`)
+        setLoading(false)
+        return
+      }
+
       localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
 
-      const userRole = user.role || 'user'
-      const redirectMap = {
-        user: '/events',
-        organizer: '/organizer/dashboard',
-        superadmin: '/superadmin/dashboard',
-        admin: '/admin/dashboard'
-      }
-      navigate(redirectMap[userRole] || '/events')
+      navigate('/events')
     } catch (err) {
       console.warn('Backend API tidak terjangkau atau gagal, menggunakan fallback offline dengan role user...')
       // Setup mock user untuk fallback offline testing
