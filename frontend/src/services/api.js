@@ -25,7 +25,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const currentToken = localStorage.getItem('token')
+    
+    // Jangan logout paksa jika kita sedang menggunakan mock token (offline mode)
+    const isMockToken = currentToken && currentToken.startsWith('mock-')
+
+    if (error.response?.status === 401 && !isMockToken) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       // Redirect ke login sesuai jalur route
@@ -33,6 +38,10 @@ api.interceptors.response.use(
       if (path.startsWith('/admin') || path.startsWith('/superadmin')) {
         if (!path.includes('/login')) {
           window.location.href = '/superadmin/login'
+        }
+      } else if (path.startsWith('/organizer')) {
+        if (!path.includes('/login') && !path.includes('/register')) {
+          window.location.href = '/organizer/login'
         }
       } else if (!path.startsWith('/login') && !path.startsWith('/register')) {
         window.location.href = '/login'
