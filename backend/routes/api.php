@@ -37,8 +37,11 @@ Route::get('/test-ngrok', function() {
 });
 
 // ─── Public Routes ────────────────────────────────────────────────────────────
-// Endpoint untuk Testing: Reset semua tiket yang sudah di scan
-Route::get('/dev/reset-scanner', function() {
+// ⚠️  Dev-only: Reset semua tiket yang sudah di-scan (HANYA untuk environment local)
+Route::get('/dev/reset-scanner', function () {
+    if (! app()->environment('local', 'testing')) {
+        abort(403, 'Endpoint ini hanya tersedia di environment local.');
+    }
     \App\Models\Transaction::where('is_used', true)->update(['is_used' => false, 'scanned_at' => null]);
     return response()->json(['message' => 'Semua tiket berhasil di-reset menjadi belum di-scan!']);
 });
@@ -48,13 +51,25 @@ Route::prefix('events')->name('api.events.')->group(function () {
     Route::get('/{id}', [EventController::class, 'show'])->name('show');
 });
 
-// ─── Auth Routes (Guest) ──────────────────────────────────────────────────────
+// ─── Auth Routes (Guest) — Rate Limited ──────────────────────────────────────
 Route::prefix('auth')->name('api.auth.')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    // Login: maks 10 percobaan per menit per IP (lindungi brute force)
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware('throttle:10,1')
+        ->name('login');
+
+    // Register: maks 5 percobaan per menit per IP
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register');
+
     Route::get('/google/redirect', [AuthController::class, 'googleRedirect'])->name('google.redirect');
     Route::get('/google/callback', [AuthController::class, 'googleCallback'])->name('google.callback');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
-    Route::post('/register/organizer', [OrganizerRegisterController::class, 'register'])->name('register.organizer');
+
+    // Registrasi organizer: maks 5 percobaan per menit
+    Route::post('/register/organizer', [OrganizerRegisterController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.organizer');
 });
 
 // ─── Authenticated Routes (Sanctum Bearer Token) ─────────────────────────────
@@ -64,9 +79,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->name('api.auth.')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/me', [AuthController::class, 'me'])->name('me');
-        // OTP
-        Route::post('/otp/send', [OtpController::class, 'send'])->name('otp.send');
-        Route::post('/otp/verify', [OtpController::class, 'verify'])->name('otp.verify');
+        // OTP: maks 3 kirim per 5 menit, 10 verifikasi per menit
+        Route::post('/otp/send', [OtpController::class, 'send'])
+            ->middleware('throttle:3,5')
+            ->name('otp.send');
+        Route::post('/otp/verify', [OtpController::class, 'verify'])
+            ->middleware('throttle:10,1')
+            ->name('otp.verify');
     });
 
     // ── User Routes (Ticket Buyers) ───────────────────────────────────────────

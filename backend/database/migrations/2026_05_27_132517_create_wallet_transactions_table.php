@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('user_id'); // Pemilik dompet
             $table->unsignedInteger('reference_id')->nullable(); // Penerima / Referensi relasi lain
             $table->string('order_id')->unique(); // ID dari/ke Midtrans atau internal
-            $table->enum('type', ['topup', 'payment', 'withdrawal']);
+            $table->string('type', 50); // topup, ticket_purchase, ticket_refund, payment, tenant_revenue, withdrawal
             $table->decimal('amount', 15, 2);
             $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
             $table->timestamps();

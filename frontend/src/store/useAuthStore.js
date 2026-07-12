@@ -1,38 +1,27 @@
-import { create } from 'zustand';
-import api from '../lib/api';
+/**
+ * Stub useAuthStore - reads user from localStorage (same pattern
+ * as the existing Navbar / Layout components in this project).
+ * Replace with a real Zustand store when backend is ready.
+ */
+import { useNavigate } from 'react-router-dom';
 
-const useAuthStore = create((set) => ({
-  user: null,
-  token: localStorage.getItem('auth_token') || null,
-  isAuthenticated: !!localStorage.getItem('auth_token'),
-  isLoading: true,
+let _user = null;
+try {
+  _user = JSON.parse(localStorage.getItem('user') || 'null');
+} catch (_) {}
 
-  setAuth: (user, token) => {
-    localStorage.setItem('auth_token', token);
-    set({ user, token, isAuthenticated: true });
-  },
+const useAuthStore = () => {
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  };
 
-  logout: () => {
-    localStorage.removeItem('auth_token');
-    set({ user: null, token: null, isAuthenticated: false });
-  },
-
-  checkAuth: async () => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      set({ isLoading: false, isAuthenticated: false });
-      return;
-    }
-
-    try {
-      const response = await api.get('/auth/me');
-      set({ user: response.data.data, isAuthenticated: true, isLoading: false });
-    } catch (error) {
-      console.error('Auth check failed', error);
-      localStorage.removeItem('auth_token');
-      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
-    }
-  }
-}));
+  return {
+    user: _user,
+    token: localStorage.getItem('token') || null,
+    logout,
+    isAuthenticated: !!_user,
+  };
+};
 
 export default useAuthStore;

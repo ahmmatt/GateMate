@@ -3,229 +3,89 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ETicketMail;
-use App\Models\Event;
-use App\Models\TicketTier;
-use App\Models\Transaction;
-use App\Models\WalletTransaction;
-use Carbon\Carbon;
+use App\Http\Requests\Checkout\ProcessCheckoutRequest;
+use App\Services\CheckoutService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * API CheckoutController
  * ─────────────────────────────────────────────────────────────────────────────
  * Proses pembelian tiket via pemotongan saldo wallet.
- * Logika identik dengan CheckoutController Blade — sudah JSON by design.
+ * Logika bisnis didelegasikan ke CheckoutService.
  *
  * Endpoints:
  *   POST /api/checkout → Beli tiket, potong wallet, kirim e-ticket via email
  */
 class CheckoutController extends Controller
 {
+    use ApiResponse;
+
+    public function __construct(protected CheckoutService $checkoutService) {}
+
     /**
      * Proses Checkout Tiket via Pemotongan Saldo Wallet.
      */
-    public function process(Request $request): JsonResponse
+    public function process(ProcessCheckoutRequest $request): JsonResponse
     {
-        $request->validate([
-            'event_id'    => ['required', 'integer'],
-            'tier_id'     => ['required', 'integer'],
-            'seat_number' => ['nullable', 'string'],
-        ]);
-
         try {
-            $eventId    = $request->event_id;
-            $tierId     = $request->tier_id;
-            $seatNumber = $request->seat_number;
-
-            Log::info('=== API CHECKOUT DITEKAN (WALLET) ===', [
-                'event_id'    => $eventId,
-                'tier_id'     => $tierId,
-                'seat_number' => $seatNumber,
-            ]);
-
             /** @var \App\Models\User $user */
-            $user = auth()->user();
+            $user   = $request->user();
+            $result = $this->checkoutService->process(
+                $user,
+                $request->integer('event_id'),
+                $request->integer('tier_id'),
+                $request->input('seat_number')
+            );
 
-            // ── KYC Face Verification Blocker ─────────────────────────────────
-            $needsVerification = !$user->face_verified_at
-                || Carbon::parse($user->face_verified_at)->lt(now()->subMonths(5));
+            $message = $result['status'] === 'pending'
+                ? 'Pendaftaran berhasil. Silakan tunggu persetujuan dari penyelenggara.'
+                : 'Pembelian tiket berhasil dengan Wallet!';
 
-            if ($needsVerification) {
-                Log::warning("API KYC Blocker aktif: user #{$user->id} belum/kedaluwarsa verifikasi.", [
-                    'face_verified_at' => $user->face_verified_at,
-                ]);
-                return response()->json([
-                    'status'  => 'needs_verification',
-                    'success' => false,
-                    'message' => 'Verifikasi wajah (KYC) diperlukan sebelum membeli tiket.',
-                ], 403);
+            return $this->success($result, $message);
+
+        } catch (\PDOException | \Illuminate\Database\QueryException $e) {
+            \Illuminate\Support\Facades\Log::error('CheckoutController Database Error: ' . $e->getMessage());
+            return $this->serverError('Sistem Error saat memproses checkout.');
+
+        } catch (\RuntimeException $e) {
+            $status = is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() <= 599
+                ? $e->getCode()
+                : 422;
+
+            // Decode JSON payload jika ada data tambahan (ex: insufficient_balance)
+            $decoded = json_decode($e->getMessage(), true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $message = $decoded['message'] ?? 'Terjadi kesalahan.';
+                $extra   = array_diff_key($decoded, ['message' => null]);
+                return response()->json(array_merge(
+                    ['success' => false, 'message' => $message],
+                    $extra
+                ), $status);
             }
-
-            // ── Validasi Event & Tier ──────────────────────────────────────────
-            $event = Event::find($eventId);
-            $tier  = TicketTier::find($tierId);
-
-            if (!$event || !$tier) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Event atau Tiket tidak ditemukan.',
-                ], 404);
-            }
-
-            $grossAmount = (float) $tier->price;
-
-            // ── Cek Ketersediaan Kursi (Total Tier) ────────────────────────────
-            if (!$tier->is_unlimited && $tier->remaining_seats <= 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Maaf, tiket untuk tier ini sudah habis.',
-                ], 422);
-            }
-
-            // ── Cek Ketersediaan Nomor Kursi Spesifik ──────────────────────────
-            if ($event->seat_assignment === 'pilih' && $seatNumber) {
-                $isSeatTaken = Transaction::where('event_id', $eventId)
-                    ->where('seat_number', $seatNumber)
-                    ->whereIn('payment_status', ['success', 'pending'])
-                    ->exists();
-
-                if ($isSeatTaken) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Maaf, kursi ' . $seatNumber . ' sudah dipesan oleh orang lain. Silakan pilih kursi lain.',
-                    ], 422);
-                }
-            } else if ($event->seat_assignment === 'pilih' && !$seatNumber) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Silakan pilih nomor kursi terlebih dahulu.',
-                ], 422);
-            }
-
-            // ── Anti-Calo: Cek apakah user sudah punya tiket ───────────────────────
-            $hasTicket = Transaction::where('event_id', $eventId)
-                ->where('user_id', $user->id_user ?? $user->id)
-                ->whereIn('payment_status', ['success', 'pending'])
-                ->exists();
-
-            if ($hasTicket) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sistem anti-calo aktif: Anda hanya dapat membeli 1 tiket per akun untuk event ini.',
-                ], 422);
-            }
-
-            // ── Cek Saldo Wallet ───────────────────────────────────────────────
-            if ($user->wallet_balance < $grossAmount) {
-                return response()->json([
-                    'success'          => false,
-                    'status'           => 'insufficient_balance',
-                    'message'          => 'Saldo wallet tidak cukup. Silakan Top Up terlebih dahulu.',
-                    'current_balance'  => (float) $user->wallet_balance,
-                    'required_amount'  => $grossAmount,
-                ], 422);
-            }
-
-            // ── Proses Pembelian dengan DB Transaction ─────────────────────────
-            DB::beginTransaction();
-            try {
-                $orderId = 'TRX-' . time() . '-' . ($user->id_user ?? rand(1, 100));
-
-                // 1. Potong saldo wallet user
-                $user->decrement('wallet_balance', $grossAmount);
-
-                // Cek apakah butuh approval
-                $isPending = $event->require_approval;
-
-                // 2. Buat record transaksi tiket
-                $transaction = Transaction::create([
-                    'user_id'        => $user->id_user,
-                    'event_id'       => $event->id_event,
-                    'ticket_tier_id' => $tier->id_tier,
-                    'seat_number'    => $seatNumber,
-                    'order_id'       => $orderId,
-                    'gross_amount'   => $grossAmount,
-                    'payment_status' => $isPending ? 'pending' : 'success',
-                    'snap_token'     => null,
-                ]);
-
-                // 2.5 Buat Attendee record
-                \App\Models\Attendee::create([
-                    'id_user'     => $user->id_user,
-                    'id_event'    => $event->id_event,
-                    'id_tier'     => $tier->id_tier,
-                    'ticket_code' => $orderId,
-                    'qr_token'    => \Illuminate\Support\Str::random(40),
-                    'status'      => $isPending ? 'need_approval' : 'approved',
-                ]);
-
-                // 3. Catat histori pengeluaran di wallet transaction
-                WalletTransaction::create([
-                    'user_id'  => $user->id_user,
-                    'order_id' => $orderId,
-                    'type'     => 'ticket_purchase',
-                    'amount'   => $grossAmount,
-                    'status'   => $isPending ? 'pending' : 'success',
-                    'meta'     => [
-                        'event_id'    => $event->id_event,
-                        'event_title' => $event->title,
-                        'tier_id'     => $tier->id_tier,
-                        'tier_name'   => $tier->tier_name,
-                    ],
-                ]);
-
-                // 4. Kurangi remaining_seats jika tier bukan unlimited
-                if (!$tier->is_unlimited) {
-                    $tier->decrement('remaining_seats');
-                }
-
-                // 5. Kirim E-Ticket via email jika tidak pending
-                if (!$isPending) {
-                    try {
-                        $transaction->load(['user', 'event', 'ticketTier']);
-                        Mail::to($user->email)->send(new ETicketMail($transaction));
-                        Log::info('E-Ticket email terkirim (API wallet checkout).', ['order_id' => $orderId]);
-                    } catch (\Exception $mailErr) {
-                        Log::error('Gagal kirim E-Ticket email: ' . $mailErr->getMessage());
-                        // Email gagal tak perlu membatalkan transaksi tiket
-                    }
-                }
-
-                DB::commit();
-
-                $msg = $isPending ? 'Pendaftaran berhasil. Silakan tunggu persetujuan dari penyelenggara.' : 'Pembelian tiket berhasil dengan Wallet!';
-
-                return response()->json([
-                    'success' => true,
-                    'message' => $msg,
-                    'data'    => [
-                        'order_id'        => $orderId,
-                        'event_title'     => $event->title,
-                        'tier_name'       => $tier->tier_name,
-                        'gross_amount'    => $grossAmount,
-                        'new_balance'     => (float) $user->fresh()->wallet_balance,
-                        'transaction_id'  => $transaction->id,
-                        'status'          => $isPending ? 'pending' : 'success',
-                    ],
-                ]);
-
-            } catch (\Exception $innerEx) {
-                DB::rollBack();
-                throw $innerEx;
-            }
+            return $this->error($e->getMessage(), $status);
 
         } catch (\Exception $e) {
-            Log::error('API CHECKOUT WALLET ERROR: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Sistem Error: ' . $e->getMessage(),
-            ], 500);
+            \Illuminate\Support\Facades\Log::error('CheckoutController Error: ' . $e->getMessage());
+            return $this->serverError('Sistem Error saat memproses checkout.');
+        }
+    }
+
+    /**
+     * Webhook Midtrans untuk notifikasi pembayaran Topup Wallet & Tiket.
+     */
+    public function handleNotification(Request $request): JsonResponse
+    {
+        try {
+            $result = $this->checkoutService->handleMidtransWebhook($request->all());
+            return response()->json($result, 200);
+        } catch (\RuntimeException $e) {
+            $status = is_int($e->getCode()) && $e->getCode() >= 100 && $e->getCode() <= 599 ? $e->getCode() : 403;
+            return response()->json(['status' => $e->getMessage()], $status);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('CheckoutController Webhook Error: ' . $e->getMessage());
+            return response()->json(['status' => 'Error'], 500);
         }
     }
 }

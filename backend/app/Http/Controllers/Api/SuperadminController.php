@@ -3,20 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\WalletTransactionResource;
-use App\Models\Event;
-use App\Models\Transaction;
-use App\Models\User;
-use App\Models\WalletTransaction;
+use App\Services\SuperadminService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Exception;
 
 /**
  * API SuperadminController
  * ─────────────────────────────────────────────────────────────────────────────
  * Panel Superadmin: dashboard stats, kelola organizer, dan eksekusi penarikan.
+ * Seluruh logika bisnis didelegasikan ke SuperadminService.
  *
  * Endpoints:
  *   GET  /api/superadmin/dashboard                 → Statistik platform
@@ -28,125 +25,34 @@ use Illuminate\Support\Facades\Log;
  */
 class SuperadminController extends Controller
 {
-    // ── Dashboard ────────────────────────────────────────────────────────────
+    use ApiResponse;
 
+    protected SuperadminService $superadminService;
+
+    public function __construct(SuperadminService $superadminService)
+    {
+        $this->superadminService = $superadminService;
+    }
+
+    /**
+     * GET /api/superadmin/dashboard
+     */
     public function dashboard(): JsonResponse
     {
-        $totalUsers     = User::where('role', 'user')->count();
-        $totalOrganizers = User::where('role', 'admin')->where('is_verified_organizer', true)->count();
-        $pendingOrgs    = User::where('role', 'admin')->where('is_verified_organizer', false)->count();
-        $totalTenants   = User::where('role', 'tenant')->count();
-        $totalEvents    = Event::count();
-        $activeEvents   = Event::where('status', 'active')->count();
-        $totalTickets   = Transaction::where('payment_status', 'success')->count();
-        $totalRevenue   = Transaction::where('payment_status', 'success')->sum('gross_amount');
-
-        $feePercent     = (float) config('services.platform.fee_percent', 10);
-        $platformFeeTotal = round((float) $totalRevenue * $feePercent / 100, 2);
-
-        $pendingWithdrawals = WalletTransaction::where('type', 'withdrawal')
-            ->where('status', 'pending_superadmin')
-            ->count();
-        $pendingWithdrawalsAmount = WalletTransaction::where('type', 'withdrawal')
-            ->where('status', 'pending_superadmin')
-            ->sum('amount');
-
-        // Trend pendapatan platform 6 bulan
-        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
-        $txRaw = DB::table('transactions')
-            ->where('payment_status', 'success')
-            ->where('created_at', '>=', $sixMonthsAgo)
-            ->select('created_at', 'gross_amount')
-            ->get();
-
-        $revenueTrend = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $revenueTrend[now()->subMonths($i)->format('M Y')] = 0;
-        }
-        foreach ($txRaw as $t) {
-            $key = \Carbon\Carbon::parse($t->created_at)->format('M Y');
-            if (isset($revenueTrend[$key])) {
-                $revenueTrend[$key] += (float) $t->gross_amount;
-            }
-        }
-
-        // Daftar organizer terbaru
-        $recentOrganizers = User::where('role', 'admin')
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get()
-            ->map(fn ($o) => [
-                'id'                    => $o->id_user,
-                'full_name'             => $o->full_name,
-                'organization_name'     => $o->organization_name,
-                'email'                 => $o->email,
-                'is_verified_organizer' => (bool) $o->is_verified_organizer,
-                'created_at'            => $o->created_at?->toIso8601String(),
-            ]);
+        $stats = $this->superadminService->getDashboardStats();
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'total_users'              => $totalUsers,
-                'total_organizers'         => $totalOrganizers,
-                'pending_organizers'       => $pendingOrgs,
-                'total_tenants'            => $totalTenants,
-                'total_events'             => $totalEvents,
-                'active_events'            => $activeEvents,
-                'total_tickets'            => $totalTickets,
-                'total_revenue'            => (float) $totalRevenue,
-                'platform_fee_total'       => $platformFeeTotal,
-                'fee_percent'              => $feePercent,
-                'pending_withdrawals_count' => $pendingWithdrawals,
-                'pending_withdrawals_amount' => (float) $pendingWithdrawalsAmount,
-                'revenue_trend'            => $revenueTrend,
-                'revenue_months'           => array_keys($revenueTrend),
-                'revenue_values'           => array_values($revenueTrend),
-                'recent_organizers'        => $recentOrganizers,
-            ],
+            'data'    => $stats,
         ]);
     }
 
-    // ── Withdrawal Management ─────────────────────────────────────────────────
-
+    /**
+     * GET /api/superadmin/withdrawals
+     */
     public function pendingWithdrawals(Request $request): JsonResponse
     {
-        $query = WalletTransaction::with(['user.event'])->where('type', 'withdrawal');
-
-        if ($request->has('status')) {
-            $query->where('status', $request->query('status'));
-        }
-
-        $withdrawals = $query->orderByDesc('created_at')
-            ->get()
-            ->map(function ($w) {
-                $userRole = $w->user?->role;
-                $eventName = 'Tidak Diketahui';
-
-                if ($userRole === 'admin') {
-                    if (isset($w->meta['is_global_withdrawal']) && $w->meta['is_global_withdrawal']) {
-                        $eventName = 'Semua Event (Global)';
-                    } else if (isset($w->meta['event_name'])) {
-                        $eventName = $w->meta['event_name'];
-                    }
-                } else if ($userRole === 'tenant') {
-                    $eventName = $w->user?->event?->title ?? 'Tidak Diketahui';
-                }
-
-                return [
-                    'id'             => $w->id,
-                    'order_id'       => $w->order_id,
-                    'amount'         => (float) $w->amount,
-                    'status'         => $w->status,
-                    'meta'           => $w->meta,
-                    'created_at'     => $w->created_at?->toIso8601String(),
-                    'user_role'      => $userRole,
-                    'event_name'     => $eventName,
-                    'admin_name'     => $w->user?->full_name,
-                    'admin_email'    => $w->user?->email,
-                    'organization'   => $w->user?->organization_name,
-                ];
-            });
+        $withdrawals = $this->superadminService->getPendingWithdrawals($request->query('status'));
 
         return response()->json([
             'success' => true,
@@ -155,59 +61,21 @@ class SuperadminController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/superadmin/withdrawals/{id}/execute
+     */
     public function executeWithdrawal(Request $request, int $id): JsonResponse
     {
-        $withdrawal = WalletTransaction::where('id', $id)
-            ->where('type', 'withdrawal')
-            ->where('status', 'pending_superadmin')
-            ->firstOrFail();
-
-        DB::beginTransaction();
         try {
-            $admin = $withdrawal->user;
-
-            if ($admin) {
-                // Simpan bukti transfer (opsional)
-                $transferProof = null;
-                if ($request->hasFile('transfer_proof')) {
-                    $file          = $request->file('transfer_proof');
-                    $filename      = 'proof_' . $withdrawal->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('Media/uploads/proofs'), $filename);
-                    $transferProof = $filename;
-                }
-
-                $meta = $withdrawal->meta ?? [];
-                if ($transferProof) {
-                    $meta['transfer_proof'] = $transferProof;
-                }
-
-                $withdrawal->update([
-                    'status' => 'success',
-                    'meta'   => $meta,
-                ]);
-
-                Log::info('Superadmin eksekusi WD', [
-                    'wd_id'    => $withdrawal->id,
-                    'admin_id' => $admin->id_user,
-                    'amount'   => $withdrawal->amount,
-                ]);
-            }
-
-            DB::commit();
+            $file = $request->hasFile('transfer_proof') ? $request->file('transfer_proof') : null;
+            $data = $this->superadminService->executeWithdrawal($id, $file);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Withdrawal berhasil dieksekusi. Dana telah dikirim ke penyelenggara.',
-                'data'    => [
-                    'withdrawal_id' => $withdrawal->id,
-                    'amount'        => (float) $withdrawal->amount,
-                    'admin_name'    => $admin?->full_name,
-                    'status'        => 'success',
-                ],
+                'data'    => $data,
             ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengeksekusi withdrawal: ' . $e->getMessage(),
@@ -215,30 +83,13 @@ class SuperadminController extends Controller
         }
     }
 
-    // ── Organizer Management ──────────────────────────────────────────────────
-
+    /**
+     * GET /api/superadmin/organizers
+     */
     public function organizers(Request $request): JsonResponse
     {
-        $query = User::where('role', 'admin');
-
-        if ($request->query('pending') === 'true') {
-            $query->where('is_verified_organizer', false);
-        }
-
-        $organizers = $query->orderByDesc('created_at')->get()->map(fn ($o) => [
-            'id'                    => $o->id_user,
-            'full_name'             => $o->full_name,
-            'organization_name'     => $o->organization_name,
-            'email'                 => $o->email,
-            'phone'                 => $o->phone,
-            'is_verified_organizer' => (bool) $o->is_verified_organizer,
-            'instagram'             => $o->instagram,
-            'tiktok_handle'         => $o->tiktok_handle,
-            'ktp_document_url'      => $o->ktp_document
-                ? asset('storage/' . $o->ktp_document)
-                : null,
-            'created_at'            => $o->created_at?->toIso8601String(),
-        ]);
+        $pendingOnly = ($request->query('pending') === 'true');
+        $organizers  = $this->superadminService->getOrganizers($pendingOnly);
 
         return response()->json([
             'success' => true,
@@ -246,45 +97,32 @@ class SuperadminController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/superadmin/organizers/{id}/approve
+     */
     public function approveOrganizer(int $id): JsonResponse
     {
-        $organizer = User::where('role', 'admin')->findOrFail($id);
+        try {
+            $organizer = $this->superadminService->approveOrganizer($id);
 
-        if ($organizer->is_verified_organizer) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Organizer "' . $organizer->organization_name . '" berhasil disetujui! Email berisi password telah dikirimkan ke calon organizer.',
+            ]);
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Organizer ini sudah terverifikasi.',
+                'message' => $e->getMessage(),
             ], 422);
         }
-
-        // Generate password baru
-        $rawPassword = \Illuminate\Support\Str::random(10);
-        $organizer->password = \Illuminate\Support\Facades\Hash::make($rawPassword);
-        $organizer->is_verified_organizer = true;
-        $organizer->save();
-
-        // Kirim email notifikasi yang berisi email dan password
-        try {
-            \Illuminate\Support\Facades\Mail::to($organizer->email)->send(new \App\Mail\OrganizerApprovedMail($organizer, $rawPassword));
-        } catch (\Exception $e) {
-            Log::error('Gagal mengirim email approve organizer: ' . $e->getMessage());
-        }
-
-        Log::info('Superadmin approved organizer', ['organizer_id' => $organizer->id_user]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Organizer "' . $organizer->organization_name . '" berhasil disetujui! Email berisi password telah dikirimkan ke calon organizer.',
-        ]);
     }
 
+    /**
+     * POST /api/superadmin/organizers/{id}/reject
+     */
     public function rejectOrganizer(Request $request, int $id): JsonResponse
     {
-        $organizer = User::where('role', 'admin')->findOrFail($id);
-
-        $organizer->delete();
-
-        Log::info('Superadmin rejected/deleted organizer', ['organizer_id' => $id]);
+        $this->superadminService->rejectOrganizer($id);
 
         return response()->json([
             'success' => true,

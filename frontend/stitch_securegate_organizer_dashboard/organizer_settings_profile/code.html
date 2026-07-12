@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e2e1; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#68d4f3",
+                      "on-tertiary-fixed-variant": "#004e5e",
+                      "on-surface-variant": "#5b403c",
+                      "tertiary-fixed": "#b2ebff",
+                      "outline": "#8f706a",
+                      "error": "#ba1a1a",
+                      "surface": "#fbf9f8",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#1b1c1c",
+                      "surface-bright": "#fbf9f8",
+                      "on-primary": "#ffffff",
+                      "outline-variant": "#e3beb8",
+                      "primary": "#b22110",
+                      "on-tertiary-fixed": "#001f27",
+                      "inverse-primary": "#ffb4a7",
+                      "surface-dim": "#dbdad9",
+                      "surface-container-high": "#e9e8e7",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#e4e2e2",
+                      "secondary-container": "#e5e2e1",
+                      "inverse-on-surface": "#f2f0f0",
+                      "on-background": "#1b1c1c",
+                      "surface-container": "#efeded",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#910900",
+                      "surface-container-low": "#f5f3f3",
+                      "inverse-surface": "#303031",
+                      "on-primary-container": "#fffbff",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface-variant": "#e4e2e2",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "background": "#fbf9f8",
+                      "surface-tint": "#b62413",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#d63b27",
+                      "on-secondary-container": "#656464",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed-variant": "#474646",
+                      "on-primary-fixed": "#400200",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#007f99",
+                      "on-tertiary-container": "#f9fdff",
+                      "secondary": "#5f5e5e",
+                      "primary-fixed-dim": "#ffb4a7",
+                      "primary-fixed": "#ffdad4",
+                      "tertiary": "#006579"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "max-container": "1200px",
+                      "gutter": "16px",
+                      "sidebar-width": "240px",
+                      "page-padding": "24px",
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "h3": ["Inter"],
+                      "h1": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "h2": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "caption": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "h3": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                      "body-lg": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "h1-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "caption": ["11px", {"lineHeight": "14px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-sidebar-width border-r-[0.5px] border-outline-variant bg-surface py-page-padding z-40">
+<div class="px-6 mb-10">
+<h1 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h1>
+<p class="text-secondary font-label-md text-label-md">Organizer</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">event</span>
+                Event Saya
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">qr_code_scanner</span>
+                Scanner
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">payments</span>
+                Keuangan
+            </a>
+<a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold transition-colors cursor-pointer font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+                Pengaturan
+            </a>
+</nav>
+<div class="mt-auto px-6 space-y-1">
+<a class="flex items-center py-3 text-secondary hover:text-on-surface transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined mr-3">help</span>
+                Bantuan
+            </a>
+<button class="flex items-center py-3 text-primary font-bold w-full active:opacity-80 font-body-sm text-body-sm">
+<span class="material-symbols-outlined mr-3">logout</span>
+                Keluar
+            </button>
+</div>
+</aside>
+<!-- Top Navigation (Mobile) -->
+<header class="md:hidden flex justify-between items-center px-page-padding h-16 w-full fixed top-0 bg-surface border-b-[0.5px] border-outline-variant z-50">
+<h1 class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</h1>
+<button class="material-symbols-outlined text-on-surface active:scale-95 transition-transform">menu</button>
+</header>
+<!-- Main Content -->
+<main class="md:ml-sidebar-width pt-16 md:pt-0 min-h-screen">
+<div class="max-w-max-container mx-auto p-gutter md:p-page-padding">
+<!-- Breadcrumbs & Header -->
+<div class="mb-stack-lg">
+<nav class="flex items-center space-x-2 text-secondary font-label-md text-label-md mb-2">
+<span class="cursor-pointer hover:text-primary transition-colors">Event Saya</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface-variant">Pengaturan</span>
+</nav>
+<h2 class="font-h1 text-h1 md:font-h1 md:text-h1 text-on-surface">Pengaturan</h2>
+</div>
+<!-- Settings Tabbed Navigation -->
+<div class="border-b-[0.5px] border-outline-variant mb-stack-lg flex space-x-8 overflow-x-auto custom-scrollbar">
+<button class="py-4 border-b-2 border-primary text-primary font-bold whitespace-nowrap font-body-sm text-body-sm">
+                    Profil Akun
+                </button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface transition-colors whitespace-nowrap font-body-sm text-body-sm">
+                    Detail Organisasi
+                </button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface transition-colors whitespace-nowrap font-body-sm text-body-sm">
+                    Keamanan
+                </button>
+<button class="py-4 border-b-2 border-transparent text-secondary hover:text-on-surface transition-colors whitespace-nowrap font-body-sm text-body-sm">
+                    Notifikasi
+                </button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-stack-lg items-start">
+<!-- Section 1: Profil Pengguna -->
+<section class="lg:col-span-2 space-y-stack-lg">
+<div class="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-h3 text-h3 text-on-surface">Profil Pengguna</h3>
+<span class="material-symbols-outlined text-secondary">info</span>
+</div>
+<div class="flex flex-col md:flex-row gap-8">
+<!-- Profile Picture Upload Area -->
+<div class="flex flex-col items-center space-y-4">
+<div class="relative w-32 h-32 rounded-full border-[0.5px] border-outline-variant overflow-hidden group bg-surface-container-low">
+<img alt="Organizer Profile Picture" class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged male event organizer with a friendly smile, set against a clean, neutral studio background. The lighting is bright and high-key, aligning with a professional corporate aesthetic. The overall mood is reliable and trustworthy, using a soft, minimalist color palette that emphasizes clarity and high-end professional service." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcHbn7rnVB3NqUSM3tjH3WvsSM91YjDaVRBPbafGR9VJDvQ6O9AaCSoaqu8LMBiyO1nKqk352zBwHZGtQrdtWSHqd8dRRPddUR48B_y6cLF21CvzjJPC31ULlUh38WBOigZ772v_SZYlN7N8EOve7BBNv415usbOBT_BcPwpYOaGzNtZICN9o7L18J3FHuLhwHovV7sWdOdtWXBb-skfrglVpmqYAji7HugJ0axwZ6WGoFuxVamHws-aGJ2UX48F3g2WMFrIs6SQ"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-white">photo_camera</span>
+</div>
+</div>
+<button class="text-primary font-bold text-label-md font-label-md hover:underline">Ganti Foto</button>
+</div>
+<!-- Form Fields -->
+<div class="flex-1 space-y-stack-md">
+<div class="grid grid-cols-1 gap-stack-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-secondary">Nama Lengkap</label>
+<input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:border-primary focus:ring-0 outline-none transition-colors" type="text" value="Andika Pratama"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-secondary">Email</label>
+<input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:border-primary focus:ring-0 outline-none transition-colors" type="email" value="andika.pratama@securegate.id"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-secondary">Nomor Telepon</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-body-sm text-body-sm">+62</span>
+<input class="w-full bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg pl-12 pr-4 py-2.5 font-body-sm text-body-sm focus:border-primary focus:ring-0 outline-none transition-colors" type="tel" value="81234567890"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Preferensi Platform -->
+<div class="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
+<h3 class="font-h3 text-h3 text-on-surface mb-6">Preferensi Platform</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<p class="font-body-sm text-body-sm font-bold text-on-surface">Notifikasi Email</p>
+<p class="text-secondary font-caption text-caption">Dapatkan pembaruan penjualan tiket langsung di email Anda.</p>
+</div>
+<button class="w-11 h-6 bg-secondary-fixed-dim rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" onclick="this.classList.toggle('bg-primary'); this.querySelector('div').classList.toggle('translate-x-5')">
+<div class="w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-sm"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="space-y-0.5">
+<p class="font-body-sm text-body-sm font-bold text-on-surface">Peringatan Sistem</p>
+<p class="text-secondary font-caption text-caption">Notifikasi browser untuk laporan harian dan pemindaian.</p>
+</div>
+<button class="w-11 h-6 bg-primary rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" onclick="this.classList.toggle('bg-primary'); this.querySelector('div').classList.toggle('translate-x-5')">
+<div class="w-5 h-5 bg-white rounded-full translate-x-5 transition-transform duration-200 ease-in-out shadow-sm"></div>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Sidebar Summary/Actions Area -->
+<aside class="space-y-stack-lg">
+<div class="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
+<div class="flex items-center space-x-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-surface">Status Akun</p>
+<p class="text-green-600 font-caption text-caption">Terverifikasi</p>
+</div>
+</div>
+<p class="text-secondary font-body-sm text-body-sm mb-6">
+                            Terakhir diubah: 12 Okt 2023, 14:30 WIB
+                        </p>
+<div class="space-y-3">
+<button class="w-full h-[40px] bg-primary text-on-primary rounded-lg font-body-sm text-body-sm font-bold active:opacity-80 transition-opacity">
+                                Simpan Perubahan
+                            </button>
+<button class="w-full h-[40px] bg-transparent text-secondary border-[0.5px] border-outline-variant rounded-lg font-body-sm text-body-sm hover:bg-surface-container-low transition-colors">
+                                Batal
+                            </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg border-dashed">
+<h4 class="font-label-md text-label-md font-bold text-on-surface mb-2">Butuh Bantuan?</h4>
+<p class="text-secondary font-caption text-caption mb-4">Tim dukungan kami siap membantu Anda 24/7 untuk masalah teknis.</p>
+<a class="text-primary font-bold font-label-md text-label-md flex items-center hover:underline" href="#">
+                            Hubungi Support
+                            <span class="material-symbols-outlined text-[16px] ml-1">open_in_new</span>
+</a>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- Bottom NavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+<button class="flex flex-col items-center justify-center text-secondary active:bg-surface-container-low px-4">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary active:bg-surface-container-low px-4">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-md text-label-md">Events</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary active:bg-surface-container-low px-4">
+<span class="material-symbols-outlined">center_focus_weak</span>
+<span class="font-label-md text-label-md">Scan</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold active:bg-surface-container-low px-4">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple toggle micro-interaction for mobile sidebar menu (conceptual)
+        const menuBtn = document.querySelector('header button');
+        menuBtn?.addEventListener('click', () => {
+            alert('Navigation Menu would open here in a real implementation.');
+        });
+    </script>
+</body></html>

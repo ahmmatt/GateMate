@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // ─── CORS: Harus global, sebelum semua middleware lain ───────────────
         $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
 
+        // ─── Security Headers: tambah ke semua response ──────────────────────
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
         // ─── Alias Middleware (Blade / Session-based) ────────────────────────
         $middleware->alias([
             'organizer.verified' => \App\Http\Middleware\EnsureOrganizerIsVerified::class,

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -95,5 +97,65 @@ class Event extends Model
     public function attendees(): HasMany
     {
         return $this->hasMany(Attendee::class, 'id_event', 'id_event');
+    }
+
+    // ── Local Scopes ─────────────────────────────────────────────────────────
+
+    /**
+     * Scope: hanya event dengan status 'active'.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope: event aktif yang belum berakhir (end_date >= today).
+     */
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $query->active()->whereDate('end_date', '>=', now()->toDateString());
+    }
+
+    /**
+     * Scope: filter event berdasarkan kota (partial match).
+     */
+    public function scopeByCity(Builder $query, string $city): Builder
+    {
+        return $query->where('city', 'like', '%' . $city . '%');
+    }
+
+    /**
+     * Scope: filter event berdasarkan kategori.
+     */
+    public function scopeByCategory(Builder $query, string $category): Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    // ── Accessors ─────────────────────────────────────────────────────────────
+
+    /**
+     * Accessor: URL lengkap banner image.
+     */
+    protected function bannerImageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->banner_image
+                ? asset('Media/uploads/' . $this->banner_image)
+                : null
+        );
+    }
+
+    /**
+     * Accessor: URL lengkap poster image.
+     */
+    protected function posterImageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->poster_path
+                ? asset('Media/uploads/' . $this->poster_path)
+                : null
+        );
     }
 }

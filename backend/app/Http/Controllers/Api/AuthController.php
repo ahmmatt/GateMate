@@ -3,141 +3,104 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Services\AuthService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
  * API AuthController
  * ─────────────────────────────────────────────────────────────────────────────
  * Menangani autentikasi berbasis Sanctum Token (bukan session/cookie).
+ * Logika bisnis didelegasikan ke AuthService.
  *
  * Endpoints:
  *   POST /api/auth/login             → Login, return Bearer token
  *   POST /api/auth/register          → Registrasi user baru, return Bearer token
  *   POST /api/auth/logout            → Revoke token saat ini
  *   GET  /api/auth/me                → Data user yang sedang login
+ *   GET  /api/auth/google/redirect   → Redirect ke Google OAuth
+ *   GET  /api/auth/google/callback   → Callback dari Google OAuth
  */
 class AuthController extends Controller
 {
+    use ApiResponse;
+
+    public function __construct(protected AuthService $authService) {}
+
     /**
      * Login user dan kembalikan Sanctum Bearer Token.
-     *
-     * @return JsonResponse
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $result = $this->authService->login(
+            $request->only('email', 'password'),
+            $request->ip(),
+            $request->userAgent()
+        );
 
-        if (! Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password yang Anda masukkan salah.'],
-            ]);
-        }
-
-        /** @var User $user */
-        $user = Auth::user();
-
-        // Hapus token lama (opsional — single session per device)
-        // $user->tokens()->delete();
-
-        // Buat token baru dengan kemampuan sesuai role
-        $abilities = match ($user->role) {
-            'superadmin'  => ['superadmin', 'admin', 'user', 'tenant'],
-            'admin'       => ['admin', 'user'],
-            'tenant'      => ['tenant'],
-            default       => ['user'],
-        };
-
-        $tokenObj = $user->createToken('auth_token', $abilities);
-        $accessToken = $tokenObj->accessToken;
-        
-        $ip = $request->ip();
-        $accessToken->ip_address = $ip;
-        $accessToken->user_agent = $request->userAgent();
-        
-        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
-            try {
-                $res = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=city,countryCode,status");
-                if ($res->successful() && $res->json('status') === 'success') {
-                    $accessToken->location = $res->json('city') . ', ' . $res->json('countryCode');
-                }
-            } catch (\Exception $e) {
-                // Ignore
-            }
-        } else {
-            $accessToken->location = 'Localhost';
-        }
-        $accessToken->save();
-
-        $token = $tokenObj->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil.',
-            'data'    => [
-                'token'      => $token,
-                'token_type' => 'Bearer',
-                'user'       => new UserResource($user),
-            ],
-        ]);
+        return $this->success([
+            'token'      => $result['token'],
+            'token_type' => 'Bearer',
+            'user'       => new UserResource($result['user']),
+        ], 'Login berhasil.');
     }
 
     /**
-     * Redirect to Google
-     *
-     * @return \Illuminate\Http\RedirectResponse
+     * Registrasi user baru dan kembalikan Bearer Token.
+     */
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $result = $this->authService->register(
+            $request->validated(),
+            $request->ip(),
+            $request->userAgent()
+        );
+
+        return $this->created([
+            'token'      => $result['token'],
+            'token_type' => 'Bearer',
+            'user'       => new UserResource($result['user']),
+        ], 'Registrasi berhasil. Kode OTP telah dikirim ke WhatsApp Anda.');
+    }
+
+    /**
+     * Redirect ke Google OAuth.
      */
     public function googleRedirect()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+        $driver = Socialite::driver('google');
+
+        return $driver->stateless()->redirect();
     }
 
     /**
-     * Google Callback
-     *
-     * @return \Illuminate\Http\RedirectResponse
+     * Callback dari Google OAuth.
      */
     public function googleCallback(Request $request)
     {
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
-            $user = User::where('email', $googleUser->getEmail())->first();
-
+            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            $driver     = Socialite::driver('google');
+            $googleUser = $driver->stateless()->user();
+            $user        = \App\Models\User::where('email', $googleUser->getEmail())->first();
             $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
 
-            if (!$user) {
-                // Redirect ke frontend register page dengan email
-                return redirect()->away($frontendUrl . '/register?email=' . urlencode($googleUser->getEmail()) . '&name=' . urlencode($googleUser->getName()));
+            if (! $user) {
+                return redirect()->away(
+                    $frontendUrl . '/register?email=' . urlencode($googleUser->getEmail())
+                        . '&name=' . urlencode($googleUser->getName())
+                );
             }
 
-            $abilities = match ($user->role) {
-                'superadmin'  => ['superadmin', 'admin', 'user', 'tenant'],
-                'admin'       => ['admin', 'user'],
-                'tenant'      => ['tenant'],
-                default       => ['user'],
-            };
+            $token = $this->authService->createToken($user, $request->ip(), $request->userAgent());
 
-            $tokenObj = $user->createToken('auth_token', $abilities);
-            $accessToken = $tokenObj->accessToken;
-            
-            $ip = $request->ip();
-            $accessToken->ip_address = $ip;
-            $accessToken->user_agent = $request->userAgent();
-            $accessToken->location = 'Localhost';
-            $accessToken->save();
-
-            $token = $tokenObj->plainTextToken;
-
-            // Redirect ke frontend oauth callback page
             return redirect()->away($frontendUrl . '/oauth/callback?token=' . urlencode($token));
 
         } catch (\Exception $e) {
@@ -148,112 +111,55 @@ class AuthController extends Controller
     }
 
     /**
-     * Registrasi user baru dan kembalikan Bearer Token.
-     *
-     * @return JsonResponse
-     */
-    public function register(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
-            'gender'    => ['required', 'string', 'in:Male,Female'],
-            'email'     => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone'     => ['required', 'string', 'min:9', 'max:15'],
-            'password'  => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'full_name.required' => 'Nama lengkap wajib diisi.',
-            'gender.required'    => 'Jenis kelamin wajib dipilih.',
-            'email.unique'       => 'Email ini sudah terdaftar.',
-            'phone.required'     => 'Nomor WhatsApp wajib diisi.',
-            'phone.min'          => 'Nomor WhatsApp tidak valid.',
-            'password.min'       => 'Password minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
-        ]);
-
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        $user = User::create([
-            'full_name'            => $validated['full_name'],
-            'gender'               => $validated['gender'],
-            'email'                => $validated['email'],
-            'phone'                => $validated['phone'],
-            'password'             => Hash::make($validated['password']),
-            'role'                 => 'user',
-            'phone_otp'            => $otp,
-            'phone_otp_expires_at' => now()->addMinutes(5),
-        ]);
-
-        $tokenObj = $user->createToken('auth_token', ['user']);
-        $accessToken = $tokenObj->accessToken;
-        
-        $ip = $request->ip();
-        $accessToken->ip_address = $ip;
-        $accessToken->user_agent = $request->userAgent();
-        
-        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
-            try {
-                $res = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=city,countryCode,status");
-                if ($res->successful() && $res->json('status') === 'success') {
-                    $accessToken->location = $res->json('city') . ', ' . $res->json('countryCode');
-                }
-            } catch (\Exception $e) {
-                // Ignore
-            }
-        } else {
-            $accessToken->location = 'Localhost';
-        }
-        $accessToken->save();
-
-        $token = $tokenObj->plainTextToken;
-
-        // Kirim OTP via WhatsApp
-        try {
-            $fonnte = new \App\Services\FonnteService();
-            $normalizedPhone = \App\Services\FonnteService::normalizePhone($validated['phone']);
-            $appName = config('app.name', 'SecureGate');
-            $message = "🔐 *Kode Verifikasi {$appName}*\n\nKode OTP Anda adalah:\n\n*{$otp}*\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.\n\n_Tim {$appName}_";
-            $fonnte->send($normalizedPhone, $message);
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Register OTP send failed: ' . $e->getMessage());
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registrasi berhasil. Kode OTP telah dikirim ke WhatsApp Anda.',
-            'data'    => [
-                'token'      => $token,
-                'token_type' => 'Bearer',
-                'user'       => new UserResource($user),
-            ],
-        ], 201);
-    }
-
-    /**
-     * Logout: Revoke token saat ini.
-     *
-     * @return JsonResponse
+     * Logout: Revoke token saat ini (baik API Bearer maupun Stateful SPA Session).
      */
     public function logout(Request $request): JsonResponse
     {
-        // Hapus hanya token yang digunakan untuk request ini
-        $request->user()->currentAccessToken()->delete();
+        $user  = $request->user();
+        $token = $user ? $user->currentAccessToken() : null;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout berhasil. Sampai jumpa!',
-        ]);
+        if ($token && method_exists($token, 'delete')) {
+            $token->delete();
+        } elseif ($request->bearerToken() && $user) {
+            $accessToken = \Laravel\Sanctum\Sanctum::personalAccessTokenModel()::findToken($request->bearerToken());
+            $accessToken?->delete();
+        }
+
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        /** @var \Illuminate\Auth\RequestGuard|\Illuminate\Auth\SessionGuard|object $defaultGuard */
+        $defaultGuard = Auth::guard();
+        if (method_exists($defaultGuard, 'forgetUser')) {
+            $defaultGuard->forgetUser();
+        }
+
+        /** @var \Illuminate\Auth\RequestGuard|object $sanctumGuard */
+        $sanctumGuard = Auth::guard('sanctum');
+        if (method_exists($sanctumGuard, 'forgetUser')) {
+            $sanctumGuard->forgetUser();
+        }
+
+        /** @var \Illuminate\Auth\SessionGuard|object $webGuard */
+        $webGuard = Auth::guard('web');
+        if (method_exists($webGuard, 'forgetUser')) {
+            $webGuard->forgetUser();
+        }
+
+        return $this->success(null, 'Logout berhasil. Sampai jumpa!');
     }
 
     /**
      * Ambil data user yang sedang login berdasarkan token.
-     *
-     * @return JsonResponse
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data'    => new UserResource($request->user()),
-        ]);
+        return $this->success(new UserResource($request->user()));
     }
 }

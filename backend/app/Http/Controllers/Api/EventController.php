@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
+use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,8 @@ use Illuminate\Http\Request;
  */
 class EventController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Daftar semua event aktif yang belum berakhir.
      */
@@ -45,10 +48,7 @@ class EventController extends Controller
 
         $events = $query->orderBy('start_date', 'asc')->get();
 
-        return response()->json([
-            'success' => true,
-            'data'    => EventResource::collection($events),
-        ]);
+        return $this->success(EventResource::collection($events));
     }
 
     /**
@@ -74,9 +74,8 @@ class EventController extends Controller
             ->whereNotNull('seat_number')
             ->pluck('seat_number');
 
-        return response()->json([
-            'success'       => true,
-            'data'          => new EventResource($event),
+        return $this->success([
+            'event'         => new EventResource($event),
             'has_purchased' => $hasPurchased,
             'taken_seats'   => $takenSeats,
         ]);

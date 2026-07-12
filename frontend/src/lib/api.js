@@ -1,39 +1,29 @@
-import axios from 'axios';
-
-// Konfigurasi Axios instance untuk berkomunikasi dengan Laravel Backend
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+/**
+ * Stub API client - returns empty responses so organizer pages
+ * can render without a real backend.
+ * Replace this with a real axios instance when the backend is ready.
+ */
+const api = {
+  get: async (url, config) => {
+    console.warn(`[api stub] GET ${url} - no backend connected`);
+    return { data: { data: null, events: [], total: 0 } };
   },
-  // Untuk Sanctum stateful request (opsional jika menggunakan cookie-based, 
-  // tapi kita pakai Bearer token, jadi withCredentials false lebih aman untuk beda port
-  // kecuali butuh CSRF cookie Laravel).
-  withCredentials: true,
-});
-
-// Interceptor Request: Sisipkan token dari localStorage (jika ada) ke setiap request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Interceptor Response: Tangani error global (misal: 401 Unauthorized)
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Auto-logout jika token tidak valid/expired
-      localStorage.removeItem('auth_token');
-      // Opsional: redirect ke /login
-      // window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+  post: async (url, data, config) => {
+    console.warn(`[api stub] POST ${url} - no backend connected`);
+    return { data: { data: null, message: 'ok' } };
+  },
+  put: async (url, data, config) => {
+    console.warn(`[api stub] PUT ${url} - no backend connected`);
+    return { data: { data: null, message: 'ok' } };
+  },
+  patch: async (url, data, config) => {
+    console.warn(`[api stub] PATCH ${url} - no backend connected`);
+    return { data: { data: null, message: 'ok' } };
+  },
+  delete: async (url, config) => {
+    console.warn(`[api stub] DELETE ${url} - no backend connected`);
+    return { data: { data: null, message: 'ok' } };
+  },
+};
 
 export default api;

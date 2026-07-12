@@ -55,7 +55,7 @@ class ScannerController extends Controller
         }
 
         // 2. Cek apakah tiket milik event penyelenggara ini
-        if ($transaction->event->id_admin != auth()->user()->id_user) {
+        if ($transaction->event->id_admin != $request->user()->id_user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tiket tidak valid untuk event ini!',

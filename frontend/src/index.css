@@ -1,29 +1,161 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base ─────────────────────────────────────────── */
 @layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: 'Inter', sans-serif;
+    background-color: #fff8f6;
+    color: #271815;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-  }
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    vertical-align: middle;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .hide-scrollbar::-webkit-scrollbar { display: none; }
-  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .coral-pill { border-radius: 22px; }
-  .card-shadow { border: 0.5px solid #EBEBEB; }
-  .card-hover { transition: all 0.2s ease; }
-  .card-hover:hover { background-color: #F9F9F9; }
-  .event-card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+/* ─── Component Classes (Stitch) ────────────────────── */
+@layer components {
+
+  /* Card */
+  .stitch-card {
+    @apply bg-white rounded-[14px] p-3;
+    border: 0.5px solid #EBEBEB;
+  }
+
+  /* Tombol Primer — Coral Red pill */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2
+           bg-[#b22110] text-white text-sm font-medium
+           hover:opacity-90 active:opacity-80
+           transition-opacity duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Tombol Sekunder — outline Coral Red pill */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2
+           bg-transparent text-[#F04E37] text-sm font-medium
+           hover:opacity-85 active:opacity-70
+           transition-opacity duration-150;
+    border: 1px solid #F04E37;
+  }
+
+  /* Tombol Bahaya */
+  .btn-danger {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2
+           bg-[#F04E37] text-white text-sm font-medium
+           hover:opacity-90 active:opacity-80
+           transition-opacity duration-150;
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply w-full bg-white rounded-xl px-4 py-3
+           text-[#271815] placeholder-[#5f5e5e]/60
+           focus:outline-none focus:ring-2 focus:ring-[#b22110]/30
+           transition-all duration-200 text-sm;
+    border: 0.5px solid #EBEBEB;
+  }
+
+  .input-field:focus {
+    border-color: #b22110;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-emerald-50 text-emerald-700;
+    border: 0.5px solid #6ee7b7;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-50 text-amber-700;
+    border: 0.5px solid #fcd34d;
+  }
+
+  .badge-error {
+    @apply badge bg-[#fff8f6] text-[#b22110];
+    border: 0.5px solid #f0d4cf;
+  }
+
+  .badge-info {
+    @apply badge bg-sky-50 text-sky-700;
+    border: 0.5px solid #7dd3fc;
+  }
+
+  /* Stat Card */
+  .stat-card {
+    @apply stitch-card flex flex-col gap-2;
+  }
+
+  /* Legacy aliases — dipetakan ulang ke Stitch agar halaman lama tidak rusak */
+  .glass-card {
+    @apply stitch-card;
+  }
+
+  .glass-card-hover {
+    @apply stitch-card transition-colors duration-150 hover:bg-[#f9f9f9];
+  }
+
+  /* Animasi */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out both;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out both;
+  }
+}
+
+/* ─── Keyframes ─────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0d4cf;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b22110;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F04E37;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

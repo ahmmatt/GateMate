@@ -5,6 +5,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -110,5 +112,65 @@ class User extends Authenticatable
     public function event(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Event::class, 'id_event', 'id_event');
+    }
+
+    // ── Local Scopes ─────────────────────────────────────────────────────────
+
+    /**
+     * Scope: hanya pengguna dengan role 'admin' (organizer).
+     */
+    public function scopeOrganizers(Builder $query): Builder
+    {
+        return $query->where('role', 'admin');
+    }
+
+    /**
+     * Scope: organizer yang sudah diverifikasi superadmin.
+     */
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query->where('is_verified_organizer', true);
+    }
+
+    /**
+     * Scope: hanya pengguna dengan role 'tenant'.
+     */
+    public function scopeTenants(Builder $query): Builder
+    {
+        return $query->where('role', 'tenant');
+    }
+
+    /**
+     * Scope: user yang sudah memverifikasi nomor WhatsApp.
+     */
+    public function scopePhoneVerified(Builder $query): Builder
+    {
+        return $query->whereNotNull('phone_verified_at');
+    }
+
+    // ── Accessors ──────────────────────────────────────────────────────────────
+
+    /**
+     * Accessor: URL lengkap foto profil user.
+     * Contoh: $user->full_avatar_url → 'http://..../Media/uploads/abc.jpg'
+     */
+    protected function fullAvatarUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->profile_picture
+                ? asset('Media/uploads/' . $this->profile_picture)
+                : null
+        );
+    }
+
+    /**
+     * Accessor: apakah KYC (face scan) user masih valid (tidak lebih dari 5 bulan).
+     */
+    protected function isKycValid(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->face_verified_at
+                && \Carbon\Carbon::parse($this->face_verified_at)->gte(now()->subMonths(5))
+        );
     }
 }

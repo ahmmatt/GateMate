@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SecureGate - Detail Organisasi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf9f8;
+            margin: 0;
+            color: #1b1c1c;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .thin-border {
+            border: 0.5px solid #EBEBEB;
+        }
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fbf9f8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e4e2e2;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1b1c1c",
+                        "secondary": "#5f5e5e",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#910900",
+                        "surface-container-highest": "#e4e2e2",
+                        "primary-fixed": "#ffdad4",
+                        "primary": "#b22110",
+                        "surface-bright": "#fbf9f8",
+                        "outline": "#8f706a",
+                        "surface-tint": "#b62413",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary": "#006579",
+                        "surface-dim": "#dbdad9",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#ffb4a7",
+                        "tertiary-fixed": "#b2ebff",
+                        "surface": "#fbf9f8",
+                        "on-tertiary-fixed-variant": "#004e5e",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "primary-container": "#d63b27",
+                        "on-primary-container": "#fffbff",
+                        "on-surface": "#1b1c1c",
+                        "secondary-container": "#e5e2e1",
+                        "inverse-on-surface": "#f2f0f0",
+                        "inverse-surface": "#303031",
+                        "tertiary-container": "#007f99",
+                        "surface-variant": "#e4e2e2",
+                        "background": "#fbf9f8",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#efeded",
+                        "inverse-primary": "#ffb4a7",
+                        "on-tertiary-fixed": "#001f27",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#656464",
+                        "outline-variant": "#e3beb8",
+                        "on-surface-variant": "#5b403c",
+                        "on-tertiary-container": "#f9fdff",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "tertiary-fixed-dim": "#68d4f3",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface-container-low": "#f5f3f3",
+                        "on-primary-fixed": "#400200",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e9e8e7",
+                        "coral-red": "#F04E37"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "14px",
+                        "full": "9999px",
+                        "btn": "22px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-sm": "8px",
+                        "max-container": "1200px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "sidebar-width": "240px",
+                        "page-padding": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "h1": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h3": ["Inter"],
+                        "h1-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                        "caption": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                        "body-lg": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "h3": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "h1-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Desktop SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-surface border-r border-outline-variant flex flex-col py-stack-lg hidden md:flex z-50">
+<div class="px-6 mb-10">
+<h1 class="font-h2 text-h2 font-black text-primary">SecureGate</h1>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-secondary font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3">calendar_today</span> Event Saya
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3">qr_code_scanner</span> Scanner
+            </a>
+<a class="flex items-center px-6 py-3 text-secondary font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3">payments</span> Keuangan
+            </a>
+<a class="flex items-center px-6 py-3 border-l-4 border-primary bg-primary-fixed text-on-primary-fixed-variant font-bold font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">settings</span> Pengaturan
+            </a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 p-2 bg-surface-container rounded-xl">
+<img alt="User Profile" class="w-8 h-8 rounded-full bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4mytAl09f_1nY2W2t78Fy55DIZUUOtx1HVB3ONI28kG6k0U07TL-1t4NgwXeFZ_chVrXlF12yv7QalZ8YcC_QQLEZuffx2M9Ml3KMxG9iz-Oij6MGkQu3aIQsF7W4GNAuJ0bDpZAoqwzcQjAXYLjFJLTczYuNw1d1ZOsYaZpZky7D-GOum8zt6E6vsGREiJt3iQ6nzV5gtV8d_2O9li0H4vJUC_sie9r_qztuxhnota-4DPxvF1_wMFjTsubOjgzK0ecUDmzKSQ"/>
+<div class="overflow-hidden">
+<p class="text-label-md font-bold truncate">Budi Organizer</p>
+<p class="text-caption text-secondary truncate">Platinum Tier</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-gutter ml-0 md:ml-[240px] bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-h3 text-h3 font-black text-primary md:hidden">SecureGate</h2>
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+<input class="bg-surface-container-low thin-border rounded-full py-2 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary w-64 transition-all" placeholder="Cari data e-ticket..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container-low rounded-full p-2 text-secondary transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:bg-surface-container-low rounded-full p-2 text-secondary transition-all">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-px h-6 bg-outline-variant mx-2"></div>
+<img alt="Organizer Avatar" class="w-8 h-8 rounded-full thin-border object-cover" data-alt="A professional high-resolution headshot of a modern event organizer, captured in a bright studio with soft neutral lighting. The subject has a confident expression, wearing a clean, minimalist professional outfit. The aesthetic is extremely sharp and clean, aligning with a high-end corporate identity featuring soft grays and white backgrounds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdtuJwBqniK08crCpUA4VvRtJVqYDyEl3TNPQOKgnXPg5qQPFBolWT6Rcsls_yGePqLRQfvN4uBl4iV1DDEJaB_VlY_ZYVJKHhaWWntUyAqH5VEx6rAatLG8OoJAZ2ePrbgiF6HgAYrZmhjL0oWpHBzrOC8FjM-ZxeKFUkWX-aCJwvQCgWzWb-QM-So3rrHpvraKCtkSekHwt_cCY9u7cV18CqixiVd7Bu5PjLU0REXQLALm1Ly-orGYkIzIEAhyOV0AHNN-mSBw"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-0 md:ml-[240px] p-page-padding pb-32">
+<div class="max-w-max-container mx-auto">
+<!-- Page Header & Sub-Nav -->
+<div class="mb-8">
+<h1 class="font-h1 text-h1 font-bold text-on-surface mb-6">Pengaturan Akun</h1>
+<!-- Horizontal Sub-Nav -->
+<div class="flex gap-8 border-b border-outline-variant overflow-x-auto whitespace-nowrap scrollbar-hide">
+<a class="pb-4 text-body-lg text-secondary hover:text-on-surface transition-colors" href="#">Profil Saya</a>
+<a class="pb-4 text-body-lg text-primary font-bold border-b-2 border-primary" href="#">Detail Organisasi</a>
+<a class="pb-4 text-body-lg text-secondary hover:text-on-surface transition-colors" href="#">Keamanan</a>
+<a class="pb-4 text-body-lg text-secondary hover:text-on-surface transition-colors" href="#">Integrasi API</a>
+<a class="pb-4 text-body-lg text-secondary hover:text-on-surface transition-colors" href="#">Notifikasi</a>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg items-start">
+<!-- Main Form Area -->
+<div class="lg:col-span-8 space-y-stack-lg">
+<!-- Section: Informasi Organisasi -->
+<section class="bg-surface-container-lowest rounded-2xl thin-border p-stack-lg">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">corporate_fare</span>
+<h3 class="font-h3 text-h3 font-bold">Informasi Organisasi</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-secondary">Nama Organisasi/EO</label>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 px-4 text-body-sm focus:outline-none focus:border-primary transition-all" type="text" value="PT. Kreasi Mandiri Event"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-secondary">Nomor Telepon Organisasi</label>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 px-4 text-body-sm focus:outline-none focus:border-primary transition-all" type="tel" value="+62 21 555 0123"/>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="font-label-md text-label-md text-secondary">Alamat Kantor</label>
+<textarea class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 px-4 text-body-sm focus:outline-none focus:border-primary transition-all" rows="3">Gedung Wisma Nusantara, Lantai 12, Jl. M.H. Thamrin No.59, Jakarta Pusat, 10350</textarea>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="font-label-md text-label-md text-secondary">Website (Opsional)</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-sm">https://</span>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 pl-16 pr-4 text-body-sm focus:outline-none focus:border-primary transition-all" placeholder="www.organisasianda.com" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Media Sosial -->
+<section class="bg-surface-container-lowest rounded-2xl thin-border p-stack-lg">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">share</span>
+<h3 class="font-h3 text-h3 font-bold">Media Sosial</h3>
+</div>
+<div class="space-y-stack-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-secondary">Instagram Handle</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-sm">@</span>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary transition-all" type="text" value="kreasimandiri_eo"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-secondary">TikTok Handle</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-sm">@</span>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary transition-all" type="text" value="kreasimandiri"/>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-secondary">X/Twitter Handle (Opsional)</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-sm">@</span>
+<input class="w-full bg-surface-container-low thin-border rounded-lg py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary transition-all" placeholder="username" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Dokumen Legalitas -->
+<section class="bg-surface-container-lowest rounded-2xl thin-border p-stack-lg">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<h3 class="font-h3 text-h3 font-bold">Dokumen Legalitas</h3>
+</div>
+<button class="text-primary font-bold text-body-sm hover:underline">Update Dokumen</button>
+</div>
+<div class="flex flex-col md:flex-row gap-6">
+<div class="flex-1 p-4 rounded-xl thin-border bg-surface-container-low flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">badge</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">KTP Penanggung Jawab</p>
+<p class="text-caption text-secondary">Terverifikasi pada 12 Jan 2024</p>
+</div>
+<a class="text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">visibility</span>
+</a>
+</div>
+<div class="flex-1 p-4 rounded-xl thin-border bg-surface-container-low flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">description</span>
+</div>
+<div class="flex-1">
+<p class="text-body-sm font-bold">SIUP / Izin Usaha</p>
+<p class="text-caption text-secondary">Terverifikasi pada 12 Jan 2024</p>
+</div>
+<a class="text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">visibility</span>
+</a>
+</div>
+</div>
+<!-- Mini Image Preview Grid (Asymmetric Layout) -->
+<div class="mt-6 grid grid-cols-4 gap-4 h-32">
+<div class="col-span-1 rounded-lg overflow-hidden thin-border">
+<img alt="Document Preview 1" class="w-full h-full object-cover" data-alt="A blurred-out, legally formatted Indonesian identification card (KTP) displayed in a clean administrative interface. The image emphasizes the document structure without revealing personal details, using a bright and clean architectural lighting style with vibrant red accents in the UI markers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALFD7m2chCi3HrAayykg-YoVUsO4IC-Vo3Rk5Bckv55nO9a7QK_1BLKVUiA6VvnZ6EplG1PZkkp-KaRqCZ4XIyl0JNT7ghQ4JsJ3jF6PAmsg2UG_fIygY3uyD2BgpAAie6yTt14GApK5NX7rzbvnv78blpQ1n6tnZapjElGadD2SI550QvJsVw-F1jjwIMcPI0FivtD-j3A4-rYmQ_ucTOcMGrSyp9oEfOuVlhb0tb43u3obIC2nM1-LpplXaJBvpNoZmSUFX3eQ"/>
+</div>
+<div class="col-span-2 rounded-lg overflow-hidden thin-border">
+<img alt="Document Preview 2" class="w-full h-full object-cover" data-alt="A formal business license document with official stamps and signatures, shown as a small thumbnail in a modern software dashboard. The lighting is crisp and industrial, focusing on high-contrast black text on a white background with a subtle paper texture. The surrounding UI is minimalist and flat." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByqsjIAF_fP0afyC4Udgg6-uUUpZFEKO3zosBjXoMxA4psfCRc4rIkvoIZzQ5fHFzPZMkryRK7drKCFEZ9tUjPKqegDOJ7zTqv3C8eFLOvcdIu19b9GwsYjaiJfcxZup7eUaa1qESJqHyrN6zOw8I9CShBaIejbq-BcSTXvB4vkPxHJkpJDDPhRDyiSPAS2_A2csVRn655j9B0a55ZCmrOYS43WlcIWvdTgRc1NkYatPXhF04ZZ-9-CP6i3Tu5WsgWu-ydRuwPEA"/>
+</div>
+<div class="col-span-1 bg-surface-container-highest rounded-lg flex items-center justify-center text-secondary text-caption flex-col gap-1 cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">add</span>
+<span>Tambah</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Action Sidebar -->
+<div class="lg:col-span-4 sticky top-24">
+<div class="bg-surface-container-lowest rounded-2xl thin-border p-stack-lg space-y-6">
+<div>
+<h4 class="text-body-lg font-bold mb-2">Simpan Perubahan</h4>
+<p class="text-body-sm text-secondary">Pastikan semua data organisasi yang Anda masukkan sudah benar dan sesuai dengan dokumen legalitas.</p>
+</div>
+<div class="flex flex-col gap-3">
+<button class="w-full bg-[#F04E37] text-white py-3 rounded-[22px] font-bold text-body-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-sm">
+                                Simpan Perubahan
+                            </button>
+<button class="w-full bg-transparent text-secondary py-3 rounded-[22px] font-bold text-body-lg hover:bg-surface-container-low transition-all">
+                                Batal
+                            </button>
+</div>
+<div class="pt-6 border-t border-outline-variant">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-lg">info</span>
+<p class="text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim SecureGate selama maksimal 2x24 jam.</p>
+</div>
+</div>
+</div>
+<!-- Additional Helpful Card -->
+<div class="mt-stack-lg bg-surface-container-low rounded-2xl p-stack-lg border border-dashed border-outline-variant">
+<h4 class="text-label-md font-bold text-secondary uppercase tracking-wider mb-3">Butuh Bantuan?</h4>
+<p class="text-body-sm mb-4">Hubungi account manager Anda untuk bantuan perubahan data legalitas yang mendesak.</p>
+<a class="inline-flex items-center text-primary font-bold text-body-sm group" href="#">
+                            Hubungi Support
+                            <span class="material-symbols-outlined ml-1 text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 md:hidden bg-surface border-t border-outline-variant flex justify-around items-center h-16">
+<a class="flex flex-col items-center justify-center text-secondary" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-caption text-caption">Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-caption text-caption">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-caption text-caption">Scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-caption text-caption">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Search focus interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('border-primary');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('border-primary');
+            });
+        }
+    </script>
+</body></html>

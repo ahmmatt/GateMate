@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SecureGate - Pengaturan Keamanan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab-border {
+            position: relative;
+        }
+        .active-tab-border::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #b22110;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#5b403c",
+                      "primary-fixed-dim": "#ffb4a7",
+                      "on-secondary": "#ffffff",
+                      "background": "#fbf9f8",
+                      "surface-tint": "#b62413",
+                      "on-tertiary-fixed": "#001f27",
+                      "secondary-container": "#e5e2e1",
+                      "on-primary": "#ffffff",
+                      "outline": "#8f706a",
+                      "on-secondary-fixed-variant": "#474646",
+                      "tertiary": "#006579",
+                      "on-surface": "#1b1c1c",
+                      "on-background": "#1b1c1c",
+                      "inverse-on-surface": "#f2f0f0",
+                      "on-error": "#ffffff",
+                      "inverse-primary": "#ffb4a7",
+                      "tertiary-container": "#007f99",
+                      "on-primary-fixed": "#400200",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f5f3f3",
+                      "surface-container-high": "#e9e8e7",
+                      "on-secondary-container": "#656464",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "surface-container-highest": "#e4e2e2",
+                      "primary-fixed": "#ffdad4",
+                      "on-primary-container": "#fffbff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed-dim": "#68d4f3",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#b2ebff",
+                      "outline-variant": "#e3beb8",
+                      "surface-bright": "#fbf9f8",
+                      "on-tertiary-container": "#f9fdff",
+                      "on-primary-fixed-variant": "#910900",
+                      "on-tertiary-fixed-variant": "#004e5e",
+                      "surface": "#fbf9f8",
+                      "primary-container": "#d63b27",
+                      "secondary": "#5f5e5e",
+                      "primary": "#b22110",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "inverse-surface": "#303031",
+                      "surface-variant": "#e4e2e2",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#dbdad9",
+                      "surface-container": "#efeded",
+                      "secondary-fixed": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-lg": "24px",
+                      "page-padding": "24px",
+                      "max-container": "1200px",
+                      "gutter": "16px",
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "sidebar-width": "240px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "caption": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "h3": ["Inter"],
+                      "h2": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h1": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "h1-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                      "caption": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "h3": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "body-lg": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-sm antialiased">
+<!-- TopNavBar (Mobile Only) -->
+<header class="flex justify-between items-center px-page-padding h-16 w-full bg-surface border-b-[0.5px] border-outline-variant md:hidden fixed top-0 z-50">
+<span class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
+<button class="active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">menu</span>
+</button>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar (Desktop Only) -->
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-surface border-r-[0.5px] border-outline-variant flex flex-col py-page-padding hidden md:flex">
+<div class="px-6 mb-10">
+<h1 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h1>
+<p class="text-secondary text-caption uppercase tracking-wider mt-1">Organizer</p>
+</div>
+<nav class="flex-1">
+<div class="flex items-center py-3 px-6 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</div>
+<div class="flex items-center py-3 px-6 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined mr-3">event</span>
+<span class="font-body-sm">Event Saya</span>
+</div>
+<div class="flex items-center py-3 px-6 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined mr-3">qr_code_scanner</span>
+<span class="font-body-sm">Scanner</span>
+</div>
+<div class="flex items-center py-3 px-6 text-secondary hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined mr-3">payments</span>
+<span class="font-body-sm">Keuangan</span>
+</div>
+<!-- Active Navigation: Pengaturan maps to current settings context -->
+<div class="flex items-center py-3 px-6 border-l-4 border-primary bg-primary-fixed text-primary font-bold cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="font-body-sm">Pengaturan</span>
+</div>
+</nav>
+<div class="mt-auto px-6 space-y-4">
+<div class="flex items-center py-2 text-secondary hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined mr-3">help</span>
+<span class="font-body-sm">Bantuan</span>
+</div>
+<button class="w-full py-2 px-4 bg-surface-container-highest rounded-lg text-on-surface font-medium hover:bg-surface-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined mr-2 text-body-sm">logout</span>
+                    Keluar
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-sidebar-width pt-16 md:pt-0">
+<div class="max-w-max-container mx-auto p-page-padding">
+<!-- Breadcrumbs -->
+<nav class="mb-4 flex items-center text-secondary text-caption">
+<span class="hover:text-primary cursor-pointer">Event Saya</span>
+<span class="material-symbols-outlined text-[14px] mx-2">chevron_right</span>
+<span class="text-on-surface-variant font-medium">Pengaturan</span>
+</nav>
+<!-- Heading -->
+<div class="mb-8">
+<h2 class="font-h1 text-h1 text-on-surface">Pengaturan</h2>
+<p class="text-secondary mt-1">Kelola preferensi akun dan keamanan organisasi Anda.</p>
+</div>
+<!-- Tab Navigation Cluster -->
+<div class="border-b border-outline-variant mb-8 overflow-x-auto">
+<div class="flex gap-8 min-w-max">
+<button class="pb-3 text-secondary hover:text-on-surface transition-colors font-medium">Profil Akun</button>
+<button class="pb-3 text-secondary hover:text-on-surface transition-colors font-medium">Detail Organisasi</button>
+<!-- Active Tab: Keamanan -->
+<button class="pb-3 text-primary font-bold active-tab-border relative">Keamanan</button>
+<button class="pb-3 text-secondary hover:text-on-surface transition-colors font-medium">Notifikasi</button>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
+<!-- Ubah Password Card -->
+<section class="lg:col-span-7 bg-surface-container-lowest border-[0.5px] border-outline-variant rounded-xl p-6 overflow-hidden">
+<div class="flex items-center mb-6">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-primary">lock_reset</span>
+</div>
+<h3 class="font-h3 text-h3">Ubah Password</h3>
+</div>
+<form class="space-y-5" onsubmit="return false;">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-secondary">Kata Sandi Saat Ini</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg focus:outline-none focus:border-primary transition-colors text-on-surface" placeholder="••••••••" type="password"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-secondary">Kata Sandi Baru</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg focus:outline-none focus:border-primary transition-colors text-on-surface" placeholder="••••••••" type="password"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-secondary">Konfirmasi Kata Sandi Baru</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg focus:outline-none focus:border-primary transition-colors text-on-surface" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="pt-2">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg font-medium hover:opacity-90 active:scale-95 transition-all w-full md:w-auto">
+                                    Perbarui Kata Sandi
+                                </button>
+</div>
+</form>
+</section>
+<!-- 2FA Card -->
+<section class="lg:col-span-5 bg-surface-container-lowest border-[0.5px] border-outline-variant rounded-xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-7xl select-none">verified_user</span>
+</div>
+<div class="flex flex-col h-full">
+<div class="flex items-center mb-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-tertiary">shield_lock</span>
+</div>
+<h3 class="font-h3 text-h3">Autentikasi Dua Faktor (2FA)</h3>
+</div>
+<p class="text-secondary mb-8 leading-relaxed">Tambahkan lapisan keamanan ekstra ke akun Anda. Kami akan meminta kode keamanan setiap kali Anda masuk dari perangkat yang tidak dikenal.</p>
+<div class="mt-auto flex items-center justify-between p-4 bg-surface-container rounded-lg border-[0.5px] border-outline-variant">
+<div>
+<p class="font-medium text-on-surface">Aktifkan 2FA</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-caption bg-error-container text-error font-medium mt-1" id="fa-status">
+                                        Nonaktif
+                                    </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="fa-toggle" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-secondary-fixed peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Sesi Aktif Table Card -->
+<section class="lg:col-span-12 bg-surface-container-lowest border-[0.5px] border-outline-variant rounded-xl overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-white">
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-on-surface">devices</span>
+</div>
+<h3 class="font-h3 text-h3">Sesi Aktif</h3>
+</div>
+<button class="text-primary font-medium hover:underline text-body-sm">Keluar dari semua sesi</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low text-secondary text-label-md">
+<tr>
+<th class="px-6 py-4 font-medium uppercase tracking-wider">Perangkat</th>
+<th class="px-6 py-4 font-medium uppercase tracking-wider">Lokasi</th>
+<th class="px-6 py-4 font-medium uppercase tracking-wider">Waktu Login</th>
+<th class="px-6 py-4 font-medium uppercase tracking-wider text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-secondary mr-3">laptop_mac</span>
+<div>
+<p class="font-medium text-on-surface">Chrome on macOS</p>
+<p class="text-caption text-secondary">IP: 182.253.xxx.xxx</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[16px] text-tertiary mr-1">location_on</span>
+<span class="text-on-surface-variant">Jakarta, ID</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-caption bg-[#DCFCE7] text-[#15803D] font-medium">
+                                                Aktif sekarang
+                                            </span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-error font-medium px-3 py-1 hover:bg-error-container rounded-lg transition-colors active:scale-95 text-body-sm">Keluar</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-secondary mr-3">smartphone</span>
+<div>
+<p class="font-medium text-on-surface">iPhone 13 Pro</p>
+<p class="text-caption text-secondary">Aplikasi SecureGate</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[16px] text-tertiary mr-1">location_on</span>
+<span class="text-on-surface-variant">Bandung, ID</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-secondary">2 jam yang lalu</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-error font-medium px-3 py-1 hover:bg-error-container rounded-lg transition-colors active:scale-95 text-body-sm">Keluar</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-secondary mr-3">desktop_windows</span>
+<div>
+<p class="font-medium text-on-surface">Firefox on Windows</p>
+<p class="text-caption text-secondary">IP: 103.14.xxx.xxx</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[16px] text-tertiary mr-1">location_on</span>
+<span class="text-on-surface-variant">Surabaya, ID</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-secondary">15 Mei 2024, 14:20</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-error font-medium px-3 py-1 hover:bg-error-container rounded-lg transition-colors active:scale-95 text-body-sm">Keluar</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="text-label-md font-label-md">Events</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary">
+<span class="material-symbols-outlined">center_focus_weak</span>
+<span class="text-label-md font-label-md">Scan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</div>
+</nav>
+<script>
+        // Interactive 2FA Toggle
+        const toggle = document.getElementById('fa-toggle');
+        const statusLabel = document.getElementById('fa-status');
+
+        toggle.addEventListener('change', function() {
+            if(this.checked) {
+                statusLabel.textContent = 'Aktif';
+                statusLabel.classList.remove('bg-error-container', 'text-error');
+                statusLabel.classList.add('bg-[#DCFCE7]', 'text-[#15803D]');
+            } else {
+                statusLabel.textContent = 'Nonaktif';
+                statusLabel.classList.add('bg-error-container', 'text-error');
+                statusLabel.classList.remove('bg-[#DCFCE7]', 'text-[#15803D]');
+            }
+        });
+
+        // Tab selection logic
+        const tabs = document.querySelectorAll('.tab-navigation button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('text-primary', 'font-bold', 'active-tab-border');
+                    t.classList.add('text-secondary');
+                });
+                tab.classList.add('text-primary', 'font-bold', 'active-tab-border');
+                tab.classList.remove('text-secondary');
+            });
+        });
+    </script>
+</body></html>

@@ -119,12 +119,38 @@ return [
         ],
 
         'null' => [
-            'driver' => 'monolog',
+            'driver'  => 'monolog',
             'handler' => NullHandler::class,
         ],
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        // ─── GateMate Custom Channels ─────────────────────────────────────────
+
+        /**
+         * Channel utama GateMate — log aktivitas bisnis (checkout, wallet, OTP, dll.)
+         * Gunakan: Log::channel('gatemate')->info(...)
+         */
+        'gatemate' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/gatemate.log'),
+            'level'               => 'info',
+            'days'                => 30,
+            'replace_placeholders' => true,
+        ],
+
+        /**
+         * Channel keamanan — log event mencurigakan (login gagal, rate limit, dll.)
+         * Gunakan: Log::channel('security')->warning(...)
+         */
+        'security' => [
+            'driver'              => 'daily',
+            'path'                => storage_path('logs/security.log'),
+            'level'               => 'warning',
+            'days'                => 90,
+            'replace_placeholders' => true,
         ],
 
     ],

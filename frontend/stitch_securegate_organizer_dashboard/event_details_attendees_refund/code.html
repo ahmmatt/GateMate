@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SecureGate - Peserta Event</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#ffdad4",
+                        "on-background": "#1b1c1c",
+                        "secondary": "#5f5e5e",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#910900",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#400200",
+                        "inverse-primary": "#ffb4a7",
+                        "primary": "#b22110",
+                        "surface-dim": "#dbdad9",
+                        "surface-tint": "#b62413",
+                        "on-tertiary-fixed-variant": "#004e5e",
+                        "on-error": "#ffffff",
+                        "surface": "#fbf9f8",
+                        "surface-container": "#efeded",
+                        "background": "#fbf9f8",
+                        "primary-fixed-dim": "#ffb4a7",
+                        "on-tertiary-fixed": "#001f27",
+                        "on-tertiary-container": "#f9fdff",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-surface-variant": "#5b403c",
+                        "tertiary-fixed": "#b2ebff",
+                        "surface-container-low": "#f5f3f3",
+                        "outline-variant": "#e3beb8",
+                        "surface-variant": "#e4e2e2",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "surface-container-highest": "#e4e2e2",
+                        "inverse-surface": "#303031",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#007f99",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#e5e2e1",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#d63b27",
+                        "surface-container-high": "#e9e8e7",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1b1c1c",
+                        "surface-bright": "#fbf9f8",
+                        "on-secondary-container": "#656464",
+                        "tertiary-fixed-dim": "#68d4f3",
+                        "inverse-on-surface": "#f2f0f0",
+                        "tertiary": "#006579",
+                        "secondary-container": "#e5e2e1",
+                        "outline": "#8f706a",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sidebar-width": "240px",
+                        "gutter": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "24px",
+                        "page-padding": "24px",
+                        "stack-md": "16px",
+                        "max-container": "1200px"
+                    },
+                    "fontFamily": {
+                        "h3": ["Inter"], "h1": ["Inter"], "body-lg": ["Inter"], "caption": ["Inter"], "h2": ["Inter"], "label-md": ["Inter"], "h1-mobile": ["Inter"], "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h3": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                        "body-lg": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "caption": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h1-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .modal-overlay { background: rgba(27, 28, 28, 0.4); backdrop-filter: blur(2px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-sm">
+<!-- Mobile Top Navigation -->
+<header class="flex justify-between items-center px-page-padding h-16 w-full border-b-[0.5px] border-outline-variant md:hidden bg-surface">
+<span class="font-h1-mobile text-h1-mobile font-bold text-primary">SecureGate</span>
+<button class="active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">menu</span>
+</button>
+</header>
+<!-- Desktop Side Navigation -->
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 border-r-[0.5px] border-outline-variant bg-surface hidden md:flex flex-col py-page-padding">
+<div class="px-6 mb-10">
+<h1 class="font-h2 text-h2 font-black text-on-surface">SecureGate</h1>
+<p class="text-secondary font-label-md">Organizer</p>
+</div>
+<nav class="flex-1">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-sm">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 border-l-4 border-primary bg-primary-fixed text-primary font-bold" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-body-sm">Event Saya</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="font-body-sm">Scanner</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-sm">Keuangan</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-secondary hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-sm">Pengaturan</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="mt-auto px-6 space-y-4">
+<div class="flex items-center gap-3 py-3 text-secondary hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-sm">Bantuan</span>
+</div>
+<button class="w-full py-2.5 bg-surface-container-low text-primary font-bold rounded-lg active:opacity-80 transition-all">
+                Keluar
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar-width min-h-screen">
+<div class="max-w-max-container mx-auto p-page-padding pb-32 md:pb-page-padding">
+<!-- Breadcrumbs / Header -->
+<div class="mb-stack-lg">
+<div class="flex items-center gap-2 text-secondary font-label-md mb-2">
+<span>Event Saya</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Detail Event</span>
+</div>
+<h2 class="font-h1 text-h1 text-on-surface">Jakarta Tech Summit 2024</h2>
+</div>
+<!-- Tab Navigation Cluster -->
+<div class="flex border-b-[0.5px] border-outline-variant mb-stack-lg overflow-x-auto no-scrollbar">
+<button class="px-6 py-4 font-label-md text-secondary hover:text-primary transition-colors whitespace-nowrap">Tiket</button>
+<button class="px-6 py-4 font-label-md text-primary border-b-2 border-primary font-bold whitespace-nowrap">Peserta</button>
+<button class="px-6 py-4 font-label-md text-secondary hover:text-primary transition-colors whitespace-nowrap">Tenant</button>
+<button class="px-6 py-4 font-label-md text-secondary hover:text-primary transition-colors whitespace-nowrap">Keuangan</button>
+</div>
+<!-- Controls: Search & Filter -->
+<div class="flex flex-col md:flex-row gap-stack-md mb-stack-lg items-center">
+<div class="relative flex-1 w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg focus:outline-none focus:border-primary transition-colors font-body-sm" placeholder="Cari nama atau email peserta..." type="text"/>
+</div>
+<div class="flex gap-stack-sm w-full md:w-auto">
+<select class="flex-1 md:flex-none px-4 py-2.5 bg-surface-container-low border-[0.5px] border-outline-variant rounded-lg font-body-sm focus:outline-none focus:border-primary">
+<option>Semua Tier</option>
+<option>VIP</option>
+<option>Regular</option>
+</select>
+<button class="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Export</span>
+</button>
+</div>
+</div>
+<!-- Attendee Table Card -->
+<div class="bg-white rounded-xl border-[0.5px] border-outline-variant overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b-[0.5px] border-outline-variant">
+<tr>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider">Peserta</th>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider">Email</th>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider">Tier</th>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider">Waktu Beli</th>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider text-center">Status</th>
+<th class="px-6 py-4 font-label-md text-secondary uppercase tracking-wider text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y-[0.5px] divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border-[0.5px] border-outline-variant" data-alt="Close-up professional headshot of a smiling man with clean features against a neutral grey studio background. The lighting is soft and corporate, fitting a modern and minimal tech-focused user profile interface. The overall aesthetic is clean, professional, and reliable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNfu8pnxGAem4PPRPGajxf2HQZH9_EjLTK6IhrBpBfg39SAxgpQuRARjE80rifCVKIpw2JNXB54yr0CDbNZuh_k49PSL47A17VfIviCCi7ZsKxCCORMATB02bkFRANeg8qEsbMNb7wzugNijfcn29EJKZMg7rM753AdOTwpGD0MazCCV6gO7kRPbeu7R-85IowpVUIZByGDD1uatPfD8dLttMqDuZGPOeVE9pSVun8CCvnF-IxEdphvpQ7mDk9uOsjINUoV50bbw"/>
+<span class="font-bold text-on-surface">Alex Thompson</span>
+</div>
+</td>
+<td class="px-6 py-4 text-secondary">alex.t@example.com</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-caption bg-primary-fixed text-primary font-bold">VIP</span>
+</td>
+<td class="px-6 py-4 text-secondary">12 Okt 2023, 14:20</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-caption bg-green-100 text-green-800 font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                            Hadir
+                                        </span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-secondary hover:text-primary transition-colors" title="Check-in Toggle">
+<span class="material-symbols-outlined">toggle_on</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container/20 rounded transition-colors" onclick="toggleModal('refund-modal')">
+<span class="material-symbols-outlined">assignment_return</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border-[0.5px] border-outline-variant" data-alt="Portrait of a confident professional woman with a warm expression, set against a bright and airy minimalist office background. The style is high-contrast with soft daylight illumination, perfectly aligning with a premium and efficient ticket management dashboard aesthetic. Vibrant and clear color tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIODm4YlT2wDiBkPd3rGggf0AdwoHqRKc5QBt9nwwk1pz6O_hZiP5xHwpOIEl0WteK3gCTOsbajnytgystOcorF23dRRhO5lu0Jv9-IwDjBvkf0gI7FkCeSVphcr74KnF1slXZqpqy48Q0ITqY22EKHs-VJ007k7MyskM5DfdeU2VpjOZpvsbPLnJ_Dq3rwQ23t7uiRwYxNq62itxt0GpNt0CxaHhUwCY0RbBcAHuf8HqEyt9wfgZkasB7QYZNQ6LnoiZcjkPmaA"/>
+<span class="font-bold text-on-surface">Sarah Jenkins</span>
+</div>
+</td>
+<td class="px-6 py-4 text-secondary">s.jenkins@domain.com</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-caption bg-surface-container-high text-secondary font-bold">Regular</span>
+</td>
+<td class="px-6 py-4 text-secondary">13 Okt 2023, 09:15</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-caption bg-surface-container text-secondary font-bold">
+                                            Belum
+                                        </span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-secondary hover:text-primary transition-colors" title="Check-in Toggle">
+<span class="material-symbols-outlined">toggle_off</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container/20 rounded transition-colors" onclick="toggleModal('refund-modal')">
+<span class="material-symbols-outlined">assignment_return</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border-[0.5px] border-outline-variant" data-alt="A focused male professional in a clean white shirt, framed against a soft-focus architectural background. The image has a modern, industrial precision feel with high-key lighting and a neutral palette. Ideal for a high-end UI design representing data-driven clarity and efficient administrative management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFfNDDkbiSmmxVhcMQ7scDKmu3oUPqHmJv7TaM7MCuOLhNiVDD9GotuMKPfFiKZcOYWzdocndA0HuWK3Uxknx4eIqGGyBzkcQpxJZ5xmZFeYukdXRHeHVp4CoEIjLn20kzKA5c6Yk-Co04RpdJsBqs0kfxkHLYJFkikoBfbV8451Zm9AraVHP_8Zf3jUoiM_knn6zLspIN-k4LrVeP5MDK73FqWdBQ1-6Csk8hq7e1vgFtEsa0okinz7myHlEWcvyaoNC31YppTA"/>
+<span class="font-bold text-on-surface">Michael Chen</span>
+</div>
+</td>
+<td class="px-6 py-4 text-secondary">m.chen@tech.org</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-caption bg-surface-container-high text-secondary font-bold">Regular</span>
+</td>
+<td class="px-6 py-4 text-secondary">14 Okt 2023, 11:45</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-caption bg-green-100 text-green-800 font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                            Hadir
+                                        </span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-secondary hover:text-primary transition-colors" title="Check-in Toggle">
+<span class="material-symbols-outlined">toggle_on</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container/20 rounded transition-colors" onclick="toggleModal('refund-modal')">
+<span class="material-symbols-outlined">assignment_return</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-6 py-4 bg-surface-container-lowest border-t-[0.5px] border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="text-secondary font-label-md">Menampilkan 1-3 dari 124 peserta</span>
+<div class="flex gap-2">
+<button class="p-2 rounded border-[0.5px] border-outline-variant hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded border-[0.5px] border-primary bg-primary-fixed text-primary font-bold">1</button>
+<button class="px-3 py-1 rounded border-[0.5px] border-outline-variant hover:bg-surface-container transition-colors">2</button>
+<button class="px-3 py-1 rounded border-[0.5px] border-outline-variant hover:bg-surface-container transition-colors">3</button>
+<button class="p-2 rounded border-[0.5px] border-outline-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary font-bold" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-label-md">Events</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">center_focus_weak</span>
+<span class="font-label-md">Scan</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-secondary" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-md">Finance</span>
+</a>
+</nav>
+<!-- Modal: Konfirmasi Refund -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay" id="refund-modal">
+<div class="bg-white w-full max-w-md rounded-xl border-[0.5px] border-outline-variant overflow-hidden">
+<div class="px-6 py-5 border-b-[0.5px] border-outline-variant flex justify-between items-center">
+<h3 class="font-h3 text-h3 text-on-surface">Konfirmasi Refund</h3>
+<button class="text-secondary hover:text-on-surface" onclick="toggleModal('refund-modal')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6">
+<div class="bg-error-container/20 p-4 rounded-lg mb-6 flex gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<p class="text-error font-body-sm">Tindakan ini tidak dapat dibatalkan. Dana akan dikembalikan ke metode pembayaran asal.</p>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-secondary font-label-md mb-1">Nama Peserta</p>
+<p class="font-bold text-on-surface">Alex Thompson</p>
+</div>
+<div>
+<p class="text-secondary font-label-md mb-1">Nama Event</p>
+<p class="font-bold text-on-surface">Jakarta Tech Summit 2024</p>
+</div>
+<div>
+<p class="text-secondary font-label-md mb-1">Jumlah Refund</p>
+<p class="text-h2 font-black text-primary">Rp 750.000</p>
+</div>
+</div>
+</div>
+<div class="px-6 py-5 bg-surface-container-low flex flex-col md:flex-row-reverse gap-3">
+<button class="flex-1 py-2.5 bg-error text-white font-bold rounded-lg hover:opacity-90 transition-all active:scale-95">
+                    Konfirmasi Refund
+                </button>
+<button class="flex-1 py-2.5 bg-transparent border-[0.5px] border-outline text-secondary font-bold rounded-lg hover:bg-surface-container-high transition-all" onclick="toggleModal('refund-modal')">
+                    Batal
+                </button>
+</div>
+</div>
+</div>
+<script>
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('refund-modal');
+                if (!modal.classList.contains('hidden')) toggleModal('refund-modal');
+            }
+        });
+    </script>
+</body></html>

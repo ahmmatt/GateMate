@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Webhook Midtrans (No Auth, No CSRF)
-Route::post('/webhook/midtrans', [\App\Http\Controllers\CheckoutController::class, 'handleNotification'])
+Route::post('/webhook/midtrans', [\App\Http\Controllers\Api\CheckoutController::class, 'handleNotification'])
     ->name('webhook.midtrans');
 
 // Fallback Route untuk mengarahkan pengunjung sembarang ke React Frontend

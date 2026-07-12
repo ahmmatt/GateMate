@@ -13,7 +13,7 @@ class EnsureTenantRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || auth()->user()->role !== 'tenant') {
+        if (!$request->user() || $request->user()->role !== 'tenant') {
             abort(403, 'Akses ditolak. Halaman ini hanya untuk Tenant (Penjual).');
         }
 

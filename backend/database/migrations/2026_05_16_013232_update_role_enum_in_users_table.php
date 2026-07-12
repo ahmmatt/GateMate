@@ -6,12 +6,19 @@ use Illuminate\Support\Facades\DB;
 /**
  * Tambahkan nilai 'super admin' ke ENUM role pada tabel users.
  * Nilai lama yang dipertahankan: 'user', 'admin', 'superadmin', 'pending_admin'.
+ *
+ * Note: MODIFY COLUMN hanya didukung MySQL/MariaDB.
+ * SQLite (digunakan untuk testing) tidak mendukung ENUM, sehingga migration ini di-skip.
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        // Gunakan raw ALTER TABLE agar ENUM tidak di-drop-recreate secara destruktif
+        // Skip pada SQLite (tidak mendukung ENUM / MODIFY COLUMN)
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement("
             ALTER TABLE users
             MODIFY COLUMN role
@@ -22,7 +29,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Hapus nilai 'super admin' — pastikan tidak ada baris yang masih memakai nilai ini
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement("
             ALTER TABLE users
             MODIFY COLUMN role
@@ -31,3 +41,4 @@ return new class extends Migration
         ");
     }
 };
+

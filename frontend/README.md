@@ -1,16 +1,70 @@
-# React + Vite
+# GateMate - Platform Tiket & Event 🎟️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GateMate adalah platform manajemen tiket dan event modern yang dibangun dengan React + Vite.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 18** - UI Framework
+- **Vite 5** - Build Tool
+- **React Router DOM v6** - Client-side Routing
+- **Tailwind CSS v3** - Styling
+- **Axios** - HTTP Client
+- **Lucide React** - Icons
 
-## React Compiler
+## 📁 Struktur Folder
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── assets/          # Gambar, logo, dan aset statis
+├── components/      # Komponen reusable (Navbar, Sidebar, dll)
+├── layouts/         # Layout per role (Public, User, Organizer, Admin)
+├── pages/           # Halaman per role
+│   ├── public/      # Home, Events, Login, Register
+│   ├── user/        # Dashboard user, My Tickets
+│   ├── organizer/   # Dashboard organizer, Manage Events
+│   └── admin/       # Dashboard admin, Reports
+├── routes/          # Konfigurasi routing
+├── services/        # API client (Axios)
+├── data/            # Dummy data untuk development
+└── utils/           # Helper functions
+```
 
-## Expanding the ESLint configuration
+## ⚡ Cara Menjalankan
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Install dependencies
+npm install
+
+# Jalankan development server
+npm run dev
+
+# Build untuk production
+npm run build
+
+# Preview build
+npm run preview
+```
+
+## 🔧 Konfigurasi
+
+Copy `.env.example` ke `.env` dan sesuaikan:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+```
+
+## 👥 Role & Akses
+
+| Role | Path | Deskripsi |
+|------|------|-----------|
+| Public | `/` | Halaman utama, daftar event |
+| User | `/user/*` | Dashboard user, tiket saya |
+| Organizer | `/organizer/*` | Kelola event, check-in |
+| Admin | `/admin/*` | Statistik, kelola user |
+
+## 🎨 Desain
+
+- Modern glassmorphism design
+- Warna tema: Indigo + Purple
+- Responsive untuk desktop dan mobile
+- Dark mode ready
