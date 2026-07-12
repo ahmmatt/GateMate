@@ -30,6 +30,7 @@ import CheckIn from '../pages/organizer/AdminScannerPage'
 import AdminEventShowPage from '../pages/organizer/AdminEventShowPage'
 import AdminFinancePage from '../pages/organizer/AdminFinancePage'
 import AdminSettingsPage from '../pages/organizer/AdminSettingsPage'
+import OrganizerLogin from '../pages/organizer/OrganizerLogin'
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/AdminDashboard'
@@ -100,7 +101,8 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* ── Admin & Superadmin Secure Auth Routes ── */}
+      {/* ── Role-Specific Secure Auth Routes ── */}
+      <Route path="/organizer/login" element={<OrganizerLogin />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/superadmin/login" element={<AdminLogin />} />
 

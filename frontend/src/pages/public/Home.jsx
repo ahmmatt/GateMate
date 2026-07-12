@@ -59,51 +59,7 @@ export default function Home() {
   return (
     <div className="bg-[#fff8f6] text-[#271815]">
 
-      {/* ════════════════════════════════════════════
-          SECTION 1 — Organizer CTA + Feature Cards
-      ════════════════════════════════════════════ */}
-      <section
-        className="py-20 transition-all duration-700"
-        style={{ background: 'rgba(255,240,238,0.3)', borderTop: '0.5px solid rgba(227,190,184,0.2)' }}
-      >
-        <div className="max-w-[1280px] mx-auto px-6">
-          {/* Top row */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div className="max-w-2xl">
-              <h2 className="text-[32px] font-bold leading-tight tracking-tight text-[#271815] mb-4">
-                Kelola event dengan lebih aman &amp; transparan
-              </h2>
-              <p className="text-[15px] text-[#5f5e5e] leading-relaxed">
-                Bergabunglah sebagai mitra penyelenggara GateMate dan nikmati kemudahan manajemen tiket dengan sistem keamanan berlapis.
-              </p>
-            </div>
-            <Link
-              to="/register"
-              className="flex-shrink-0 rounded-full px-8 py-3 text-sm font-medium text-[#b22110] hover:bg-[#b22110] hover:text-white transition-all duration-200"
-              style={{ border: '2px solid #b22110' }}
-            >
-              Daftar jadi penyelenggara
-            </Link>
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-5">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="p-8 bg-white rounded-2xl group hover:border-[#b22110]/50 transition-colors cursor-default"
-                style={{ border: '0.5px solid rgba(227,190,184,0.2)' }}
-              >
-                <div className="w-12 h-12 bg-[#ffdad4]/20 rounded-xl flex items-center justify-center text-[#b22110] mb-6 group-hover:scale-110 transition-transform">
-                  <f.icon className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-semibold text-[#271815] mb-3">{f.title}</h3>
-                <p className="text-sm text-[#5f5e5e] leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* ════════════════════════════════════════════
           SECTION 2 — Hero Split Layout

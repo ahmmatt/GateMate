@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../../services/api'
 
-export default function Login() {
+export default function OrganizerLogin() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,25 +24,33 @@ export default function Login() {
         throw new Error('Respons autentikasi tidak valid dari server.')
       }
 
+      // Verifikasi keamanan khusus organizer
+      if (user.role !== 'organizer') {
+        setError('Keamanan Portal: Akses ditolak. Akun Anda bukan akun Organizer. Silakan masuk melalui portal pengguna biasa.')
+        setLoading(false)
+        return
+      }
+
       localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
 
-      const userRole = user.role || 'user'
-      const redirectMap = {
-        user: '/events',
-        organizer: '/organizer/dashboard',
-        superadmin: '/superadmin/dashboard',
-        admin: '/admin/dashboard'
-      }
-      navigate(redirectMap[userRole] || '/events')
+      navigate('/organizer/dashboard')
     } catch (err) {
-      console.warn('Backend API tidak terjangkau atau gagal, menggunakan fallback offline dengan role user...')
-      // Setup mock user untuk fallback offline testing
-      const mockUser = { id: 1, name: 'User Demo', email, role: 'user' }
-      localStorage.setItem('token', 'mock-token-offline')
-      localStorage.setItem('user', JSON.stringify(mockUser))
-      
-      navigate('/events')
+      console.warn('Backend API tidak terjangkau atau gagal, memeriksa kredensial fallback offline organizer...')
+      if (email === 'organizer@gatemate.com' && password === 'password123') {
+        const mockUser = { id: 2, name: 'Organizer Demo GateMate', email, role: 'organizer', organizer_id: 'GM-9921' }
+        localStorage.setItem('token', 'mock-organizer-token-123')
+        localStorage.setItem('user', JSON.stringify(mockUser))
+        navigate('/organizer/dashboard')
+      } else if (err.response?.status === 401 || err.response?.data?.message) {
+        setError(err.response?.data?.message || 'Email atau password salah. Coba lagi.')
+      } else {
+        // Fallback offline untuk demo/pengembangan
+        const mockUser = { id: 2, name: 'Organizer Mitra', email, role: 'organizer', organizer_id: 'GM-8812' }
+        localStorage.setItem('token', 'mock-organizer-token-123')
+        localStorage.setItem('user', JSON.stringify(mockUser))
+        navigate('/organizer/dashboard')
+      }
     } finally {
       setLoading(false)
     }
@@ -52,7 +60,7 @@ export default function Login() {
     <div className="bg-[#fff8f6] text-[#271815] min-h-screen flex flex-col font-sans">
       <style>{`
         .glass-card {
-          background: rgba(255, 255, 255, 0.85);
+          background: rgba(255, 255, 255, 0.88);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid #EBEBEB;
@@ -85,15 +93,16 @@ export default function Login() {
         }
       `}</style>
 
-      {/* TopNavBar (Logged Out Version - Navigation Suppressed for Login Focus) */}
+      {/* TopNavBar */}
       <header className="w-full top-0 sticky bg-[#fff8f6]/80 backdrop-blur-md border-b border-[#e3beb8]/40 z-50">
         <nav className="flex justify-between items-center h-16 px-6 max-w-[1280px] mx-auto">
           <Link to="/" className="text-[20px] font-extrabold text-[#b22110] tracking-tight flex items-center gap-2">
             <span>GateMate</span>
+            <span className="text-xs bg-[#b22110] text-white px-2 py-0.5 rounded-full font-medium tracking-normal">Mitra</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link to="/register" className="text-[14px] text-[#b22110] font-bold hover:underline">
-              Daftar Sekarang
+              Daftar Jadi Penyelenggara
             </Link>
           </div>
         </nav>
@@ -102,26 +111,45 @@ export default function Login() {
       {/* Main Content: Center Split Layout */}
       <main className="flex-grow flex items-center justify-center relative overflow-hidden px-4 py-12">
         {/* Atmospheric Background Elements */}
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#b22110]/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-[#007f99]/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-[#F04E37]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-[#007f99]/10 rounded-full blur-[100px] pointer-events-none"></div>
         
         <div className="w-full max-w-[1100px] grid md:grid-cols-2 items-center gap-12 relative z-10">
-          {/* Left Side: Branding/Visual */}
+          {/* Left Side: Branding/Visual Khusus Organizer */}
           <div className="hidden md:flex flex-col gap-6">
             <div className="space-y-4">
+              <span className="inline-block px-3 py-1 bg-[#ffdad4] text-[#910900] text-[12px] font-bold rounded-full uppercase tracking-wider">
+                Mitra Penyelenggara &amp; Kasir
+              </span>
               <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#271815]">
-                Keamanan Tanpa Kompromi untuk Setiap Tiket.
+                Manajemen Event Masa Depan, Lebih Aman &amp; Transparan.
               </h1>
               <p className="text-[15px] text-[#5b403c] leading-relaxed max-w-[440px]">
-                Platform verifikasi tiket digital paling aman di Indonesia. Kelola akses, networking, dan pengalaman acara Anda dalam satu pintu yang terpercaya.
+                Kelola penjualan tiket, check-in peserta dengan scanner QR super-cepat, dan penarikan dana real-time dalam satu dasbor profesional GateMate.
               </p>
             </div>
-            <div className="relative w-full aspect-square max-w-[400px] rounded-[32px] overflow-hidden border border-[#e3beb8]/50 shadow-md">
-              <img 
-                className="w-full h-full object-cover" 
-                alt="GateMate Ticket Verification" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM" 
-              />
+            <div className="relative w-full aspect-square max-w-[400px] rounded-[32px] overflow-hidden border border-[#e3beb8]/50 shadow-md bg-gradient-to-br from-[#fff0ee] to-white p-6 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#b22110] text-white flex items-center justify-center font-bold">GM</div>
+                  <span className="text-xs font-semibold text-[#007f99] bg-[#b2ebff]/50 px-2.5 py-1 rounded-full">Active Event Status</span>
+                </div>
+                <h3 className="text-lg font-bold text-[#271815]">Java Jazz &amp; Tech Summit 2026</h3>
+                <p className="text-xs text-[#5b403c]">ID Organizer: <strong className="text-[#b22110]">GM-8812</strong></p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white border border-[#EBEBEB] shadow-sm space-y-2">
+                <div className="flex justify-between text-xs text-[#5b403c]">
+                  <span>Tiket Terjual</span>
+                  <span className="font-bold text-[#271815]">1,420 / 1,500</span>
+                </div>
+                <div className="w-full bg-[#F5F5F7] h-2 rounded-full overflow-hidden">
+                  <div className="bg-[#F04E37] h-full w-[94%] rounded-full"></div>
+                </div>
+                <div className="flex justify-between items-center pt-1 text-xs">
+                  <span className="text-[#006579] font-medium flex items-center gap-1">✅ QR Check-in Ready</span>
+                  <span className="font-bold text-[#b22110]">Rp 355.000.000</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -130,10 +158,10 @@ export default function Login() {
             <div className="glass-card w-full max-w-[440px] p-8 md:p-10 rounded-[28px] shadow-sm">
               <div className="mb-8">
                 <span className="inline-block px-3 py-1 bg-[#ffdad4] text-[#910900] text-[11px] font-bold rounded-full mb-3 uppercase tracking-wider">
-                  Portal Pengguna
+                  Portal Organizer
                 </span>
-                <h2 className="text-[22px] font-bold text-[#271815] mb-2">Selamat Datang Kembali</h2>
-                <p className="text-[14px] text-[#5b403c]">Masuk ke akun Anda untuk mengelola tiket dan networking.</p>
+                <h2 className="text-[22px] font-bold text-[#271815] mb-2">Portal Penyelenggara</h2>
+                <p className="text-[14px] text-[#5b403c]">Masuk ke akun Organizer Anda untuk mengelola event &amp; transaksi.</p>
               </div>
 
               {error && (
@@ -147,7 +175,7 @@ export default function Login() {
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <button 
                   type="button"
-                  onClick={() => alert('Demo: Fitur login Google')}
+                  onClick={() => alert('Demo: Fitur login Google khusus Organizer')}
                   className="flex items-center justify-center gap-2 py-3 border border-[#e3beb8] rounded-xl hover:bg-[#fff0ee] transition-colors active:scale-95"
                 >
                   <img alt="Google" className="w-5 h-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAHW0lEQVR4AexZfWxTVRQ/57Wb+2BTh3QaJGqEiPLhWFuNAWVthYgmKJtoN40K/iFGE4KiKB9hmKAiQsAQ/cMENeFjTLsJhBCQjRpQiGsHDOTDELLwIbQbjI+Odf14x/PY3tvr9tq+jgKa+PLOzr3n/O6553ffvbf3vQnwH7/+JyA/wAtPm0f5HZZ3fHZrDetGlpNcvup3WC/57JaDfrtlC+tvuD7TZxvzqNzuevV1PYEWW7HZZzcv9Tssf0dIaALAVYgwhfUYliFczgaAfEQcCYjPsp7B9RUoGPf7HNZWbvejz2YpY1u/75QJEIDgs1lL/Q5rAwkGD6IwGwDvgRQvBBgIgC+igD9xrH2tDvMLHJvNkNKVEoHWp4of5s4OogAu7sXCkq67SASh1m+37D1f8vi9qQTVTaDVZnWIRuEPHqJHUukgFSxPscciBnG/v8Q8Tm87XQR8dvPbogA7AHGA3sD9xfEADQSDsKvFbinXEyMpgRabdQGi8LWeYOnCENCJLGOoTk+8hASk5EmAT/QESiPmLyFE4/K2N/n1xIxLwMfb23UlT9AGRF5JCEBXMow9DlEYP2iX96ye5CWMJoHWEvNwQFwjAVIRTnQtElVwEveY6hsKTPUeiySFdQ2FEG3PE4AmANCnLJf6xqUjWSI9YXI3nOvri2/RJBAVcAkiZMVvFushEr/MDkVMnOirg+o967WSMLkPB+6q8+ww1XnmiYbQYCJaJEdh4oezDaGSfLe3Vbbp1X0I8NQZi4iTdQUgOGeM0qjCeu8Hebv2tehqw6C7tze1F9Z7KnmxTiSi33NCkRK9c56bx9x9CGRPOj0fjWI0BqVV4eRBjD5Z4PYc0nLrsRXWeX5hImNTId87bgwB2gGjs4vPP5P35lGDMDDYG6vUeeTajSJNMLkbjyvGW1SIIRCmjNlSHoaCENw+7RhkFmlPSRRxesF1jLzUR7pEIUDVYECg55XAGQS5k05D7uRmgIyoYuatbqdpZ0N1j+HWlgS5+0iB8SneOvPluqwzR1yE/OnHQJ5SRNFZsu/foBUCnMyTLJq3PKWyrP6mwp37DmiCbpFRTYBfQhJkwVMqe8KZlKeOfXGA0im2xYG96iwVAkQ4Qu3oW+bfT8QdWvabaePT6v3q/hQCiHSX2qFVzhDDvKK1PDfVVji1mgxyjwoB4E1HNsbVDp2HsrgB0uNoOwHKe0kPAZ4hOsLzE9SBusGQzujVHLkLNYHLsjGuroNBcX030UFCjnJMUAgQYluyHMJCRswCSoa/Uf7dnaAcxxUCfI5Peq5BkRw3Kim9cfkc1gKVKEL3pRAAhIQ/UGFCcWVgxNPd7VJQtIiXly4hgu+SBeZFeFSNUQjwNrpH7VCXT0Vz4I2L44Wq4FBb0dqyYWpfsnL9vLxKvcLJHU4Wj0DgL4A9KIWAoTC6DYA6elxdpW3BwfBaWwmciHYdkwwGWtjlSf9ffjNzJotKJO5SYxQCOBJCBCh9cbvm7ySEzwOjoTJghiAYr9mkPwj4imV96YtSOZ1iW9z+HCKYk8U0ILrVGIWAZORf2mWSPhnJlaYMbAzG2XQQVj9aPXWwhE2HjPuM7gQSVyaLRUS76+YN8KlxMQRwIuzf0HF/4+sXx0Nz95RRg3vKmMdvnRsfXzOpa171OFIulVRSVqYY2IKIDyZrjAAbemNiCEjO5VdHL1FPGcmmJQhojhhzvOZ1ZcO1/HpsE5dSrpAR2A6AT0CSi7fPK50ZA37oDetDoPFll3Rk1vVZDwGG8pfqI5aq0iVFtS/c0Tt4orq5+vlRlwZW7ibsiPseEtseV/02B6/E2gD6EJAAohCewbrPjsS2ODd+aOw0tJmrStcUr5tijwMCa/XUu80byl5nXDWKxqZozqGiwJCFEM08Fa9Jl53gDIVz+YNYV1X9V5NA40ubjgPBu2qgnjLyDiUIQp15fWkz71TuGKkqO0qieBYJvmfcVOi+KMMP7UPmQyhvd7dFQxFMd1diQMOj/QQkoKfctZpXfa1UTlV4Qd4HiONjBOChRHGCpm+hY9BqIAzHwAhgaf2CAbxOYsxKRfMJyN7zwQsVXN7KclPucP6v0D64EkTjebm/rTx15soVLZ2QQPM0d9DjdD0LQFVajW+ETbztNASGfBwJZzdt78jOLeOpE0nUT0ICckPPyzUVROJHRBD7fGVAmjUJwZWGMXOf2/MeJt1IdBEABPKW1y6JIo0lgKTHbugnId7rL4oIk73OmtlumzvhyMtd6CPQjd7vrGmAS82PMIn3WZSXim53vxUnfpVlGYjhYfw7tDmVQCkRkAJ73/KGvU7XchBDQwFpDhDsk+z9ER4E/iRPK8KZ9IA06t6KzdofYxMET5mAHEvqjNfGF55yVzEI4eEi0CxO6GcguCxjZM32FpbjPMpeIqolEmeGRRjJA2HyOGtmNZXW6vsXlBxQpftNQBUDPC9tOtborFnhdbqmMKHbPU4XqoXtJpZhXmeNxVteU+otr/3qQIXrT3WM/pbTQqC/naej3T8AAAD//zkvO8MAAAAGSURBVAMAPOf4f7zt7UoAAAAASUVORK5CYII=" />
@@ -155,7 +183,7 @@ export default function Login() {
                 </button>
                 <button 
                   type="button"
-                  onClick={() => alert('Demo: Fitur login Apple')}
+                  onClick={() => alert('Demo: Fitur login Apple khusus Organizer')}
                   className="flex items-center justify-center gap-2 py-3 border border-[#e3beb8] rounded-xl hover:bg-[#fff0ee] transition-colors active:scale-95"
                 >
                   <img alt="Apple" className="w-5 h-5" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADhklEQVR4AdSZWahNURzGd5TMU0jmEBKZiowpT4ryoBDxgAdTeCISmfKgCCWFEkkpRKHEiykernnI8GBOJIQMhd93b/t2Wu2z91nD3qer77fX2nuv9V//79xjn73WahQ18H9FG+jC57URxkEQFWlgLRk/g3XQGIKoCAOdyfQabIZmID3UIQR5G+hFkrdgNMR6QuUDBFGeBpqT4RnQX4CiXifqawEqeRrYSX6DwNR+84LPeV4GepPUfDB1kAvPIZjyMrCQDM3YSnwl14PKHCQp+HQungY9Av9RvoOroMdiV8okTUy42Idrr+AuHIE50Bq8lGZgCZHfw3GYCkqAItJ/yjFU9Fh8TXkDtsAsmAZroB8kSQkP5sZsOAxvYRs0BSclGehAJCW1h7ITZGkkDZT0UcqTIDPtKStRCxqtAv1OUNjLNKCEawijpCgKk/6aToOZBnYRpTsUKf1WOP82lBqYQtYzoGjt9hmw1MB2n0COfT/S7wI4KzYwkwj9oWjpkeo1ZmxgrlcU986P3LvW9ZQBMb7utPDjH98RlfxwgrSEaqiJ76AyMMA3iEf/oR59a7vKQLvaWuYhlwbDiNoKnCUDlf7sOw+S0lFTzEUp9zNvyYD39zBzlPQGehfqkd6k/F0Z+Fr+diF39A04x0htwFoy8Nm6V/gOAwl5H8aClWRAExWrTjk17kbcBWAlGXhs1SPfxgdsw8vAGzq9hGpL60VXbJOQAfXxeiNUgABYf/oaMzZwSidV5DtjO60XxQbOEiDYch+xbKX59yfbTmofG/jLySGohn4yqPNkKjZAjGiHDlVAU0rNzJyGLjWgNRotODkFcuz0hX5bwVmlBhRE6zu/VCkILad4vQmYBrT0t6mg5DWW83c/ztE0oOtaWbunSs4sDxE/yYDiztMhR/YRW8uQFH4qZ0DbQpMJ/RtCS/tjK0IFLWdA8c9z0GozRVDpw1lNxA0lLKXupDQDCqiJxiQq3yCUtLS+nmAxi6lfBCdlGVDQSxw0+b5NmSU912uiKHpAwx+QpWM0GALOC1yVGCB+pEmPTCzmxPzV1Ku4nufa1GjL/RGgzT2t/U+grvccc9p6h+u6p00R7fhw6qZKDcTR91LpCNr/1S6NZlE9Odfu+1NKU5e5sAw03+1LOQq0w6P1IN3j1E+2BuLRXlC5DpoMUVQkbfLdpKW2rSjCyNVAmNEDRGnwBv4DAAD//44sHKQAAAAGSURBVAMAsy17YX9OrloAAAAASUVORK5CYII=" />
@@ -165,7 +193,7 @@ export default function Login() {
 
               <div className="relative mb-8 flex items-center">
                 <div className="flex-grow border-t border-[#e3beb8]/60"></div>
-                <span className="mx-4 text-[11px] text-[#5b403c] bg-transparent">atau email</span>
+                <span className="mx-4 text-[11px] text-[#5b403c] bg-transparent">atau email organizer</span>
                 <div className="flex-grow border-t border-[#e3beb8]/60"></div>
               </div>
 
@@ -178,7 +206,7 @@ export default function Login() {
                       focusedField === 'email' ? 'text-[#F04E37]' : 'text-[#5b403c]'
                     }`}
                   >
-                    Email
+                    Email Organizer / Mitra
                   </label>
                   <input 
                     id="email"
@@ -188,7 +216,7 @@ export default function Login() {
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    placeholder="nama@email.com" 
+                    placeholder="organizer@gatemate.com" 
                     className="w-full h-12 px-4 input-base text-[14px] text-[#271815]"
                   />
                 </div>
@@ -203,7 +231,7 @@ export default function Login() {
                     >
                       Password
                     </label>
-                    <a href="#" onClick={(e) => { e.preventDefault(); alert('Fitur pemulihan kata sandi sedang dalam maintenance.'); }} className="text-[12px] font-medium text-[#b22110] hover:underline">
+                    <a href="#" onClick={(e) => { e.preventDefault(); alert('Hubungi tim dukungan mitra GateMate untuk pemulihan akses.'); }} className="text-[12px] font-medium text-[#b22110] hover:underline">
                       Lupa Password?
                     </a>
                   </div>
@@ -228,31 +256,31 @@ export default function Login() {
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Memproses...</span>
+                      <span>Memproses Dasbor...</span>
                     </>
                   ) : (
-                    <span>Masuk</span>
+                    <span>Masuk ke Dasbor Organizer</span>
                   )}
                 </button>
               </form>
 
               <p className="mt-6 text-center text-[14px] text-[#5b403c]">
-                Belum punya akun?{' '}
+                Belum jadi mitra Organizer?{' '}
                 <Link to="/register" className="text-[#b22110] font-bold hover:underline">
                   Daftar Sekarang
                 </Link>
               </p>
 
-              {/* Teks masuk sebagai organizer sesuai permintaan */}
+              {/* Teks kembali masuk sebagai pengguna biasa */}
               <div className="mt-6 pt-5 border-t border-[#EBEBEB] text-center">
                 <p className="text-[13px] text-[#5b403c] flex flex-col sm:flex-row items-center justify-center gap-1.5">
-                  <span>Penyelenggara Acara atau Kasir?</span>
+                  <span>Hanya ingin beli tiket event?</span>
                   <Link 
-                    to="/organizer/login" 
-                    className="text-[#b22110] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1 bg-[#ffdad4]/40 rounded-full"
+                    to="/login" 
+                    className="text-[#007f99] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1 bg-[#b2ebff]/30 rounded-full"
                   >
-                    <span>Masuk sebagai Organizer</span>
-                    <span>&rarr;</span>
+                    <span>&larr;</span>
+                    <span>Masuk sebagai Pengguna</span>
                   </Link>
                 </p>
               </div>
@@ -264,15 +292,18 @@ export default function Login() {
       {/* Footer */}
       <footer className="w-full mt-auto bg-[#fff0ee] border-t border-[#e3beb8]/50">
         <div className="flex flex-col md:flex-row justify-between items-center py-8 px-6 max-w-[1280px] mx-auto gap-4">
-          <div className="text-[16px] font-bold text-[#b22110]">GateMate</div>
+          <div className="text-[16px] font-bold text-[#b22110] flex items-center gap-2">
+            <span>GateMate</span>
+            <span className="text-[10px] bg-[#ffdad4] text-[#910900] px-2 py-0.5 rounded-full uppercase">Mitra Portal</span>
+          </div>
           <div className="flex flex-wrap justify-center gap-6">
             <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Terms of Service</a>
             <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Security Standards</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Contact Us</a>
+            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Organizer Agreement</a>
+            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Mitra Support</a>
           </div>
           <div className="text-[11px] text-[#5b403c] opacity-70">
-            © 2026 GateMate. All rights reserved.
+            © 2026 GateMate Organizer Portal. All rights reserved.
           </div>
         </div>
       </footer>
