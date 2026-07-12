@@ -54,7 +54,7 @@ export default {
         "tertiary-fixed": "#b2ebff",
         "outline-variant": "#e3beb8",
         "secondary-fixed": "#e5e2e1",
-        "coral-red": "#F04E37",
+        "coral-red": "#b22110",
         "coral-light": "#FFF0EE",
         "coral-dark": "#B83020",
         "divider": "#EBEBEB",

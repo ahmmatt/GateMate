@@ -58,7 +58,7 @@ export default function Login() {
           border: 1px solid #EBEBEB;
         }
         .coral-pill-primary {
-          background-color: #F04E37;
+          background-color: #b22110;
           border-radius: 22px;
           padding: 12px 22px;
           color: white;
@@ -80,24 +80,12 @@ export default function Login() {
         }
         .input-base:focus {
           outline: none;
-          border-color: #F04E37;
+          border-color: #b22110;
           box-shadow: 0 0 0 3px rgba(240, 78, 55, 0.12);
         }
       `}</style>
 
-      {/* TopNavBar (Logged Out Version - Navigation Suppressed for Login Focus) */}
-      <header className="w-full top-0 sticky bg-[#fff8f6]/80 backdrop-blur-md border-b border-[#e3beb8]/40 z-50">
-        <nav className="flex justify-between items-center h-16 px-6 max-w-[1280px] mx-auto">
-          <Link to="/" className="text-[20px] font-extrabold text-[#b22110] tracking-tight flex items-center gap-2">
-            <span>GateMate</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/register" className="text-[14px] text-[#b22110] font-bold hover:underline">
-              Daftar Sekarang
-            </Link>
-          </div>
-        </nav>
-      </header>
+      
 
       {/* Main Content: Center Split Layout */}
       <main className="flex-grow flex items-center justify-center relative overflow-hidden px-4 py-12">
@@ -129,7 +117,7 @@ export default function Login() {
           <div className="flex justify-center md:justify-end">
             <div className="glass-card w-full max-w-[440px] p-8 md:p-10 rounded-[28px] shadow-sm">
               <div className="mb-8">
-                <span className="inline-block px-3 py-1 bg-[#ffdad4] text-[#910900] text-[11px] font-bold rounded-full mb-3 uppercase tracking-wider">
+                <span className="inline-block px-3.5 py-1 bg-[#b22110]/10 text-[#b22110] text-[11px] font-bold rounded-full mb-3 uppercase tracking-wider border border-[#b22110]/20">
                   Portal Pengguna
                 </span>
                 <h2 className="text-[22px] font-bold text-[#271815] mb-2">Selamat Datang Kembali</h2>
@@ -175,7 +163,7 @@ export default function Login() {
                   <label 
                     htmlFor="email"
                     className={`text-[12px] font-medium ml-1 transition-colors ${
-                      focusedField === 'email' ? 'text-[#F04E37]' : 'text-[#5b403c]'
+                      focusedField === 'email' ? 'text-[#b22110]' : 'text-[#5b403c]'
                     }`}
                   >
                     Email
@@ -198,7 +186,7 @@ export default function Login() {
                     <label 
                       htmlFor="password"
                       className={`text-[12px] font-medium transition-colors ${
-                        focusedField === 'password' ? 'text-[#F04E37]' : 'text-[#5b403c]'
+                        focusedField === 'password' ? 'text-[#b22110]' : 'text-[#5b403c]'
                       }`}
                     >
                       Password
@@ -249,7 +237,7 @@ export default function Login() {
                   <span>Penyelenggara Acara atau Kasir?</span>
                   <Link 
                     to="/organizer/login" 
-                    className="text-[#b22110] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1 bg-[#ffdad4]/40 rounded-full"
+                    className="text-[#b22110] font-bold hover:underline inline-flex items-center gap-1 px-3 py-1.5 bg-[#b22110]/10 border border-[#b22110]/20 rounded-full transition-all hover:bg-[#b22110]/15"
                   >
                     <span>Masuk sebagai Organizer</span>
                     <span>&rarr;</span>
@@ -261,21 +249,7 @@ export default function Login() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full mt-auto bg-[#fff0ee] border-t border-[#e3beb8]/50">
-        <div className="flex flex-col md:flex-row justify-between items-center py-8 px-6 max-w-[1280px] mx-auto gap-4">
-          <div className="text-[16px] font-bold text-[#b22110]">GateMate</div>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Terms of Service</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Security Standards</a>
-            <a href="#" className="text-[11px] text-[#5b403c] hover:text-[#b22110] transition-colors">Contact Us</a>
-          </div>
-          <div className="text-[11px] text-[#5b403c] opacity-70">
-            © 2026 GateMate. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      
     </div>
   )
 }
