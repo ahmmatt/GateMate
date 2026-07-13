@@ -16,6 +16,7 @@ class TicketResource extends JsonResource
         return [
             'id'             => $this->id,
             'order_id'       => $this->order_id,
+            'seat_number'    => $this->seat_number,
             'gross_amount'   => (float) $this->gross_amount,
             'payment_status' => $this->payment_status,
             'is_used'        => (bool) $this->is_used,

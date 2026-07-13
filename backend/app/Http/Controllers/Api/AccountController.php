@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
  *
  * Endpoints:
  *   POST /api/account/face-capture → KYC: simpan foto wajah & set face_verified_at
+ *   POST /api/account/profile      → Update profil (nama, foto)
  */
 class AccountController extends Controller
 {
@@ -108,6 +109,76 @@ class AccountController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan server: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update profil user (nama dan opsional foto profil).
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'full_name' => ['required', 'string', 'max:255'],
+                'image'     => ['nullable', 'string'],
+            ]);
+
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $user->full_name = $request->input('full_name');
+
+            if ($request->filled('image')) {
+                $base64Data = $request->input('image');
+                if (str_contains($base64Data, ',')) {
+                    $base64Data = explode(',', $base64Data, 2)[1];
+                }
+
+                $imageData = base64_decode($base64Data);
+                if ($imageData !== false && strlen($imageData) >= 100) {
+                    $uploadsDir = public_path('Media/uploads');
+                    if (!is_dir($uploadsDir)) {
+                        mkdir($uploadsDir, 0755, true);
+                    }
+
+                    if (!empty($user->profile_picture)) {
+                        $oldPath = $uploadsDir . DIRECTORY_SEPARATOR . $user->profile_picture;
+                        if (file_exists($oldPath)) {
+                            @unlink($oldPath);
+                        }
+                    }
+
+                    $fileName = 'profile_' . $user->getKey() . '_' . time() . '.jpg';
+                    $filePath = $uploadsDir . DIRECTORY_SEPARATOR . $fileName;
+                    
+                    if (file_put_contents($filePath, $imageData) !== false) {
+                        $user->profile_picture = $fileName;
+                    }
+                }
+            }
+
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil berhasil diperbarui.',
+                'data'    => [
+                    'full_name' => $user->full_name,
+                    'profile_picture' => $user->profile_picture ? asset('Media/uploads/' . $user->profile_picture) : null,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Api\AccountController@updateProfile: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server.',
             ], 500);
         }
     }

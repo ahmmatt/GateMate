@@ -38,6 +38,11 @@ class SuperadminService
         $activeEvents    = Event::where('status', 'active')->count();
         $totalTickets    = Transaction::where('payment_status', 'success')->count();
         $totalRevenue    = Transaction::where('payment_status', 'success')->sum('gross_amount');
+        $totalTransactions = Transaction::where('payment_status', 'success')->count();
+        $activeUsers     = Transaction::where('payment_status', 'success')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->distinct('user_id')
+            ->count('user_id');
 
         $feePercent       = (float) config('services.platform.fee_percent', 10);
         $platformFeeTotal = round((float) $totalRevenue * $feePercent / 100, 2);
@@ -76,8 +81,24 @@ class SuperadminService
                 'full_name'             => $o->full_name,
                 'organization_name'     => $o->organization_name,
                 'email'                 => $o->email,
+                'phone'                 => $o->phone,
                 'is_verified_organizer' => (bool) $o->is_verified_organizer,
+                'ktp_document_url'      => $o->ktp_document ? asset('storage/' . $o->ktp_document) : null,
                 'created_at'            => $o->created_at?->toIso8601String(),
+            ]);
+
+        // Recent transactions for audit log
+        $recentTransactions = Transaction::with('user')
+            ->where('payment_status', 'success')
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get()
+            ->map(fn ($t) => [
+                'id'         => $t->id,
+                'order_id'   => $t->order_id,
+                'user_name'  => $t->user?->full_name ?? 'Unknown',
+                'amount'     => (float) $t->gross_amount,
+                'created_at' => $t->created_at?->toIso8601String(),
             ]);
 
         return [
@@ -88,6 +109,8 @@ class SuperadminService
             'total_events'               => $totalEvents,
             'active_events'              => $activeEvents,
             'total_tickets'              => $totalTickets,
+            'total_transactions'         => $totalTransactions,
+            'active_users'               => $activeUsers,
             'total_revenue'              => (float) $totalRevenue,
             'platform_fee_total'         => $platformFeeTotal,
             'fee_percent'                => $feePercent,
@@ -97,6 +120,7 @@ class SuperadminService
             'revenue_months'             => array_keys($revenueTrend),
             'revenue_values'             => array_values($revenueTrend),
             'recent_organizers'          => $recentOrganizers,
+            'recent_transactions'        => $recentTransactions,
         ];
     }
 
@@ -122,6 +146,8 @@ class SuperadminService
                         $eventName = 'Semua Event (Global)';
                     } elseif (!empty($w->meta['event_name'])) {
                         $eventName = $w->meta['event_name'];
+                    } elseif (!empty($w->meta['event_title'])) {
+                        $eventName = $w->meta['event_title'];
                     }
                 } elseif ($userRole === 'tenant') {
                     $eventName = $w->user?->event?->title ?? 'Tidak Diketahui';

@@ -53,9 +53,12 @@ class MatchmakingService
     /**
      * Mendapatkan rekomendasi match berformat ringkas untuk tiket tertentu.
      */
-    public function getMatchesForTransaction(int $userId, int $transactionId): Collection
+    public function getMatchesForTransaction(int $userId, string $transactionId): Collection
     {
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where(function ($query) use ($transactionId) {
+                $query->where('id', $transactionId)
+                      ->orWhere('order_id', $transactionId);
+            })
             ->where('user_id', $userId)
             ->first();
 
@@ -73,7 +76,6 @@ class MatchmakingService
 
         $candidates = Attendee::where('id_event', $eventId)
             ->where('id_user', '!=', $userId)
-            ->where('looking_for_match', true)
             ->whereNotNull('vibe_bio')
             ->where('vibe_bio', '!=', '')
             ->with('user')
@@ -121,12 +123,14 @@ EOT;
 
         if (empty($apiKey)) {
             return $candidates->map(fn ($attendee) => [
-                'id_user'  => $attendee->user->id_user,
-                'name'     => $attendee->user->full_name,
-                'avatar'   => $attendee->user->profile_picture ? asset('Media/uploads/' . $attendee->user->profile_picture) : null,
-                'vibe_bio' => $attendee->vibe_bio,
-                'score'    => rand(80, 99),
-                'reason'   => 'Kalian punya vibe yang mirip!',
+                'id_user'       => $attendee->user->id_user,
+                'name'          => $attendee->user->full_name,
+                'avatar'        => $attendee->user->profile_picture ? asset('Media/uploads/' . $attendee->user->profile_picture) : null,
+                'vibe_bio'      => $attendee->vibe_bio,
+                'ig_handle'     => $attendee->ig_handle,
+                'tiktok_handle' => $attendee->tiktok_handle,
+                'score'         => rand(80, 99),
+                'reason'        => 'Kalian punya vibe yang mirip!',
             ])->sortByDesc('score')->values();
         }
 
@@ -172,12 +176,14 @@ EOT;
             return $candidates->map(function ($attendee) use ($aiDataMap) {
                 $aiMatch = $aiDataMap[$attendee->id_user] ?? null;
                 return [
-                    'id_user'  => $attendee->user->id_user,
-                    'name'     => $attendee->user->full_name,
-                    'avatar'   => $attendee->user->profile_picture ? asset('Media/uploads/' . $attendee->user->profile_picture) : null,
-                    'vibe_bio' => $attendee->vibe_bio,
-                    'score'    => $aiMatch ? $aiMatch['score'] : rand(50, 70),
-                    'reason'   => $aiMatch ? $aiMatch['reason'] : 'Belum dianalisis sepenuhnya.',
+                    'id_user'       => $attendee->user->id_user,
+                    'name'          => $attendee->user->full_name,
+                    'avatar'        => $attendee->user->profile_picture ? (str_starts_with($attendee->user->profile_picture, 'http') ? $attendee->user->profile_picture : asset('Media/uploads/' . $attendee->user->profile_picture)) : null,
+                    'vibe_bio'      => $attendee->vibe_bio,
+                    'ig_handle'     => $attendee->ig_handle,
+                    'tiktok_handle' => $attendee->tiktok_handle,
+                    'score'         => $aiMatch ? $aiMatch['score'] : rand(50, 70),
+                    'reason'        => $aiMatch ? $aiMatch['reason'] : 'Belum dianalisis sepenuhnya.',
                 ];
             })->sortByDesc('score')->values();
 
@@ -185,11 +191,13 @@ EOT;
             Log::error('Matchmaking AI Error: ' . $e->getMessage());
 
             return $candidates->map(fn ($attendee) => [
-                'id_user'  => $attendee->user->id_user,
-                'name'     => $attendee->user->full_name,
-                'avatar'   => $attendee->user->profile_picture ? asset('Media/uploads/' . $attendee->user->profile_picture) : null,
-                'vibe_bio' => $attendee->vibe_bio,
-                'score'    => rand(70, 90),
+                'id_user'       => $attendee->user->id_user,
+                'name'          => $attendee->user->full_name,
+                'avatar'        => $attendee->user->profile_picture ? (str_starts_with($attendee->user->profile_picture, 'http') ? $attendee->user->profile_picture : asset('Media/uploads/' . $attendee->user->profile_picture)) : null,
+                'vibe_bio'      => $attendee->vibe_bio,
+                'ig_handle'     => $attendee->ig_handle,
+                'tiktok_handle' => $attendee->tiktok_handle,
+                'score'         => rand(70, 90),
                 'reason'   => 'Sistem AI sedang sibuk, tapi kalian mungkin cocok!',
             ])->sortByDesc('score')->values();
         }
@@ -198,10 +206,17 @@ EOT;
     /**
      * Menjalankan AI Matchmaking berformat paragraf narasi untuk Attendee ID tertentu.
      */
-    public function findMatchForAttendee(int $userId, int $attendeeId): array
+    public function findMatchForAttendee(int $userId, string $transactionId): array
     {
+        $transaction = \App\Models\Transaction::where(function ($query) use ($transactionId) {
+                $query->where('id', $transactionId)
+                      ->orWhere('order_id', $transactionId);
+            })
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
         $myTicket = Attendee::with('event')
-            ->where('id_attendee', $attendeeId)
+            ->where('id_event', $transaction->event_id)
             ->where('id_user', $userId)
             ->firstOrFail();
 
@@ -212,12 +227,11 @@ EOT;
         $otherAttendees = Attendee::with('user')
             ->where('id_event', $myTicket->id_event)
             ->where('id_attendee', '!=', $myTicket->id_attendee)
-            ->where('looking_for_match', true)
             ->whereNotNull('vibe_bio')
             ->get();
 
         if ($otherAttendees->isEmpty()) {
-            throw new Exception('Belum ada peserta lain yang mengaktifkan AI Match di event ini. Coba lagi nanti!');
+            throw new Exception('Belum ada peserta lain yang mengisi Vibe Bio di event ini. Coba lagi nanti!');
         }
 
         $participantList = $otherAttendees->map(function ($attendee): string {

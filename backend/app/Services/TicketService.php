@@ -51,10 +51,13 @@ class TicketService
     /**
      * Mengambil detail e-ticket, info attendee user, dan daftar peserta lain untuk networking.
      */
-    public function getTicketDetail(int $userId, int $transactionId): array
+    public function getTicketDetail(int $userId, string $transactionId): array
     {
         $transaction = Transaction::with(['event.ticketTiers', 'ticketTier', 'user'])
-            ->findOrFail($transactionId);
+            ->where(function ($query) use ($transactionId) {
+                $query->where('id', $transactionId)
+                      ->orWhere('order_id', $transactionId);
+            })->firstOrFail();
 
         if ($transaction->user_id !== $userId) {
             throw new Exception('Anda tidak memiliki akses ke tiket ini.');
@@ -71,12 +74,15 @@ class TicketService
             ->map(function ($attendee) {
                 return [
                     'id'                  => $attendee->id_attendee,
+                    'id_user'             => $attendee->id_user,
                     'user_name'           => $attendee->user?->full_name ?? 'Peserta Anonim',
                     'vibe_bio'            => $attendee->vibe_bio,
                     'ig_handle'           => $attendee->ig_handle,
                     'looking_for_match'   => (bool) $attendee->looking_for_match,
                     'profile_picture_url' => $attendee->user?->profile_picture
-                        ? asset('Media/uploads/' . $attendee->user->profile_picture)
+                        ? (str_starts_with($attendee->user->profile_picture, 'http')
+                            ? $attendee->user->profile_picture
+                            : asset('Media/uploads/' . $attendee->user->profile_picture))
                         : null,
                 ];
             });
@@ -96,9 +102,12 @@ class TicketService
     /**
      * Memperbarui profil AI Matchmaking (Vibe Bio, IG handle, status looking for match).
      */
-    public function updateTicketVibe(int $userId, int $transactionId, array $data): Attendee
+    public function updateTicketVibe(int $userId, string $transactionId, array $data): Attendee
     {
-        $transaction = Transaction::where('id', $transactionId)
+        $transaction = Transaction::where(function ($query) use ($transactionId) {
+                $query->where('id', $transactionId)
+                      ->orWhere('order_id', $transactionId);
+            })
             ->where('user_id', $userId)
             ->firstOrFail();
 

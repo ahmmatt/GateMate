@@ -9,8 +9,10 @@ import AdminLayout from '../layouts/AdminLayout'
 import Home from '../pages/public/Home'
 import Events from '../pages/public/Events'
 import EventDetail from '../pages/public/EventDetail'
+import CityEventsPage from '../pages/public/CityEventsPage'
 import UserLogin from '../pages/auth/UserLogin'
 import UserRegister from '../pages/auth/UserRegister'
+import OAuthCallback from '../pages/auth/OAuthCallback'
 import AttendeeList from '../pages/events/[id]/attendees'
 import MatchmakingResults from '../pages/user/MatchmakingResults'
 import Chat from '../pages/user/Chat'
@@ -43,6 +45,9 @@ import AdminManageEvents from '../pages/admin/AdminManageEvents'
 import AdminLogin from '../pages/auth/AdminLogin'
 import Settings from '../pages/admin/Settings'
 
+// Tenant Pages
+import TenantDashboardPage from '../pages/tenant/TenantDashboardPage'
+
 // ── Guards ──────────────────────────────────────────────────────────────────
 
 function OrganizerGuard({ children }) {
@@ -63,6 +68,13 @@ function SuperadminGuard({ children }) {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (!user) return <Navigate to="/superadmin/login" replace />
   if (user.role !== 'superadmin') return <Navigate to="/" replace />
+  return children
+}
+
+function TenantGuard({ children }) {
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  if (!user) return <Navigate to="/organizer/login" replace />
+  if (user.role !== 'tenant') return <Navigate to="/" replace />
   return children
 }
 
@@ -97,9 +109,11 @@ export default function AppRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/events/city/:cityName" element={<CityEventsPage />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/register" element={<UserRegister />} />
+        <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route path="/organizer/login" element={<OrganizerLogin />} />
         <Route path="/organizer/register" element={<OrganizerRegister />} />
       </Route>
@@ -123,6 +137,9 @@ export default function AppRoutes() {
       <Route path="/organizer/check-in" element={<OrganizerGuard><CheckIn /></OrganizerGuard>} />
       <Route path="/organizer/finance" element={<OrganizerGuard><AdminFinancePage /></OrganizerGuard>} />
       <Route path="/organizer/settings" element={<OrganizerGuard><AdminSettingsPage /></OrganizerGuard>} />
+
+      {/* ── Tenant Routes ── */}
+      <Route path="/tenant/dashboard" element={<TenantGuard><TenantDashboardPage /></TenantGuard>} />
 
       {/* ── /admin/* — shared & admin routes ── */}
       <Route path="/admin/dashboard" element={<RoleSwitch OrganizerPage={OrganizerDashboard} AdminPage={AdminDashboard} />} />

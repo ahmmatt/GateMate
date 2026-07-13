@@ -71,20 +71,30 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-4">
-              <button className="relative w-10 h-10 flex items-center justify-center text-secondary hover:bg-surface-container-high rounded-full transition-colors">
-                <span className="material-symbols-outlined">notifications</span>
-              </button>
-              
               <button 
                 onClick={() => navigate('/user/profile')}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-[#6366f1] text-white font-bold text-sm cursor-pointer hover:opacity-90 hover:scale-105 transition-all"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-[#6366f1] text-white font-bold text-sm cursor-pointer hover:opacity-90 hover:scale-105 transition-all overflow-hidden border-2 border-transparent hover:border-[#6366f1]"
                 title="Edit Profil"
               >
-                {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'BS'}
-              </button>
-
-              <button onClick={handleLogout} className="text-secondary hover:text-[#b22110] transition-colors flex items-center justify-center">
-                <LogOut className="w-5 h-5" />
+                {(() => {
+                  let raw = user.profile_picture_url || user.profile_picture;
+                  let avatar = null;
+                  if (raw) {
+                    if (raw.includes('Media/uploads/http')) {
+                      avatar = raw.substring(raw.lastIndexOf('http'));
+                    } else if (raw.startsWith('http')) {
+                      avatar = raw;
+                    } else {
+                      const baseUrl = (import.meta.env && import.meta.env.VITE_API_BASE_URL) ? import.meta.env.VITE_API_BASE_URL : 'http://localhost:8000/api';
+                      avatar = `${baseUrl.replace('/api', '')}/Media/uploads/${raw}`;
+                    }
+                  }
+                  
+                  if (avatar) {
+                    return <img src={avatar} alt="Profile" className="w-full h-full object-cover" />;
+                  }
+                  return user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'BS';
+                })()}
               </button>
             </div>
           ) : (

@@ -94,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
         
         Route::prefix('account')->name('api.account.')->group(function () {
             Route::post('/face-capture', [AccountController::class, 'captureFace'])->name('face-capture');
+            Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
         });
 
         Route::prefix('my-tickets')->name('api.my-tickets.')->group(function () {
@@ -105,10 +106,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/{id}/vibe', [TicketController::class, 'updateVibe'])->name('vibe.update');
             Route::get('/{id}/ai-match', [AiMatchController::class, 'findMatch'])->name('ai-match');
         });
-
-        // AI Matchmaking
-        Route::post('/tickets/{id}/vibe', [\App\Http\Controllers\Api\MatchmakingController::class, 'setVibeBio']);
-        Route::get('/tickets/{id}/matches', [\App\Http\Controllers\Api\MatchmakingController::class, 'getMatches']);
 
         // Chat System (GateMate Match)
         Route::get('/chat', [\App\Http\Controllers\Api\ChatController::class, 'getInbox']);
@@ -193,7 +190,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // ── Superadmin Routes ─────────────────────────────────────────────────────
     Route::middleware('api.superadmin.role')->prefix('superadmin')->name('api.superadmin.')->group(function () {
         Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/audit-logs', [SuperadminController::class, 'auditLogs'])->name('audit-logs');
         
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\SuperadminSettingsController::class, 'getSettings'])->name('index');
+            Route::post('/2fa', [\App\Http\Controllers\Api\SuperadminSettingsController::class, 'toggle2fa'])->name('2fa');
+            Route::post('/whitelist-ip', [\App\Http\Controllers\Api\SuperadminSettingsController::class, 'addIp'])->name('whitelist.add');
+            Route::delete('/whitelist-ip/{id}', [\App\Http\Controllers\Api\SuperadminSettingsController::class, 'removeIp'])->name('whitelist.delete');
+        });
+
         Route::prefix('withdrawals')->name('withdrawals.')->group(function () {
             Route::get('/', [SuperadminController::class, 'pendingWithdrawals'])->name('index');
             Route::post('/{id}/execute', [SuperadminController::class, 'executeWithdrawal'])->name('execute');
@@ -203,6 +208,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [SuperadminController::class, 'organizers'])->name('index');
             Route::post('/{id}/approve', [SuperadminController::class, 'approveOrganizer'])->name('approve');
             Route::post('/{id}/reject', [SuperadminController::class, 'rejectOrganizer'])->name('reject');
+            Route::get('/{id}/download-docs', [SuperadminController::class, 'downloadOrganizerDocs'])->name('download-docs');
         });
     });
 

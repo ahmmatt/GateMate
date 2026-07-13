@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, User, ChevronDown } from 'lucide-react'
+import api, { authService } from '../../services/api'
 
 export default function UserRegister() {
   const navigate = useNavigate()
@@ -11,9 +12,16 @@ export default function UserRegister() {
   const [error, setError] = useState('')
   const [focusedField, setFocusedField] = useState(null)
 
+  // OTP States
+  const [showOtpModal, setShowOtpModal] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [otpLoading, setOtpLoading] = useState(false)
+  const [otpError, setOtpError] = useState('')
+  const [tempUser, setTempUser] = useState(null)
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -31,21 +39,72 @@ export default function UserRegister() {
     }
 
     setLoading(true)
-    setTimeout(() => {
-      const user = {
-        id: Date.now(),
+    
+    try {
+      const response = await authService.register({
         name: form.name,
         email: form.email,
+        password: form.password,
+        password_confirmation: form.confirmPassword,
         gender: form.gender,
-        role: 'user',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name)}&background=b22110&color=fff`,
+        role: 'user' // default user
+      });
+      
+      const payload = response.data?.data || response.data || {};
+      const { user, token, access_token } = payload;
+      const authToken = token || access_token;
+
+      if (!user || !authToken) {
+        throw new Error(response.data?.message || 'Respons registrasi tidak valid dari server.');
       }
-      localStorage.setItem('token', 'dummy-token-' + Date.now())
-      localStorage.setItem('user', JSON.stringify(user))
-      navigate('/')
-      setLoading(false)
-    }, 800)
+
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // After register, it will be unverified
+      setTempUser(user);
+      setShowOtpModal(true);
+      
+      try {
+        await api.post('/auth/otp/send');
+      } catch (e) {
+        console.error("Gagal mengirim OTP otomatis:", e);
+      }
+      
+      setLoading(false);
+
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registrasi gagal. Coba lagi.');
+      setLoading(false);
+    }
   }
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setOtpError('');
+    setOtpLoading(true);
+    try {
+      await api.post('/auth/otp/verify', { otp: otpCode });
+      const updatedUser = { ...tempUser, phone_verified_at: new Date().toISOString() };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setShowOtpModal(false);
+      navigate('/');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Kode OTP tidak valid.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError('');
+    try {
+      await api.post('/auth/otp/send');
+      alert('OTP baru telah dikirim ke WhatsApp Anda.');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Gagal mengirim ulang OTP.');
+    }
+  };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-6 bg-[#fff8f6]">
@@ -253,13 +312,66 @@ export default function UserRegister() {
           </p>
         </div>
 
-        {/* Terms check */}
         <div className="mt-6 pt-4 border-t border-[#EBEBEB]/60 text-center">
           <p className="text-[11px] text-[#5f5e5e] px-4 leading-relaxed">
             Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> GateMate.
           </p>
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl relative animate-fade-in-up">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-[#b22110]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-[32px] text-[#b22110]">chat</span>
+              </div>
+              <h2 className="text-2xl font-bold text-[#271815]">Verifikasi WhatsApp</h2>
+              <p className="text-[#5b403c] text-sm mt-2">
+                Kami telah mengirimkan 6 digit kode OTP ke nomor WhatsApp Anda. Silakan masukkan kode di bawah ini.
+              </p>
+            </div>
+
+            {otpError && (
+              <div className="mb-4 p-3 bg-[#ffdad6] border border-[#ba1a1a]/30 rounded-xl text-[#93000a] text-xs font-medium text-center">
+                {otpError}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="------"
+                  className="w-full text-center tracking-[1em] font-bold text-2xl input-base px-4 py-4 text-[#271815]"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={otpLoading || otpCode.length < 6}
+                className="w-full bg-[#b22110] text-white py-3 rounded-full text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {otpLoading ? 'Memverifikasi...' : 'Verifikasi & Lanjutkan'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-xs text-[#5b403c]">
+                Belum menerima kode?{' '}
+                <button onClick={handleResendOtp} className="text-[#b22110] font-bold hover:underline">
+                  Kirim Ulang
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

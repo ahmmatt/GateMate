@@ -11,7 +11,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="flex flex-col gap-1 items-center md:items-start">
           <span className="text-base font-bold text-[#b22110]">GateMate</span>
-          <p className="text-[11px] text-[#5f5e5e]">© 2025 GateMate. All rights reserved.</p>
+          <p className="text-[11px] text-[#5f5e5e]">© 2026 GateMate. All rights reserved.</p>
         </div>
 
         {/* Links */}

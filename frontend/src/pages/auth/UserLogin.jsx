@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authService } from '../../services/api'
+import api, { authService } from '../../services/api'
 
 export default function UserLogin() {
   const navigate = useNavigate()
@@ -9,6 +9,13 @@ export default function UserLogin() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState(null)
+  
+  // OTP States
+  const [showOtpModal, setShowOtpModal] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [otpLoading, setOtpLoading] = useState(false)
+  const [otpError, setOtpError] = useState('')
+  const [tempUser, setTempUser] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,6 +42,19 @@ export default function UserLogin() {
       localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
 
+      // Check OTP Verification
+      if (!user.phone_verified_at) {
+        setTempUser(user);
+        setShowOtpModal(true);
+        try {
+          await api.post('/auth/otp/send');
+        } catch (e) {
+          console.error("Gagal mengirim OTP otomatis:", e);
+        }
+        setLoading(false);
+        return;
+      }
+
       navigate('/events')
     } catch (err) {
       if (email === 'user@gatemate.com' && password === 'password123') {
@@ -49,6 +69,33 @@ export default function UserLogin() {
       setLoading(false)
     }
   }
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setOtpError('');
+    setOtpLoading(true);
+    try {
+      await api.post('/auth/otp/verify', { otp: otpCode });
+      const updatedUser = { ...tempUser, phone_verified_at: new Date().toISOString() };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setShowOtpModal(false);
+      navigate('/events');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Kode OTP tidak valid.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError('');
+    try {
+      await api.post('/auth/otp/send');
+      alert('OTP baru telah dikirim ke WhatsApp Anda.');
+    } catch (err) {
+      setOtpError(err.response?.data?.message || 'Gagal mengirim ulang OTP.');
+    }
+  };
 
   return (
     <div className="bg-[#fff8f6] text-[#271815] min-h-screen flex flex-col font-sans">
@@ -135,7 +182,10 @@ export default function UserLogin() {
               <div className="mb-8">
                 <button 
                   type="button"
-                  onClick={() => alert('Demo: Fitur login Google')}
+                  onClick={() => {
+                    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+                    window.location.href = `${baseUrl}/auth/google/redirect`;
+                  }}
                   className="w-full flex items-center justify-center gap-2 py-3 border border-[#e3beb8] rounded-xl hover:bg-[#fff0ee] transition-colors active:scale-95 shadow-sm"
                 >
                   <img alt="Google" className="w-5 h-5" src="data:image/png;base64,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" />
@@ -220,6 +270,60 @@ export default function UserLogin() {
           </div>
         </div>
       </main>
+
+      {/* OTP Verification Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl relative animate-fade-in-up">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-[#b22110]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-[32px] text-[#b22110]">chat</span>
+              </div>
+              <h2 className="text-2xl font-bold text-[#271815]">Verifikasi WhatsApp</h2>
+              <p className="text-[#5b403c] text-sm mt-2">
+                Kami telah mengirimkan 6 digit kode OTP ke nomor WhatsApp Anda. Silakan masukkan kode di bawah ini.
+              </p>
+            </div>
+
+            {otpError && (
+              <div className="mb-4 p-3 bg-[#ffdad6] border border-[#ba1a1a]/30 rounded-xl text-[#93000a] text-xs font-medium text-center">
+                {otpError}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="------"
+                  className="w-full text-center tracking-[1em] font-bold text-2xl input-base px-4 py-4 text-[#271815]"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={otpLoading || otpCode.length < 6}
+                className="coral-pill-primary w-full font-bold text-[14px] disabled:opacity-50"
+              >
+                {otpLoading ? 'Memverifikasi...' : 'Verifikasi & Lanjutkan'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-xs text-[#5b403c]">
+                Belum menerima kode?{' '}
+                <button onClick={handleResendOtp} className="text-[#b22110] font-bold hover:underline">
+                  Kirim Ulang
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

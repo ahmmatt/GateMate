@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, Navigate, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { LogOut, Menu, X } from 'lucide-react'
+import { superadminService } from '../services/api'
 
 const navItems = [
   { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -12,16 +13,87 @@ const navItems = [
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showNotif, setShowNotif] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [loadingNotif, setLoadingNotif] = useState(false)
+  
+  const notifRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
   
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
+  const isSuperadmin = user?.role === 'superadmin' || location.pathname.startsWith('/superadmin')
+  const basePath = isSuperadmin ? '/superadmin' : '/admin'
+
+  // Tutup notif kalau klik di luar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotif(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  // Fetch notifikasi (contoh: pending organizer & pending withdrawal)
+  useEffect(() => {
+    if (!isSuperadmin) return // Saat ini notifikasi hanya untuk superadmin
+
+    const fetchNotifications = async () => {
+      setLoadingNotif(true)
+      try {
+        const notifData = []
+        
+        // Cek pending organizers
+        try {
+          const orgRes = await superadminService.getOrganizers(true)
+          const pendingOrgs = orgRes.data?.data?.filter(o => o.is_verified_organizer === 0 || o.is_verified_organizer === false) || []
+          if (pendingOrgs.length > 0) {
+            notifData.push({
+              type: 'warning',
+              icon: 'verified_user',
+              message: `Ada ${pendingOrgs.length} calon organizer baru yang menunggu verifikasi.`,
+              time: 'Baru saja',
+              link: '/superadmin/organizers'
+            })
+          }
+        } catch (e) {
+          console.error("Gagal memuat notif organizer", e)
+        }
+
+        // Cek pending withdrawals
+        try {
+          const wdRes = await superadminService.getPendingWithdrawals()
+          const pendingWds = wdRes.data?.data?.filter(w => w.status === 'pending_superadmin' || w.status === 'pending') || []
+          if (pendingWds.length > 0) {
+            notifData.push({
+              type: 'info',
+              icon: 'account_balance_wallet',
+              message: `Ada ${pendingWds.length} pengajuan penarikan dana yang perlu diproses.`,
+              time: 'Baru saja',
+              link: '/superadmin/withdrawals'
+            })
+          }
+        } catch (e) {
+          console.error("Gagal memuat notif penarikan", e)
+        }
+
+        setNotifications(notifData)
+      } finally {
+        setLoadingNotif(false)
+      }
+    }
+
+    fetchNotifications()
+    // Poll every 60 seconds
+    const interval = setInterval(fetchNotifications, 60000)
+    return () => clearInterval(interval)
+  }, [isSuperadmin])
+
   if (!user) return <Navigate to="/admin/login" replace />
   if (user.role !== 'admin' && user.role !== 'superadmin') return <Navigate to="/" replace />
-
-  const isSuperadmin = user.role === 'superadmin' || location.pathname.startsWith('/superadmin')
-  const basePath = isSuperadmin ? '/superadmin' : '/admin'
 
   const getPageTitle = () => {
     const activeItem = navItems.find(item => location.pathname.startsWith(`${basePath}${item.path}`) || location.pathname.startsWith(`/admin${item.path}`))
@@ -96,13 +168,19 @@ export default function AdminLayout({ children }) {
         
         <div className="px-6 mt-auto">
           <div className="flex items-center gap-3 p-3 mb-6 rounded-lg bg-surface-container-low">
-            <img 
-              alt="Profile Avatar" 
-              className="w-10 h-10 rounded-full border border-surface-container-high object-cover" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-6s-ZrbXtqyD5-0kyZ5Di_SKWhUcDsD2ObcErz3-1Zkr2Wu6R3oonR1MXjHDs2u7IgAwBodaXouPxjeWqOYRQGyz53wjhkozlUWS3eCoqV3iOu7DgefVAx7bUFAKtMIZ0wVaLpoEZJhMLcmz0UdzEWaojLYmt0EPU77ApM1JgZxoagks-96yUTvC_XaamTjgKAyqTnlf47QWfLFWzQmhroq9c9vu2710X2udj3O_kM3WC8yI6bof-UvHUx0MiOxBs3RTcAq09fps"
-            />
+            {user.profile_picture_url || user.profile_picture ? (
+              <img
+                alt="Profile Avatar"
+                className="w-10 h-10 rounded-full border border-surface-container-high object-cover shrink-0"
+                src={user.profile_picture_url || user.profile_picture}
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+                {(user.full_name || user.name || 'SA').substring(0, 2).toUpperCase()}
+              </div>
+            )}
             <div>
-              <p className="font-body-md text-on-surface font-semibold truncate w-24" title={user.name}>{user.name}</p>
+              <p className="font-body-md text-on-surface font-semibold truncate w-24" title={user.full_name || user.name}>{user.full_name || user.name}</p>
               <p className="text-secondary text-label-sm capitalize">{isSuperadmin ? 'Superadmin' : 'Admin'}</p>
             </div>
           </div>
@@ -129,21 +207,83 @@ export default function AdminLayout({ children }) {
           <h2 className="font-headline-lg text-headline-lg text-on-surface font-bold">{getPageTitle()}</h2>
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4">
-            <button className="text-secondary hover:text-primary transition-colors">
+          <div className="relative" ref={notifRef}>
+            <button 
+              onClick={() => setShowNotif(!showNotif)}
+              className={`transition-colors relative ${showNotif ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+            >
               <span className="material-symbols-outlined">notifications</span>
+              {notifications.length > 0 && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              )}
             </button>
-            <button className="text-secondary hover:text-primary transition-colors">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
+
+            {/* Notifications Dropdown */}
+            {showNotif && (
+              <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant overflow-hidden z-50 animate-in slide-in-from-top-2">
+                <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                  <h3 className="font-label-md font-bold text-on-surface">Notifikasi</h3>
+                  {notifications.length > 0 && (
+                    <span className="bg-primary-fixed text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">
+                      {notifications.length} Baru
+                    </span>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {loadingNotif ? (
+                    <div className="p-4 text-center text-secondary text-body-sm">Memuat notifikasi...</div>
+                  ) : notifications.length > 0 ? (
+                    <div className="flex flex-col">
+                      {notifications.map((notif, idx) => (
+                        <div 
+                          key={idx} 
+                          className="px-4 py-3 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+                          onClick={() => {
+                            setShowNotif(false)
+                            navigate(notif.link)
+                          }}
+                        >
+                          <div className="flex gap-3">
+                            <div className="mt-1">
+                              <span className={`material-symbols-outlined text-[20px] ${notif.type === 'warning' ? 'text-orange-500' : 'text-blue-500'}`}>
+                                {notif.icon}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-body-sm text-on-surface line-clamp-2">{notif.message}</p>
+                              <p className="text-[10px] text-secondary mt-1">{notif.time}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-secondary flex flex-col items-center">
+                      <span className="material-symbols-outlined text-4xl mb-2 opacity-50">notifications_off</span>
+                      <p className="text-body-sm">Tidak ada notifikasi baru.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <div className="hidden md:block h-8 w-[1px] bg-outline-variant"></div>
           <div className="hidden md:flex items-center gap-3">
             <div className="text-right">
-              <p className="font-label-md text-label-md text-on-surface font-bold leading-none">{user.name}</p>
+              <p className="font-label-md text-label-md text-on-surface font-bold leading-none">{user.full_name || user.name}</p>
               <p className="font-label-sm text-label-sm text-secondary">{user.email}</p>
             </div>
-            <img alt="Superadmin Profile" className="w-8 h-8 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-6s-ZrbXtqyD5-0kyZ5Di_SKWhUcDsD2ObcErz3-1Zkr2Wu6R3oonR1MXjHDs2u7IgAwBodaXouPxjeWqOYRQGyz53wjhkozlUWS3eCoqV3iOu7DgefVAx7bUFAKtMIZ0wVaLpoEZJhMLcmz0UdzEWaojLYmt0EPU77ApM1JgZxoagks-96yUTvC_XaamTjgKAyqTnlf47QWfLFWzQmhroq9c9vu2710X2udj3O_kM3WC8yI6bof-UvHUx0MiOxBs3RTcAq09fps" />
+            {user.profile_picture_url || user.profile_picture ? (
+              <img
+                alt="Superadmin Profile"
+                className="w-8 h-8 rounded-full border border-outline-variant object-cover"
+                src={user.profile_picture_url || user.profile_picture}
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                {(user.full_name || user.name || 'SA').substring(0, 2).toUpperCase()}
+              </div>
+            )}
           </div>
         </div>
       </header>

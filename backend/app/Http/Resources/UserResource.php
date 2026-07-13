@@ -23,7 +23,7 @@ class UserResource extends JsonResource
             'is_verified_organizer'  => (bool) $this->is_verified_organizer,
             'face_verified_at'       => $this->face_verified_at?->toIso8601String(),
             'profile_picture_url'    => $this->profile_picture
-                ? asset('Media/uploads/' . $this->profile_picture)
+                ? (str_starts_with($this->profile_picture, 'http') ? $this->profile_picture : asset('Media/uploads/' . $this->profile_picture))
                 : null,
             'organization_name'      => $this->organization_name,
             'phone'                  => $this->phone,

@@ -166,11 +166,17 @@ export const tenantService = {
 // ── Superadmin Services ────────────────────────────────────────────────────
 export const superadminService = {
   getDashboard: () => api.get('/superadmin/dashboard'),
+  getAuditLogs: () => api.get('/superadmin/audit-logs'),
+  getSettings: () => api.get('/superadmin/settings'),
+  toggle2fa: (enabled) => api.post('/superadmin/settings/2fa', { enabled }),
+  addWhitelistIp: (ip_address) => api.post('/superadmin/settings/whitelist-ip', { ip_address }),
+  removeWhitelistIp: (id) => api.delete(`/superadmin/settings/whitelist-ip/${id}`),
   getPendingWithdrawals: () => api.get('/superadmin/withdrawals'),
   executeWithdrawal: (id) => api.post(`/superadmin/withdrawals/${id}/execute`),
   getOrganizers: () => api.get('/superadmin/organizers'),
   approveOrganizer: (id) => api.post(`/superadmin/organizers/${id}/approve`),
   rejectOrganizer: (id, reason) => api.post(`/superadmin/organizers/${id}/reject`, { reason }),
+  downloadOrganizerDocs: (id) => api.get(`/superadmin/organizers/${id}/download-docs`, { responseType: 'blob' }),
 }
 
 // Backward compatibility untuk userService lama

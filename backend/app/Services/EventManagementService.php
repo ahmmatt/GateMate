@@ -155,11 +155,39 @@ class EventManagementService
             ->latest()->get();
 
         $pendingTenantsBalance = false;
-        foreach ($tenants as $t) {
+        $mappedTenants = $tenants->map(function ($t) use (&$pendingTenantsBalance) {
             $sales = WalletTransaction::where('type', 'tenant_revenue')->where('meta->tenant_id', $t->id_user)->sum('amount');
             $wds   = WalletTransaction::where('user_id', $t->id_user)->where('type', 'withdrawal')->whereIn('status', ['pending_admin', 'pending_superadmin', 'success'])->sum('amount');
-            if (($sales - $wds) > 0) { $pendingTenantsBalance = true; break; }
-        }
+            
+            $netSales = $sales * 0.95;
+            $tenantCut = $sales * 0.05;
+
+            $wdStatus = 'Belum Ada';
+            $lastWd = WalletTransaction::where('user_id', $t->id_user)
+                ->where('type', 'withdrawal')
+                ->latest()
+                ->first();
+            if ($lastWd) {
+                if ($lastWd->status === 'success') {
+                    $wdStatus = 'Selesai';
+                } elseif (in_array($lastWd->status, ['pending', 'pending_admin', 'pending_superadmin'])) {
+                    $wdStatus = 'Diproses';
+                } else {
+                    $wdStatus = ucfirst($lastWd->status);
+                }
+            }
+
+            if (($netSales - $wds) > 0) {
+                $pendingTenantsBalance = true;
+            }
+
+            $tArray = $t->toArray();
+            $tArray['total_sales'] = $sales;
+            $tArray['tenant_cut']  = $tenantCut;
+            $tArray['wd_status']   = $wdStatus;
+            
+            return $tArray;
+        });
 
         $endDateTime = Carbon::parse($event->end_date->format('Y-m-d') . ' ' . $event->end_time, 'Asia/Makassar');
         $isEventEnded = ($event->status === 'ended') || now('Asia/Makassar')->gt($endDateTime);
@@ -186,7 +214,7 @@ class EventManagementService
                 'is_event_ended'     => $isEventEnded,
                 'pending_tenants_balance' => $pendingTenantsBalance,
             ],
-            'tenants'               => $tenants,
+            'tenants'               => $mappedTenants,
             'pending_withdrawals'   => $pendingWithdrawals,
             'tenant_transactions'   => $tenantTransactions,
             'event_withdrawals'     => $eventWithdrawals,
@@ -400,15 +428,16 @@ class EventManagementService
         foreach ($tenants as $t) {
             $sales = WalletTransaction::where('type', 'tenant_revenue')->where('meta->tenant_id', $t->id_user)->sum('amount');
             $wds   = WalletTransaction::where('user_id', $t->id_user)->where('type', 'withdrawal')->whereIn('status', ['pending_admin', 'pending_superadmin', 'success'])->sum('amount');
-            if (($sales - $wds) > 0) { $pendingTenantsBalance = true; break; }
+            $netSales = $sales * 0.95;
+            if (($netSales - $wds) > 0) { $pendingTenantsBalance = true; break; }
         }
 
         $pendingWithdrawals = WalletTransaction::whereHas('user', function ($q) use ($event) {
             $q->where('role', 'tenant')->where('id_event', $event->id_event);
         })->where('type', 'withdrawal')->whereIn('status', ['pending', 'pending_admin'])->exists();
 
-        if ($pendingTenantsBalance || $pendingWithdrawals) {
-            throw new Exception('Selesaikan semua penarikan Tenant terlebih dahulu!');
+        if ($pendingWithdrawals) {
+            throw new Exception('Selesaikan semua penarikan Tenant yang berstatus pending terlebih dahulu!');
         }
 
         $feePercent      = (float) config('services.platform.fee_percent', 10);

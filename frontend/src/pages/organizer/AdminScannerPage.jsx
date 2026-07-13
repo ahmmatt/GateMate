@@ -181,16 +181,13 @@ export default function AdminScannerPage() {
       <OrganizerSidebar activeNav="scanner" />
 
       {/* Main Content Area */}
-      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-0 w-full relative">
-        <div className="max-w-[1200px] mx-auto p-6">
+      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-0 relative flex-1"> <div className="p-6 md:p-8 w-full">
           <header className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="font-h1 text-[32px] leading-10 font-medium text-on-surface tracking-tight">Pemindaian Tiket</h2>
-              <p className="font-body-lg text-[15px] text-secondary mt-1">Arahkan kamera ke QR code tiket atau masukkan ID secara manual.</p>
+              <h2 className="font-h1 text-[32px] leading-10 font-medium text-on-surface tracking-tight">Pemindaian Tiket</h2> <p className="font-body-lg text-[15px] text-secondary mt-1">Arahkan kamera ke QR code tiket atau masukkan ID secara manual.</p>
             </div>
             
-            <div className="md:w-64">
-              <label className="block text-caption font-bold text-secondary mb-1 uppercase tracking-wider">Event Aktif</label>
+            <div className="md:w-64"> <label className="block text-caption font-bold text-secondary mb-1 uppercase tracking-wider">Event Aktif</label>
               <select 
                 value={selectedEventId} 
                 onChange={(e) => setSelectedEventId(e.target.value)}
@@ -207,15 +204,12 @@ export default function AdminScannerPage() {
             <div className="lg:col-span-7 flex flex-col gap-6">
               
               {/* Camera Viewfinder Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden" style={{borderWidth: '0.5px'}}>
-                <div className="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">videocam</span>
+              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden" style={{borderWidth: '0.5px'}}> <div className="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+                  <div className="flex items-center gap-2"> <span className="material-symbols-outlined text-primary">videocam</span>
                     <span className="font-label-md font-bold">Kamera Scanner</span>
                   </div>
                   {isScanning && (
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                    <div className="flex items-center gap-2"> <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
                       <span className="font-caption uppercase tracking-wider font-bold text-primary">Live</span>
                     </div>
                   )}
@@ -223,8 +217,7 @@ export default function AdminScannerPage() {
                 
                 <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                   {!isScanning ? (
-                    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-surface-container-lowest z-10">
-                      <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary mb-4">
+                    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-surface-container-lowest z-10"> <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-secondary mb-4">
                         <span className="material-symbols-outlined text-[32px]">qr_code_scanner</span>
                       </div>
                       <button onClick={startScanner} className="bg-primary text-white px-6 py-2 rounded-lg font-label-md font-bold hover:opacity-90 transition-opacity">
@@ -233,16 +226,12 @@ export default function AdminScannerPage() {
                     </div>
                   ) : (
                     <>
-                      <div className="absolute inset-0 w-full h-full z-10 overflow-hidden bg-black flex items-center justify-center">
-                        <div id="reader" className="w-full h-full"></div>
+                      <div className="absolute inset-0 w-full h-full z-10 overflow-hidden bg-black flex items-center justify-center"> <div id="reader" className="w-full h-full"></div>
                       </div>
-                      <div className="scanner-viewport absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 z-20 pointer-events-none">
-                        <div className="scanner-line"></div>
+                      <div className="scanner-viewport absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 z-20 pointer-events-none"> <div className="scanner-line"></div>
                       </div>
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
-                        <p className="text-white bg-black/50 backdrop-blur-md px-4 py-2 rounded-full font-label-md text-[12px]">Posisikan QR Code di tengah</p>
-                        <button onClick={stopScanner} className="bg-error text-white p-2 rounded-full hover:bg-error/80 backdrop-blur-md">
-                          <span className="material-symbols-outlined text-[18px]">close</span>
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3"> <p className="text-white bg-black/50 backdrop-blur-md px-4 py-2 rounded-full font-label-md text-[12px]">Posisikan QR Code di tengah</p>
+                        <button onClick={stopScanner} className="bg-error text-white p-2 rounded-full hover:bg-error/80 backdrop-blur-md"> <span className="material-symbols-outlined text-[18px]">close</span>
                         </button>
                       </div>
                     </>
@@ -251,12 +240,10 @@ export default function AdminScannerPage() {
               </div>
 
               {/* Manual Entry Card */}
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6" style={{borderWidth: '0.5px'}}>
-                <label className="font-label-md font-bold text-on-surface mb-2 block">Input Manual ID Tiket</label>
+              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6" style={{borderWidth: '0.5px'}}> <label className="font-label-md font-bold text-on-surface mb-2 block">Input Manual ID Tiket</label>
                 <form onSubmit={handleManualEntry} className="flex gap-3">
                   <input 
-                    className="flex-grow bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-all text-body-sm" 
-                    placeholder="Contoh: GM-99283-AX" 
+                    className="flex-grow bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-all text-body-sm" placeholder="Contoh: GM-99283-AX" 
                     type="text"
                     value={manualTicketId}
                     onChange={(e) => setManualTicketId(e.target.value)}
@@ -269,23 +256,19 @@ export default function AdminScannerPage() {
             </div>
 
             {/* Results Panel Column */}
-            <div className="lg:col-span-5">
-              <div className="bg-surface-container-lowest rounded-xl border border-outline-variant h-full overflow-hidden flex flex-col" style={{borderWidth: '0.5px'}}>
-                <div className="p-4 border-b border-outline-variant bg-surface-container-low">
-                  <h3 className="font-label-md font-bold text-on-surface">Hasil Pemindaian</h3>
+            <div className="lg:col-span-5"> <div className="bg-surface-container-lowest rounded-xl border border-outline-variant h-full overflow-hidden flex flex-col" style={{borderWidth: '0.5px'}}>
+                <div className="p-4 border-b border-outline-variant bg-surface-container-low"> <h3 className="font-label-md font-bold text-on-surface">Hasil Pemindaian</h3>
                 </div>
                 
                 <div className="p-6 flex flex-col flex-grow">
                   {!scanResult ? (
-                    <div className="flex-grow flex flex-col items-center justify-center text-center opacity-50">
-                      <span className="material-symbols-outlined text-[64px] mb-4">document_scanner</span>
+                    <div className="flex-grow flex flex-col items-center justify-center text-center opacity-50"> <span className="material-symbols-outlined text-[64px] mb-4">document_scanner</span>
                       <p className="text-body-lg font-medium">Menunggu hasil scan...</p>
                     </div>
                   ) : (scanResult.type === 'pending_approval' || scanResult.type === 'success') ? (
                     <>
                       {/* Attendee Profile */}
-                      <div className="flex flex-col items-center mb-6 animate-in zoom-in duration-300">
-                        <div className="relative mb-4">
+                      <div className="flex flex-col items-center mb-6 animate-in zoom-in duration-300"> <div className="relative mb-4">
                           <div className="w-32 h-32 rounded-xl overflow-hidden border-2 border-primary bg-surface-container flex items-center justify-center text-primary text-[48px] font-bold">
                             {scanResult.data.profile_picture_url ? (
                                 <img src={scanResult.data.profile_picture_url} className="w-full h-full object-cover" alt="Profile" />
@@ -294,39 +277,30 @@ export default function AdminScannerPage() {
                             )}
                           </div>
                           {scanResult.type === 'success' && (
-                            <div className="absolute -bottom-2 -right-2 bg-[#2E7D32] text-white w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest animate-bounce">
-                              <span className="material-symbols-outlined text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                            <div className="absolute -bottom-2 -right-2 bg-[#2E7D32] text-white w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface-container-lowest animate-bounce"> <span className="material-symbols-outlined text-[16px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
                             </div>
                           )}
                         </div>
-                        <h2 className="text-[24px] text-on-surface font-black leading-8">{scanResult.data.holder_name}</h2>
-                        <div className="mt-2 inline-flex items-center px-3 py-1 bg-primary/10 text-primary rounded-full">
-                          <span className="material-symbols-outlined text-[14px] mr-1" style={{fontVariationSettings: "'FILL' 1"}}>stars</span>
-                          <span className="text-[11px] font-bold uppercase tracking-wider">{scanResult.data.tier_name}</span>
+                        <h2 className="text-[24px] text-on-surface font-black leading-8">{scanResult.data.holder_name}</h2> <div className="mt-2 inline-flex items-center px-3 py-1 bg-primary/10 text-primary rounded-full">
+                          <span className="material-symbols-outlined text-[14px] mr-1" style={{fontVariationSettings: "'FILL' 1"}}>stars</span> <span className="text-[11px] font-bold uppercase tracking-wider">{scanResult.data.tier_name}</span>
                         </div>
                       </div>
 
                       {/* Ticket Details */}
-                      <div className="space-y-4 mb-6 flex-grow">
-                        <div className="flex justify-between items-center py-3 border-b border-outline-variant">
-                          <span className="text-[12px] font-medium text-secondary">ID Transaksi</span>
-                          <span className="text-[12px] font-bold text-on-surface">{scanResult.data.order_id || '#'}</span>
+                      <div className="space-y-4 mb-6 flex-grow"> <div className="flex justify-between items-center py-3 border-b border-outline-variant">
+                          <span className="text-[12px] font-medium text-secondary">ID Transaksi</span> <span className="text-[12px] font-bold text-on-surface">{scanResult.data.order_id || '#'}</span>
                         </div>
-                        <div className="flex justify-between items-center py-3 border-b border-outline-variant">
-                          <span className="text-[12px] font-medium text-secondary">Nomor Kursi</span>
+                        <div className="flex justify-between items-center py-3 border-b border-outline-variant"> <span className="text-[12px] font-medium text-secondary">Nomor Kursi</span>
                           <span className="text-[12px] font-bold text-on-surface">{scanResult.data.seat_number || 'Tidak ada kursi'}</span>
                         </div>
-                        <div className="flex justify-between items-center py-3 border-b border-outline-variant">
-                          <span className="text-[12px] font-medium text-secondary">Jenis Kelamin</span>
+                        <div className="flex justify-between items-center py-3 border-b border-outline-variant"> <span className="text-[12px] font-medium text-secondary">Jenis Kelamin</span>
                           <span className="text-[12px] font-bold text-on-surface capitalize">{scanResult.data.holder_gender || '—'}</span>
                         </div>
                         
                         {/* Status Check */}
                         {scanResult.type === 'success' ? (
-                          <div className="bg-[#2E7D32]/10 p-4 rounded-lg border-[0.5px] border-[#2E7D32]/30 mt-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2 text-[#2E7D32]">
-                                <span className="material-symbols-outlined">verified_user</span>
+                          <div className="bg-[#2E7D32]/10 p-4 rounded-lg border-[0.5px] border-[#2E7D32]/30 mt-4"> <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-[#2E7D32]"> <span className="material-symbols-outlined">verified_user</span>
                                 <span className="text-[12px] font-bold">Check-in Berhasil</span>
                               </div>
                               <span className="text-[11px] font-black text-[#2E7D32]">Tervalidasi</span>
@@ -334,10 +308,8 @@ export default function AdminScannerPage() {
                             <p className="text-[11px] text-secondary">Peserta diperbolehkan masuk. Waktu scan: {scanResult.data.scanned_at}</p>
                           </div>
                         ) : (
-                          <div className="bg-surface-container-low p-4 rounded-lg border-[0.5px] border-outline-variant mt-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2 text-primary">
-                                <span className="material-symbols-outlined">info</span>
+                          <div className="bg-surface-container-low p-4 rounded-lg border-[0.5px] border-outline-variant mt-4"> <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-primary"> <span className="material-symbols-outlined">info</span>
                                 <span className="text-[12px] font-bold">Tiket Valid</span>
                               </div>
                               <span className="text-[11px] font-black text-tertiary">Menunggu Konfirmasi</span>
@@ -369,16 +341,13 @@ export default function AdminScannerPage() {
                       </div>
                     </>
                   ) : scanResult.type === 'error' ? (
-                    <div className="flex-grow flex flex-col items-center justify-center text-center animate-fade-in">
-                      <div className="w-24 h-24 rounded-full bg-error/10 flex items-center justify-center mb-6 border border-error">
+                    <div className="flex-grow flex flex-col items-center justify-center text-center animate-fade-in"> <div className="w-24 h-24 rounded-full bg-error/10 flex items-center justify-center mb-6 border border-error">
                         <span className="material-symbols-outlined text-[48px] text-error">cancel</span>
                       </div>
-                      <h3 className="font-h2 text-[28px] font-black text-error mb-2">Tiket Ditolak</h3>
-                      <p className="text-body-lg text-secondary max-w-md">{scanResult.message}</p>
+                      <h3 className="font-h2 text-[28px] font-black text-error mb-2">Tiket Ditolak</h3> <p className="text-body-lg text-secondary max-w-md">{scanResult.message}</p>
                       
                       {scanResult.details && (
-                        <div className="mt-4 bg-surface-container rounded-lg p-3 border border-outline-variant inline-block">
-                          <p className="text-body-sm font-bold text-on-surface-variant flex items-center gap-2">
+                        <div className="mt-4 bg-surface-container rounded-lg p-3 border border-outline-variant inline-block"> <p className="text-body-sm font-bold text-on-surface-variant flex items-center gap-2">
                             <span className="material-symbols-outlined text-[16px]">info</span>
                             {scanResult.details}
                           </p>
@@ -396,8 +365,7 @@ export default function AdminScannerPage() {
           </div>
 
           {/* Recent Activity Log (Asymmetric/Bento Style) */}
-          <div className="mt-8">
-            <h3 className="font-h3 text-h3 text-on-surface mb-4">Aktivitas Terkini</h3>
+          <div className="mt-8"> <h3 className="font-h3 text-h3 text-on-surface mb-4">Aktivitas Terkini</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {recentLogs.length === 0 ? (
                 <div className="col-span-full py-8 text-center text-secondary border border-dashed border-outline-variant rounded-xl">
@@ -409,8 +377,7 @@ export default function AdminScannerPage() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${log.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       <span className="material-symbols-outlined text-[20px]">{log.type === 'success' ? 'check' : 'close'}</span>
                     </div>
-                    <div className="overflow-hidden">
-                      <p className="font-label-md text-label-md font-bold truncate">{log.name}</p>
+                    <div className="overflow-hidden"> <p className="font-label-md text-label-md font-bold truncate">{log.name}</p>
                       <p className="font-caption text-caption text-secondary">{log.status} • {timeAgo(log.time)}</p>
                     </div>
                   </div>
@@ -421,27 +388,7 @@ export default function AdminScannerPage() {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t-[0.5px] border-outline-variant flex justify-around items-center h-16 pb-safe">
-        <Link to="/organizer/dashboard" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">grid_view</span>
-          <span className="font-label-md text-label-md">Dashboard</span>
-        </Link>
-        <Link to="/organizer/events" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">confirmation_number</span>
-          <span className="font-label-md text-label-md">Events</span>
-        </Link>
-        <Link to="/organizer/check-in" className="flex flex-col items-center text-primary font-bold active:bg-surface-container-low px-4 py-1 transition-colors">
-          <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
-            <span className="material-symbols-outlined">center_focus_weak</span>
-          </div>
-          <span className="font-label-md text-label-md mt-1">Scan</span>
-        </Link>
-        <Link to="/organizer/finance" className="flex flex-col items-center text-secondary active:bg-surface-container-low px-4 py-1 transition-colors">
-          <span className="material-symbols-outlined">account_balance_wallet</span>
-          <span className="font-label-md text-label-md">Finance</span>
-        </Link>
-      </nav>
+      
     </div>
   );
 }

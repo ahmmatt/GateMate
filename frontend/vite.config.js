@@ -7,6 +7,7 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+    conditions: ['import', 'module', 'browser', 'default'],
   },
   server: {
     port: 5173,

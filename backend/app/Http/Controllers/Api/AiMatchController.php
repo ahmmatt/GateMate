@@ -34,10 +34,10 @@ class AiMatchController extends Controller
      *
      * @param int $id ID dari Attendee (bukan Transaction!)
      */
-    public function findMatch(int $id): JsonResponse
+    public function findMatch(string $id): JsonResponse
     {
         try {
-            $data = $this->matchmakingService->findMatchForAttendee(Auth::id(), $id);
+            $data = $this->matchmakingService->getMatchesForTransaction(Auth::id(), $id);
             return response()->json([
                 'success' => true,
                 'data'    => $data,

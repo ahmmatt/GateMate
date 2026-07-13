@@ -33,6 +33,7 @@ class EventResource extends JsonResource
             'capacity_type'    => $this->capacity_type,
             'max_capacity'     => $this->max_capacity,
             'seat_assignment'  => $this->seat_assignment,
+            'seat_numbers'     => $this->seat_numbers ?? [],
             'custom_questions' => $this->custom_questions ?? [],
             'banner_image_url' => $this->banner_image
                 ? asset('Media/uploads/' . $this->banner_image)

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
 use App\Traits\ApiResponse;
+use App\Services\EventService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,31 +23,20 @@ class EventController extends Controller
 {
     use ApiResponse;
 
+    protected EventService $eventService;
+
+    public function __construct(EventService $eventService)
+    {
+        $this->eventService = $eventService;
+    }
+
     /**
      * Daftar semua event aktif yang belum berakhir.
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Event::with(['ticketTiers', 'admin'])
-            ->where('status', 'active')
-            ->whereDate('end_date', '>=', now()->toDateString());
-
-        // Filter opsional: kategori
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
-        // Filter opsional: kota
-        if ($request->filled('city')) {
-            $query->where('city', 'like', '%' . $request->city . '%');
-        }
-
-        // Filter opsional: pencarian judul
-        if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
-        }
-
-        $events = $query->orderBy('start_date', 'asc')->get();
+        $filters = $request->only(['category', 'city', 'search']);
+        $events = $this->eventService->getPublicEvents($filters);
 
         return $this->success(EventResource::collection($events));
     }

@@ -1,5 +1,6 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 export default function UserLayout() {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -17,6 +18,8 @@ export default function UserLayout() {
           <Outlet />
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

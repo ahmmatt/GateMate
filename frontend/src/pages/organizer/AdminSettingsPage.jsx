@@ -251,8 +251,7 @@ export default function AdminSettingsPage() {
 
   // ── Input Field ──
   const Field = ({ label, children, note }) => (
-    <div className="space-y-1.5">
-      <label className="block font-label-md text-label-md text-secondary">{label}</label>
+    <div className="space-y-1.5"> <label className="block font-label-md text-label-md text-secondary">{label}</label>
       {children}
       {note && <p className="text-[11px] text-secondary">{note}</p>}
     </div>
@@ -285,34 +284,27 @@ export default function AdminSettingsPage() {
   );
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <OrganizerSidebar activeNav="settings" />
+    <div className="bg-surface text-on-surface min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}> <OrganizerSidebar activeNav="settings" />
 
       {/* ── Main Content ── */}
-      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-10 w-full relative">
-        <div className="max-w-[1200px] mx-auto p-6 space-y-6">
+      <main className="md:ml-[240px] min-h-screen pt-16 md:pt-0 pb-24 md:pb-10 flex-1 relative"> <div className="max-w-[1200px] mx-auto p-6 space-y-6">
 
           {/* Page Header */}
-          <div className="pt-2">
-            <nav className="flex items-center space-x-2 text-secondary font-label-md text-label-md mb-2">
-              <Link to="/organizer/dashboard" className="cursor-pointer hover:text-primary transition-colors">Dashboard</Link>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+          <div className="pt-2"> <nav className="flex items-center space-x-2 text-secondary font-label-md text-label-md mb-2">
+              <Link to="/organizer/dashboard" className="cursor-pointer hover:text-primary transition-colors">Dashboard</Link> <span className="material-symbols-outlined text-[14px]">chevron_right</span>
               <span className="text-on-surface-variant">Pengaturan</span>
             </nav>
-            <h1 className="text-[32px] font-bold text-on-surface leading-10">Pengaturan Akun</h1>
-            <p className="font-body-sm text-body-sm text-secondary mt-1">Kelola profil, keamanan, dan preferensi akun Anda.</p>
+            <h1 className="text-[32px] font-bold text-on-surface leading-10">Pengaturan Akun</h1> <p className="font-body-sm text-body-sm text-secondary mt-1">Kelola profil, keamanan, dan preferensi akun Anda.</p>
           </div>
 
           {/* Global Messages */}
           {successMsg && (
-            <div className="bg-[#E8F5E9] border border-[#2E7D32] text-[#2E7D32] px-4 py-3 rounded-lg flex items-center gap-2 font-body-sm text-body-sm shadow-sm">
-              <span className="material-symbols-outlined">check_circle</span>
+            <div className="bg-[#E8F5E9] border border-[#2E7D32] text-[#2E7D32] px-4 py-3 rounded-lg flex items-center gap-2 font-body-sm text-body-sm shadow-sm"> <span className="material-symbols-outlined">check_circle</span>
               {successMsg}
             </div>
           )}
           {errorMsg && (
-            <div className="bg-error-container border border-error text-error px-4 py-3 rounded-lg flex items-center gap-2 font-body-sm text-body-sm shadow-sm">
-              <span className="material-symbols-outlined">error</span>
+            <div className="bg-error-container border border-error text-error px-4 py-3 rounded-lg flex items-center gap-2 font-body-sm text-body-sm shadow-sm"> <span className="material-symbols-outlined">error</span>
               {errorMsg}
             </div>
           )}
@@ -329,8 +321,7 @@ export default function AdminSettingsPage() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-20 text-secondary">
-              <span className="material-symbols-outlined animate-spin mr-3 text-primary">progress_activity</span>
+            <div className="flex items-center justify-center py-20 text-secondary"> <span className="material-symbols-outlined animate-spin mr-3 text-primary">progress_activity</span>
               Memuat pengaturan...
             </div>
           ) : (
@@ -341,15 +332,12 @@ export default function AdminSettingsPage() {
 
                 {/* ═══ TAB: PROFIL AKUN ═══ */}
                 {activeTab === 'profile' && (
-                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                    <div className="flex items-center gap-2 mb-6">
-                      <span className="material-symbols-outlined text-primary">person</span>
-                      <h3 className="font-h3 text-h3 text-on-surface">Profil Pengguna</h3>
+                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center gap-2 mb-6">
+                      <span className="material-symbols-outlined text-primary">person</span> <h3 className="font-h3 text-h3 text-on-surface">Profil Pengguna</h3>
                     </div>
                     <div className="flex flex-col md:flex-row gap-8">
                       {/* Avatar Upload */}
-                      <div className="flex flex-col items-center space-y-3 flex-shrink-0">
-                        <div className="relative w-28 h-28 rounded-full border-[0.5px] border-outline-variant overflow-hidden group bg-surface-container-low cursor-pointer"
+                      <div className="flex flex-col items-center space-y-3 flex-shrink-0"> <div className="relative w-28 h-28 rounded-full border-[0.5px] border-outline-variant overflow-hidden group bg-surface-container-low cursor-pointer"
                           onClick={() => fileInputRef.current?.click()}>
                           {profilePicture ? (
                             <img alt="Profile" className="w-full h-full object-cover" src={profilePicture} />
@@ -358,26 +346,22 @@ export default function AdminSettingsPage() {
                           )}
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                             {photoUploading
-                              ? <span className="material-symbols-outlined text-white animate-spin">progress_activity</span>
-                              : <span className="material-symbols-outlined text-white">photo_camera</span>}
+                              ? <span className="material-symbols-outlined text-white animate-spin">progress_activity</span> : <span className="material-symbols-outlined text-white">photo_camera</span>}
                           </div>
                         </div>
-                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                        <button onClick={() => fileInputRef.current?.click()} className="text-primary font-bold text-[12px] hover:underline">Ganti Foto</button>
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} /> <button onClick={() => fileInputRef.current?.click()} className="text-primary font-bold text-[12px] hover:underline">Ganti Foto</button>
                         <p className="text-[11px] text-secondary text-center">JPG, PNG, WebP. Maks 2MB.</p>
                       </div>
 
                       {/* Fields */}
-                      <div className="flex-1 space-y-stack-md">
-                        <Field label="Nama Lengkap">
+                      <div className="flex-1 space-y-stack-md"> <Field label="Nama Lengkap">
                           <input type="text" name="full_name" value={formProfile.full_name} onChange={handleProfileChange} className={inputCls} placeholder="Nama lengkap Anda" />
                         </Field>
                         <Field label="Email" note="Email tidak dapat diubah.">
                           <input type="email" value={user?.email || ''} disabled className="w-full bg-surface-container border-[0.5px] border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm text-secondary cursor-not-allowed" />
                         </Field>
                         <Field label="Nomor Telepon">
-                          <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-body-sm text-body-sm">+62</span>
+                          <div className="relative"> <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-body-sm text-body-sm">+62</span>
                             <input type="tel" name="phone" value={formProfile.phone} onChange={handleProfileChange} className={`${inputCls} pl-12`} placeholder="81234567890" />
                           </div>
                         </Field>
@@ -391,13 +375,10 @@ export default function AdminSettingsPage() {
                   <div className="space-y-6">
 
                     {/* Informasi Organisasi */}
-                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                      <div className="flex items-center gap-2 mb-6">
-                        <span className="material-symbols-outlined text-primary">corporate_fare</span>
-                        <h3 className="font-h3 text-h3 text-on-surface font-bold">Informasi Organisasi</h3>
+                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center gap-2 mb-6">
+                        <span className="material-symbols-outlined text-primary">corporate_fare</span> <h3 className="font-h3 text-h3 text-on-surface font-bold">Informasi Organisasi</h3>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
-                        <Field label="Nama Organisasi / EO">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md"> <Field label="Nama Organisasi / EO">
                           <input type="text" name="organization_name" value={formProfile.organization_name} onChange={handleProfileChange} className={inputCls} placeholder="PT. Kreasi Mandiri Event" />
                         </Field>
                         <Field label="Nomor Telepon Organisasi">
@@ -415,18 +396,15 @@ export default function AdminSettingsPage() {
                           </select>
                         </Field>
                         <Field label="Website (Opsional)">
-                          <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[12px]">https://</span>
+                          <div className="relative"> <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-[12px]">https://</span>
                             <input type="text" name="organization_website" value={formProfile.organization_website.replace(/^https?:\/\//, '')} onChange={e => setFormProfile(p => ({ ...p, organization_website: 'https://' + e.target.value }))} className={`${inputCls} pl-16`} placeholder="www.organisasianda.com" />
                           </div>
                         </Field>
-                        <div className="md:col-span-2">
-                          <Field label="Alamat Kantor">
+                        <div className="md:col-span-2"> <Field label="Alamat Kantor">
                             <textarea name="organization_address" value={formProfile.organization_address} onChange={handleProfileChange} rows={3} className={`${inputCls} resize-none`} placeholder="Gedung / Jalan / Kota..." />
                           </Field>
                         </div>
-                        <div className="md:col-span-2">
-                          <Field label="Deskripsi Singkat">
+                        <div className="md:col-span-2"> <Field label="Deskripsi Singkat">
                             <textarea name="organization_description" value={formProfile.organization_description} onChange={handleProfileChange} rows={3} className={`${inputCls} resize-none`} placeholder="Ceritakan tentang organisasi Anda..." />
                           </Field>
                         </div>
@@ -434,97 +412,62 @@ export default function AdminSettingsPage() {
                     </section>
 
                     {/* Media Sosial */}
-                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                      <div className="flex items-center gap-2 mb-6">
-                        <span className="material-symbols-outlined text-primary">share</span>
-                        <h3 className="font-h3 text-h3 text-on-surface font-bold">Media Sosial</h3>
+                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center gap-2 mb-6">
+                        <span className="material-symbols-outlined text-primary">share</span> <h3 className="font-h3 text-h3 text-on-surface font-bold">Media Sosial</h3>
                       </div>
-                      <div className="space-y-stack-md">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+                      <div className="space-y-stack-md"> <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
                           <Field label="Instagram Handle">
-                            <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
+                            <div className="relative"> <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
                               <input type="text" name="organization_instagram" value={formProfile.organization_instagram} onChange={handleProfileChange} className={`${inputCls} pl-9`} placeholder="nama_akun" />
                             </div>
                           </Field>
                           <Field label="TikTok Handle">
-                            <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
+                            <div className="relative"> <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
                               <input type="text" name="organization_tiktok" value={formProfile.organization_tiktok} onChange={handleProfileChange} className={`${inputCls} pl-9`} placeholder="username_tiktok" />
                             </div>
                           </Field>
                         </div>
                         <Field label="X / Twitter Handle (Opsional)">
-                          <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
+                          <div className="relative"> <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">@</span>
                             <input type="text" name="organization_twitter" value={formProfile.organization_twitter} onChange={handleProfileChange} className={`${inputCls} pl-9`} placeholder="username_twitter" />
                           </div>
                         </Field>
                       </div>
                     </section>
 
-                    {/* Informasi Rekening */}
-                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                      <div className="flex items-center gap-2 mb-6">
-                        <span className="material-symbols-outlined text-primary">account_balance</span>
-                        <h3 className="font-h3 text-h3 text-on-surface font-bold">Rekening Penarikan Dana</h3>
-                      </div>
-                      <div className="space-y-stack-md">
-                        <Field label="Nama Bank / E-Wallet">
-                          <input type="text" name="bank_name" value={formProfile.bank_name} onChange={handleProfileChange} className={inputCls} placeholder="Misal: BCA, GoPay, OVO" />
-                        </Field>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
-                          <Field label="Nomor Rekening">
-                            <input type="text" name="bank_account_number" value={formProfile.bank_account_number} onChange={handleProfileChange} className={inputCls} placeholder="0123456789" />
-                          </Field>
-                          <Field label="Nama Pemilik Rekening">
-                            <input type="text" name="bank_account_name" value={formProfile.bank_account_name} onChange={handleProfileChange} className={inputCls} placeholder="Sesuai nama di rekening" />
-                          </Field>
-                        </div>
-                      </div>
-                    </section>
+                    
 
                     {/* Dokumen Legalitas */}
-                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-primary">verified_user</span>
+                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2"> <span className="material-symbols-outlined text-primary">verified_user</span>
                           <h3 className="font-h3 text-h3 text-on-surface font-bold">Dokumen Legalitas</h3>
                         </div>
-                        <button className="text-primary font-bold text-[13px] hover:underline flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[16px]">upload</span>
+                        <button className="text-primary font-bold text-[13px] hover:underline flex items-center gap-1"> <span className="material-symbols-outlined text-[16px]">upload</span>
                           Update Dokumen
                         </button>
                       </div>
-                      <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 p-4 rounded-xl border-[0.5px] border-outline-variant bg-surface-container-low flex items-center gap-4">
-                          <div className="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary flex-shrink-0">
-                            <span className="material-symbols-outlined">badge</span>
+                      <div className="flex flex-col md:flex-row gap-4"> <div className="flex-1 p-4 rounded-xl border-[0.5px] border-outline-variant bg-surface-container-low flex items-center gap-4">
+                          <div className="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary flex-shrink-0"> <span className="material-symbols-outlined">badge</span>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-body-sm text-body-sm font-bold text-on-surface">KTP Penanggung Jawab</p>
+                          <div className="flex-1"> <p className="font-body-sm text-body-sm font-bold text-on-surface">KTP Penanggung Jawab</p>
                             <p className="font-caption text-caption text-secondary">
                               {user?.ktp_document ? 'Terverifikasi ✓' : 'Belum diunggah'}
                             </p>
                           </div>
                           {user?.ktp_document && (
-                            <button className="text-secondary hover:text-primary transition-colors">
-                              <span className="material-symbols-outlined">visibility</span>
+                            <button className="text-secondary hover:text-primary transition-colors"> <span className="material-symbols-outlined">visibility</span>
                             </button>
                           )}
                         </div>
-                        <div className="flex-1 p-4 rounded-xl border-[0.5px] border-outline-variant bg-surface-container-low flex items-center gap-4">
-                          <div className="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary flex-shrink-0">
+                        <div className="flex-1 p-4 rounded-xl border-[0.5px] border-outline-variant bg-surface-container-low flex items-center gap-4"> <div className="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary flex-shrink-0">
                             <span className="material-symbols-outlined">description</span>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-body-sm text-body-sm font-bold text-on-surface">SIUP / Izin Usaha</p>
+                          <div className="flex-1"> <p className="font-body-sm text-body-sm font-bold text-on-surface">SIUP / Izin Usaha</p>
                             <p className="font-caption text-caption text-secondary">Belum diunggah</p>
                           </div>
                         </div>
                       </div>
-                      <div className="mt-4 p-3 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-start gap-3">
-                        <span className="material-symbols-outlined text-tertiary text-[18px] mt-0.5">info</span>
+                      <div className="mt-4 p-3 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-start gap-3"> <span className="material-symbols-outlined text-tertiary text-[18px] mt-0.5">info</span>
                         <p className="font-caption text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim GateMate selama maksimal 2×24 jam.</p>
                       </div>
                     </section>
@@ -533,21 +476,16 @@ export default function AdminSettingsPage() {
 
                 {/* ═══ TAB: KEAMANAN ═══ */}
                 {activeTab === 'security' && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
+                  <div className="space-y-6"> <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
 
                       {/* Ubah Password */}
-                      <section className="lg:col-span-7 bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
-                            <span className="material-symbols-outlined">lock_reset</span>
+                      <section className="lg:col-span-12 bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0"> <span className="material-symbols-outlined">lock_reset</span>
                           </div>
                           <h3 className="font-h3 text-h3 text-on-surface">Ubah Password</h3>
                         </div>
-                        <div className="space-y-stack-md">
-                          <div className="p-4 bg-surface-container-low rounded-xl border-[0.5px] border-outline-variant flex items-start gap-3">
-                            <span className="material-symbols-outlined text-primary mt-0.5 text-[18px]">info</span>
-                            <p className="font-body-sm text-body-sm text-secondary">Password baru minimal 8 karakter. Gunakan kombinasi huruf, angka, dan simbol.</p>
+                        <div className="space-y-stack-md"> <div className="p-4 bg-surface-container-low rounded-xl border-[0.5px] border-outline-variant flex items-start gap-3">
+                            <span className="material-symbols-outlined text-primary mt-0.5 text-[18px]">info</span> <p className="font-body-sm text-body-sm text-secondary">Password baru minimal 8 karakter. Gunakan kombinasi huruf, angka, dan simbol.</p>
                           </div>
                           <PasswordField 
                             label="Kata Sandi Saat Ini" 
@@ -577,56 +515,26 @@ export default function AdminSettingsPage() {
                           </div>
                           <div className="pt-2">
                             <button onClick={handleSaveSecurity} disabled={saving}
-                              className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-body-sm text-body-sm font-bold hover:brightness-95 active:scale-95 transition-all disabled:opacity-60 flex items-center gap-2">
-                              {saving && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
+                              className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-body-sm text-body-sm font-bold hover:brightness-95 active:scale-95 transition-all disabled:opacity-60 flex items-center gap-2"> {saving && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
                               {saving ? 'Menyimpan...' : 'Perbarui Kata Sandi'}
                             </button>
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* 2FA Card */}
-                      <section className="lg:col-span-5 bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity select-none pointer-events-none">
-                          <span className="material-symbols-outlined text-[80px]">verified_user</span>
-                        </div>
-                        <div className="flex flex-col h-full">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-lg bg-[#b2ebff] flex items-center justify-center text-tertiary flex-shrink-0">
-                              <span className="material-symbols-outlined">shield_lock</span>
-                            </div>
-                            <h3 className="font-h3 text-h3 text-on-surface">Autentikasi 2FA</h3>
-                          </div>
-                          <p className="text-secondary font-body-sm text-body-sm mb-6 leading-relaxed">Tambahkan lapisan keamanan ekstra. Kami akan meminta kode keamanan setiap login dari perangkat tidak dikenal.</p>
-                          <div className="mt-auto flex items-center justify-between p-4 bg-surface-container rounded-lg border-[0.5px] border-outline-variant">
-                            <div>
-                              <p className="font-body-sm text-body-sm font-bold text-on-surface">Aktifkan 2FA</p>
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold mt-1 ${twoFaEnabled ? 'bg-[#DCFCE7] text-[#15803D]' : 'bg-error-container text-error'}`}>
-                                {twoFaEnabled ? '✓ Aktif' : 'Nonaktif'}
-                              </span>
-                            </div>
-                            <Toggle checked={twoFaEnabled} onToggle={() => setTwoFaEnabled(!twoFaEnabled)} size="large" />
                           </div>
                         </div>
                       </section>
                     </div>
 
                     {/* Sesi Aktif */}
-                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant overflow-hidden">
-                      <div className="p-6 border-b border-outline-variant flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-surface flex-shrink-0">
+                    <section className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant overflow-hidden"> <div className="p-6 border-b border-outline-variant flex justify-between items-center">
+                        <div className="flex items-center gap-3"> <div className="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-surface flex-shrink-0">
                             <span className="material-symbols-outlined">devices</span>
                           </div>
                           <h3 className="font-h3 text-h3 text-on-surface">Sesi Aktif</h3>
                         </div>
-                        <button onClick={handleDeleteAllSessions} className="text-primary font-body-sm text-body-sm font-bold hover:underline flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[16px]">logout</span>
+                        <button onClick={handleDeleteAllSessions} className="text-primary font-body-sm text-body-sm font-bold hover:underline flex items-center gap-1"> <span className="material-symbols-outlined text-[16px]">logout</span>
                           Keluar dari semua sesi
                         </button>
                       </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                      <div className="overflow-x-auto"> <table className="w-full text-left">
                           <thead className="bg-surface-container-low text-secondary">
                             <tr>
                               {['Perangkat', 'Lokasi', 'Waktu Login', ''].map(h => (
@@ -636,20 +544,15 @@ export default function AdminSettingsPage() {
                           </thead>
                           <tbody className="divide-y divide-outline-variant">
                             {activeSessions.map(session => (
-                              <tr key={session.id} className="hover:bg-surface-container transition-colors">
-                                <td className="px-6 py-5">
-                                  <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-secondary">{session.icon}</span>
+                              <tr key={session.id} className="hover:bg-surface-container transition-colors"> <td className="px-6 py-5">
+                                  <div className="flex items-center gap-3"> <span className="material-symbols-outlined text-secondary">{session.icon}</span>
                                     <div>
-                                      <p className="font-body-sm text-body-sm font-bold text-on-surface">{session.device}</p>
-                                      <p className="font-caption text-caption text-secondary">{session.ip}</p>
+                                      <p className="font-body-sm text-body-sm font-bold text-on-surface">{session.device}</p> <p className="font-caption text-caption text-secondary">{session.ip}</p>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-6 py-5">
-                                  <div className="flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[16px] text-tertiary">location_on</span>
-                                    <span className="font-body-sm text-body-sm text-on-surface">{session.location}</span>
+                                <td className="px-6 py-5"> <div className="flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[16px] text-tertiary">location_on</span> <span className="font-body-sm text-body-sm text-on-surface">{session.location}</span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-5">
@@ -687,10 +590,8 @@ export default function AdminSettingsPage() {
                 <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
 
                   {/* Save Card */}
-                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
-                        <span className="material-symbols-outlined">verified_user</span>
+                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0"> <span className="material-symbols-outlined">verified_user</span>
                       </div>
                       <div>
                         <p className="font-label-md text-label-md font-bold text-on-surface">Status Akun</p>
@@ -706,13 +607,11 @@ export default function AdminSettingsPage() {
                         Bergabung: {lastUpdated}
                       </p>
                     )}
-                    <div className="border-t border-outline-variant pt-4 space-y-2 mb-4">
-                      <p className="font-body-sm text-body-sm text-secondary">Pastikan semua data yang Anda masukkan sudah benar sebelum menyimpan.</p>
+                    <div className="border-t border-outline-variant pt-4 space-y-2 mb-4"> <p className="font-body-sm text-body-sm text-secondary">Pastikan semua data yang Anda masukkan sudah benar sebelum menyimpan.</p>
                     </div>
                     <div className="space-y-3">
                       <button onClick={handleSaveForTab} disabled={saving}
-                        className="w-full py-3 bg-primary text-on-primary rounded-[22px] font-body-sm text-body-sm font-bold active:opacity-80 hover:brightness-95 disabled:opacity-60 flex items-center justify-center gap-2 transition-all shadow-sm">
-                        {saving && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
+                        className="w-full py-3 bg-primary text-on-primary rounded-[22px] font-body-sm text-body-sm font-bold active:opacity-80 hover:brightness-95 disabled:opacity-60 flex items-center justify-center gap-2 transition-all shadow-sm"> {saving && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
                         {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
                       </button>
                       <button onClick={() => window.location.reload()}
@@ -723,8 +622,7 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* Tab Navigation Card */}
-                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg">
-                    <h4 className="font-label-md text-label-md font-bold text-on-surface mb-3">Navigasi Cepat</h4>
+                  <div className="bg-surface-container-lowest rounded-[14px] border-[0.5px] border-outline-variant p-stack-lg"> <h4 className="font-label-md text-label-md font-bold text-on-surface mb-3">Navigasi Cepat</h4>
                     <nav className="space-y-1">
                       {TABS.map(tab => (
                         <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -736,15 +634,7 @@ export default function AdminSettingsPage() {
                     </nav>
                   </div>
 
-                  {/* Help Card */}
-                  <div className="bg-surface-container-low rounded-[14px] border border-dashed border-outline-variant p-stack-lg">
-                    <h4 className="font-label-md text-label-md font-bold text-secondary uppercase tracking-wider mb-2">Butuh Bantuan?</h4>
-                    <p className="font-body-sm text-body-sm text-on-surface mb-4">Hubungi account manager Anda untuk bantuan perubahan data yang mendesak.</p>
-                    <a href="mailto:support@gatemate.id" className="inline-flex items-center text-primary font-bold font-body-sm text-body-sm group hover:underline">
-                      Hubungi Support
-                      <span className="material-symbols-outlined ml-1 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                    </a>
-                  </div>
+                  
                 </aside>
               )}
             </div>

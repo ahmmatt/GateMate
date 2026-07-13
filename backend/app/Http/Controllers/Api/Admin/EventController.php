@@ -99,12 +99,7 @@ class EventController extends Controller
             'data'    => [
                 'event'                 => new EventResource($detail['event']),
                 'stats'                 => $detail['stats'],
-                'tenants'               => $detail['tenants']->map(fn ($t) => [
-                    'id'       => $t->id_user,
-                    'full_name' => $t->full_name,
-                    'email'    => $t->email,
-                    'id_event' => $t->id_event,
-                ]),
+                'tenants'               => $detail['tenants'],
                 'pending_withdrawals'   => $detail['pending_withdrawals']->map(fn ($w) => [
                     'id'         => $w->id,
                     'amount'     => (float) $w->amount,

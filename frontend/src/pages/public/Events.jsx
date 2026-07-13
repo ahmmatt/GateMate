@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Search, MapPin, Calendar, Heart, ChevronDown, X, Ticket,
   Home as HomeIcon, Compass, Wallet, User
@@ -18,6 +18,7 @@ const formatDate = (dateStr) => {
 const sisa = (event) => event.maxAttendees - event.soldTickets
 
 export default function Events() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [activeCity, setActiveCity] = useState('Semua')
@@ -31,12 +32,15 @@ export default function Events() {
     { name: 'Jakarta' },
     { name: 'Bandung' },
     { name: 'Surabaya' },
-    { name: 'Bali' }
+    { name: 'Bali' },
+    { name: 'Yogyakarta' },
+    { name: 'Medan' },
+    { name: 'Makassar' },
+    { name: 'Semarang' }
   ]
 
   const getCityEventCount = (_cityName) => {
-    // TODO: Ganti dengan data count dari API
-    return 0
+    return allEvents.filter(ev => ev.city === _cityName).length
   }
 
   const toggleLike = (eventId) => {
@@ -45,16 +49,73 @@ export default function Events() {
     )
   }
 
-  // TODO: Ganti dengan fetch dari API → eventService.getAll({ search, category, city, sort })
-  // useEffect(() => { eventService.getAll(params).then(res => setEvents(res.data.data)) }, [search, activeCategory, activeCity, sortBy])
-  const filtered = [].sort((a, b) => {
+  const [events, setEvents] = useState([])
+  const [allEvents, setAllEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { default: api } = await import('../../lib/api')
+      try {
+        const res = await api.get('/events')
+        setAllEvents(res.data.data || [])
+      } catch (err) {}
+    }
+    fetchAll()
+  }, [])
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true)
+      try {
+        const params = new URLSearchParams()
+        if (search) params.append('search', search)
+        if (activeCategory !== 'Semua') params.append('category', activeCategory)
+        if (activeCity !== 'Semua') params.append('city', activeCity)
+        
+        // Import api directly to fetch since eventService might need import update
+        const { default: api } = await import('../../lib/api')
+        const res = await api.get(`/events?${params.toString()}`)
+        
+        // Map backend response to frontend expected structure
+        const mappedEvents = (res.data.data || []).map(ev => ({
+          id: ev.id || ev.id_event,
+          title: ev.title,
+          category: ev.category?.name || ev.category || 'Event',
+          city: ev.city,
+          date: ev.start_date,
+          created_at: ev.created_at,
+          image: ev.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400',
+          price: ev.ticket_tiers && ev.ticket_tiers.length > 0 ? Math.min(...ev.ticket_tiers.map(t => t.price)) : 0,
+          maxAttendees: ev.max_capacity || 0,
+          soldTickets: 0 // Ideally from backend, defaulting to 0
+        }))
+        
+        setEvents(mappedEvents)
+      } catch (error) {
+        console.error('Failed to fetch events:', error)
+        setEvents([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    // Add small debounce for search
+    const timer = setTimeout(() => {
+      fetchEvents()
+    }, 300)
+    
+    return () => clearTimeout(timer)
+  }, [search, activeCategory, activeCity])
+
+  const sortedEvents = [...events].sort((a, b) => {
     if (sortBy === 'price-asc') return a.price - b.price
     if (sortBy === 'price-desc') return b.price - a.price
     if (sortBy === 'date') return new Date(a.date) - new Date(b.date)
-    return b.id - a.id // newest
+    return new Date(b.created_at) - new Date(a.created_at) // newest
   })
 
-  const displayedEvents = filtered.slice(0, visibleLimit)
+  const displayedEvents = sortedEvents.slice(0, visibleLimit)
 
   return (
     <div className="bg-[#fff8f6] min-h-screen text-[#271815] py-8 px-4 md:px-8 pb-24 md:pb-12">
@@ -160,12 +221,12 @@ export default function Events() {
         {/* Results Info */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-xs text-[#5f5e5e]">
-            Menampilkan <span className="font-bold text-[#271815]">{filtered.length}</span> event
+            Menampilkan <span className="font-bold text-[#271815]">{sortedEvents.length}</span> event
             {activeCity !== 'Semua' && <> di <span className="font-bold text-[#b22110]">{activeCity}</span></>}
             {activeCategory !== 'Semua' && <> kategori <span className="font-bold text-[#b22110]">{activeCategory}</span></>}
           </p>
 
-          {/* Reset Filters Option if filtered results differ from original */}
+          {/* Reset Filters Option if sortedEvents results differ from original */}
           {(search || activeCategory !== 'Semua' || activeCity !== 'Semua') && (
             <button
               onClick={() => {
@@ -273,7 +334,7 @@ export default function Events() {
         )}
 
         {/* Load More Button */}
-        {filtered.length > visibleLimit && (
+        {sortedEvents.length > visibleLimit && (
           <div className="flex justify-center mb-16">
             <button
               onClick={() => setVisibleLimit(prev => prev + 6)}
@@ -296,24 +357,14 @@ export default function Events() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {popularCities.map((city) => {
               const count = getCityEventCount(city.name)
-              const isActive = activeCity.toLowerCase() === city.name.toLowerCase()
               return (
                 <button
                   key={city.name}
-                  onClick={() => {
-                    setActiveCity(city.name)
-                    setVisibleLimit(6)
-                  }}
-                  className={`group relative overflow-hidden rounded-[14px] border p-4 text-left transition-all duration-200 ${
-                    isActive
-                      ? 'bg-[#fff0ee] border-[#b22110] shadow-sm'
-                      : 'bg-white border-[#e3beb8]/20 hover:border-[#b22110] hover:shadow-[0_8px_30px_rgb(178,33,16,0.04)]'
-                  }`}
+                  onClick={() => navigate(`/events/city/${city.name}`)}
+                  className={`group relative overflow-hidden rounded-[14px] border p-4 text-left transition-all duration-200 bg-white border-[#e3beb8]/20 hover:border-[#b22110] hover:shadow-[0_8px_30px_rgb(178,33,16,0.04)]`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                      isActive ? 'bg-[#b22110] text-white' : 'bg-[#fff0ee] text-[#b22110]'
-                    }`}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-[#fff0ee] text-[#b22110]">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>

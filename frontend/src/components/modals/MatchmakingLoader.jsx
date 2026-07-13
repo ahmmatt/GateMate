@@ -1,26 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 export default function MatchmakingLoader({ isOpen, onCancel }) {
-  const navigate = useNavigate();
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      timerRef.current = setTimeout(() => {
-        navigate('/user/matchmaking');
-      }, 3000);
-    } else {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [isOpen, navigate]);
-
-  const handleCancel = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    onCancel();
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -69,7 +49,7 @@ export default function MatchmakingLoader({ isOpen, onCancel }) {
           {/* Batal Button */}
           <button 
             className="w-full border border-primary text-primary py-[10px] px-[22px] rounded-full font-medium hover:bg-surface-container-low transition-colors" 
-            onClick={handleCancel}
+            onClick={onCancel}
           >
             Batal
           </button>

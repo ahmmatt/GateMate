@@ -42,17 +42,24 @@ class TenantService
             ->sortByDesc('created_at')
             ->take(20)
             ->values()
-            ->map(fn ($t) => [
-                'id'         => $t->id,
-                'order_id'   => $t->order_id,
-                'type'       => $t->type,
-                'amount'     => (float) $t->amount,
-                'status'     => $t->status,
-                'meta'       => $t->meta,
-                'created_at' => $t->created_at?->toIso8601String(),
-            ]);
+            ->map(function ($t) {
+                $amount = (float) $t->amount;
+                // Potong komisi 5% untuk organizer pada riwayat penjualan
+                if ($t->type === 'tenant_revenue') {
+                    $amount = $amount * 0.95;
+                }
+                return [
+                    'id'         => $t->id,
+                    'order_id'   => $t->order_id,
+                    'type'       => $t->type,
+                    'amount'     => $amount,
+                    'status'     => $t->status,
+                    'meta'       => $t->meta,
+                    'created_at' => $t->created_at?->toIso8601String(),
+                ];
+            });
 
-        $totalEarned = $salesTransactions->sum('amount');
+        $totalEarned = $salesTransactions->sum('amount') * 0.95; // Pendapatan bersih setelah potong 5%
         $pendingWd   = $wdTransactions->whereIn('status', ['pending', 'pending_admin'])->sum('amount');
         $successWd   = $wdTransactions->where('status', 'success')->sum('amount');
 
@@ -110,9 +117,11 @@ class TenantService
             throw new Exception('Event belum berakhir. Anda belum bisa menarik dana.');
         }
 
-        $sales = WalletTransaction::where('type', 'tenant_revenue')
+        $grossSales = WalletTransaction::where('type', 'tenant_revenue')
             ->where('meta->tenant_id', $tenant->id_user)
             ->sum('amount');
+        $sales = $grossSales * 0.95; // Pendapatan bersih setelah 5% komisi
+            
         $wds = WalletTransaction::where('user_id', $tenant->id_user)
             ->where('type', 'withdrawal')
             ->whereIn('status', ['pending', 'pending_admin', 'success'])

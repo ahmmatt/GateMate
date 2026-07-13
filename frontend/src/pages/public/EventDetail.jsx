@@ -1,385 +1,612 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Calendar, MapPin, Clock, Info, Navigation, ArrowLeft, X, ChevronDown } from 'lucide-react'
-import { formatDate, formatPrice } from '../../utils/formatDate'
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import api from '../../lib/api';
+import useAuthStore from '../../store/useAuthStore';
 
-// ─── Purchase Confirmation Modal ──────────────────────────────────────────────
-function PurchaseModal({ event, tier, onClose, onConfirm }) {
-  const [motivation, setMotivation] = useState('')
-  const [source, setSource] = useState('')
-  const [isClosing, setIsClosing] = useState(false)
+import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
-  // Lock background scroll while modal is open
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
-  }, [])
+const MIDTRANS_CLIENT_KEY = import.meta.env.VITE_MIDTRANS_CLIENT_KEY || 'Mid-client-tagqO0YtUtBkIEIA';
 
-  const handleClose = () => {
-    setIsClosing(true)
-    setTimeout(onClose, 200)
-  }
+export default function EventDetailPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    onConfirm({ motivation, source })
-  }
-
-  // Close on overlay click
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) handleClose()
-  }
-
-  return (
-    <div
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{
-        backdropFilter: 'blur(12px)',
-        backgroundColor: 'rgba(255, 248, 246, 0.8)',
-        opacity: isClosing ? 0 : 1,
-        transition: 'opacity 0.2s ease-out',
-      }}
-    >
-      <div
-        className="relative bg-surface-container-lowest border border-outline-variant rounded-[14px] shadow-2xl w-full max-w-[520px] overflow-hidden flex flex-col"
-        style={{
-          transform: isClosing ? 'scale(0.96)' : 'scale(1)',
-          opacity: isClosing ? 0 : 1,
-          transition: 'transform 0.2s ease-out, opacity 0.2s ease-out',
-        }}
-      >
-        {/* Modal Header */}
-        <div className="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-white shrink-0">
-          <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
-            Konfirmasi Pembelian
-          </h2>
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-full text-secondary hover:text-primary hover:bg-surface-container transition-all"
-            aria-label="Tutup"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Modal Content */}
-        <div className="p-6 space-y-6 overflow-y-auto max-h-[65vh]">
-          {/* Selected Ticket */}
-          <div className="bg-surface-container-low border border-outline-variant p-4 rounded-xl flex justify-between items-center">
-            <div>
-              <p className="font-label-md text-label-md text-primary mb-1">Tiket Terpilih</p>
-              <h4 className="font-headline-sm text-headline-sm text-on-surface">{tier.name}</h4>
-              <p className="font-caption text-caption text-on-surface-variant mt-0.5">{tier.description}</p>
-            </div>
-            <p className="font-headline-sm text-headline-sm text-primary font-bold shrink-0 ml-4">
-              {formatPrice(tier.price)}
-            </p>
-          </div>
-
-          {/* Additional Questions Section */}
-          <div className="space-y-4">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Informasi Tambahan
-            </h3>
-
-            <div className="space-y-2">
-              <label className="font-label-md text-label-md text-on-surface-variant block">
-                Apa motivasi Anda mengikuti event ini?
-              </label>
-              <textarea
-                value={motivation}
-                onChange={(e) => setMotivation(e.target.value)}
-                placeholder="Tuliskan motivasi Anda di sini..."
-                rows={3}
-                className="w-full bg-surface border border-outline-variant rounded-[10px] p-3 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="font-label-md text-label-md text-on-surface-variant block">
-                Dari mana Anda mengetahui event ini?
-              </label>
-              <div className="relative">
-                <select
-                  value={source}
-                  onChange={(e) => setSource(e.target.value)}
-                  className="w-full bg-surface border border-outline-variant rounded-[10px] p-3 pr-10 font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none appearance-none transition-all"
-                >
-                  <option value="" disabled>Pilih sumber informasi</option>
-                  <option value="sosmed">Media Sosial (Instagram/Twitter)</option>
-                  <option value="email">Email Newsletter</option>
-                  <option value="teman">Teman atau Kolega</option>
-                  <option value="iklan">Iklan Digital</option>
-                  <option value="lainnya">Lainnya</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary pointer-events-none" />
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Summary */}
-          <div className="pt-4 border-t border-outline-variant">
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-body-md text-body-md text-secondary">Total Tagihan</span>
-              <span className="font-headline-md text-headline-md text-primary font-extrabold">
-                {formatPrice(tier.price)}
-              </span>
-            </div>
-            <p className="font-caption text-caption text-secondary">Termasuk pajak dan biaya layanan.</p>
-          </div>
-        </div>
-
-        {/* Modal Footer Actions */}
-        <div className="px-6 py-5 bg-surface-container-low border-t border-outline-variant flex flex-col sm:flex-row gap-3 shrink-0">
-          <button
-            onClick={handleConfirm}
-            className="flex-1 bg-primary text-white font-body-md text-body-md font-bold py-3 px-6 rounded-full hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all"
-          >
-            Lanjutkan ke Pembayaran
-          </button>
-          <button
-            onClick={handleClose}
-            className="sm:w-auto border border-primary text-primary font-body-md text-body-md font-bold py-3 px-6 rounded-full hover:bg-coral-light active:opacity-80 transition-all"
-          >
-            Batal
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Main EventDetail Page ─────────────────────────────────────────────────────
-export default function EventDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  // TODO: Ganti dengan fetch dari API → eventService.getById(id)
-  // useEffect(() => { eventService.getById(id).then(res => setEvent(res.data.data)) }, [id])
-  const [event, setEvent] = useState(null)
-  const [modalTier, setModalTier] = useState(null)
-
-  if (!event) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4 bg-surface">
-        <h2 className="text-2xl font-bold text-on-surface mb-2">Event Tidak Ditemukan</h2>
-        <p className="text-on-surface-variant mb-6">Event yang Anda cari tidak tersedia.</p>
-        <Link
-          to="/events"
-          className="rounded-[22px] px-6 py-2.5 bg-coral-red text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition-all duration-200"
-        >
-          Kembali ke Events
-        </Link>
-      </div>
-    )
-  }
-
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-
-  const handleBuyTicket = (tier) => {
-    if (!user) {
-      navigate('/login')
-    } else {
-      setModalTier(tier)
+  const extractCoordinates = (iframeString) => {
+    if (!iframeString) return null;
+    const lonMatch = iframeString.match(/!2d(-?\d+\.\d+)/);
+    const latMatch = iframeString.match(/!3d(-?\d+\.\d+)/);
+    if (lonMatch && latMatch) {
+      return { longitude: parseFloat(lonMatch[1]), latitude: parseFloat(latMatch[1]) };
     }
-  }
+    return null;
+  };
 
-  const handleConfirmPurchase = ({ motivation, source }) => {
-    // TODO: integrate with payment gateway / API
-    alert(
-      `Pembayaran untuk "${modalTier.name}" akan diproses!\n` +
-      `Event: ${event.title}\n` +
-      `Harga: ${formatPrice(modalTier.price)}\n` +
-      (motivation ? `Motivasi: ${motivation}\n` : '') +
-      (source ? `Sumber: ${source}` : '')
-    )
-    setModalTier(null)
-  }
+  const { user, checkAuth } = useAuthStore();
+  const [event, setEvent] = useState(null);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [takenSeats, setTakenSeats] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Ticket tiers
-  const ticketTiers = [
-    {
-      name: 'VIP Card',
-      description: 'Akses baris depan + Meet & Greet',
-      price: 1500000,
-      tag: 'TERBATAS',
-      disabled: false,
-    },
-    {
-      name: 'Regular Card',
-      description: 'Akses festival umum',
-      price: event.price > 0 ? event.price : 450000,
-      disabled: false,
-    },
-    {
-      name: 'Early Bird Card',
-      description: 'Akses festival umum',
-      price: 250000,
-      tag: 'SOLDOUT',
-      disabled: true,
-    },
-  ]
+  // Flow State
+  const [selectedTier, setSelectedTier] = useState(null);
+  
+  // Modals
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [kycLoading, setKycLoading] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const [showSeatModal, setShowSeatModal] = useState(false);
+  const [selectedSeat, setSelectedSeat] = useState('');
+
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [answers, setAnswers] = useState({});
+
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [errorModal, setErrorModal] = useState({ show: false, message: '', data: null });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  useEffect(() => {
+    api.get(`/events/${id}`)
+      .then(res => {
+        setEvent(res.data.data.event || res.data.data);
+        setHasPurchased(res.data.data.has_purchased || false);
+        setTakenSeats(res.data.data.taken_seats || []);
+      })
+      .catch(() => navigate('/events'))
+      .finally(() => setLoading(false));
+
+    if (!document.getElementById('midtrans-snap')) {
+      const script = document.createElement('script');
+      script.id = 'midtrans-snap';
+      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+      script.setAttribute('data-client-key', MIDTRANS_CLIENT_KEY);
+      document.body.appendChild(script);
+    }
+    
+    return () => stopCamera();
+  }, [id]);
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setCameraStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Camera access denied", err);
+      alert("Akses kamera ditolak. Verifikasi wajah diperlukan untuk membeli tiket.");
+      setShowKycModal(false);
+    }
+  };
+
+  const checkKycNeeded = () => {
+    if (!user) {
+      alert("Silakan Masuk/Login terlebih dahulu untuk membeli tiket.");
+      navigate('/login');
+      return true;
+    }
+    if (!user.profile_picture_url || !user.face_verified_at) return true;
+    
+    const lastVerified = new Date(user.face_verified_at);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    return lastVerified < threeMonthsAgo;
+  };
+
+  const handleBuyClick = (tier) => {
+    if (hasPurchased) return;
+    if (!tier.is_unlimited && tier.remaining_seats <= 0) return;
+
+    setSelectedTier(tier);
+
+    if (checkKycNeeded()) {
+      setShowKycModal(true);
+      startCamera();
+      return;
+    }
+    proceedAfterKyc();
+  };
+
+  const proceedAfterKyc = () => {
+    if (event.seat_assignment === 'pilih' && event.seat_numbers?.length > 0) {
+      setShowSeatModal(true);
+    } else {
+      proceedAfterSeat();
+    }
+  };
+
+  const proceedAfterSeat = () => {
+    if (event.custom_questions && event.custom_questions.length > 0) {
+      setShowQuestionsModal(true);
+    } else {
+      setShowConfirmModal(true);
+    }
+  };
+
+  const captureFace = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    setKycLoading(true);
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Calculate the center square of the video to prevent black bars
+    const size = Math.min(video.videoWidth, video.videoHeight);
+    const startX = (video.videoWidth - size) / 2;
+    const startY = (video.videoHeight - size) / 2;
+    
+    // Draw only the cropped center square onto the 400x400 canvas
+    ctx.drawImage(video, startX, startY, size, size, 0, 0, 400, 400);
+    
+    const base64 = canvas.toDataURL('image/jpeg');
+    stopCamera();
+
+    try {
+      await api.post('/account/face-capture', { image: base64 });
+      await checkAuth(); 
+      setShowKycModal(false);
+      proceedAfterKyc();
+    } catch (err) {
+      alert(err.response?.data?.message || "Gagal menyimpan verifikasi wajah.");
+      startCamera();
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    setShowQuestionsModal(false);
+    try {
+      const payload = { event_id: event.id || event.id_event, tier_id: selectedTier.id_tier || selectedTier.id };
+      if (event.seat_assignment === 'pilih' && selectedSeat) {
+        payload.seat_number = selectedSeat;
+      }
+      
+      const res = await api.post('/checkout', payload);
+      const snapToken = res.data.data?.snap_token;
+      
+      if (snapToken && window.snap) {
+        window.snap.pay(snapToken, {
+          onSuccess: () => navigate('/user/tickets'),
+          onPending: () => navigate('/user/tickets'),
+          onError: () => setErrorModal({ show: true, message: 'Pembayaran gagal!' }),
+          onClose: () => {},
+        });
+      } else {
+        // Direct success via wallet
+        navigate('/user/tickets');
+      }
+    } catch (err) { 
+      const data = err.response?.data;
+      const errMsg = data?.message || 'Gagal memproses pembelian';
+      setErrorModal({ show: true, message: errMsg, data: data });
+    } finally { 
+      setCheckoutLoading(false); 
+    }
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-24">
+      <span className="material-symbols-outlined text-primary animate-spin" style={{ fontSize: '40px' }}>progress_activity</span>
+    </div>
+  );
+  if (!event) return null;
+
+  const bannerSrc = event.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200';
+  const formatDate = (d) => new Date(d).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  const formatTime = (t) => { if (!t) return ''; const [h, m] = t.split(':'); return `${h}:${m} WIB`; };
+  const formatRp = (n) => n == 0 ? 'Free' : 'Rp ' + Number(n).toLocaleString('id-ID');
 
   return (
-    <div className="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container min-h-screen pb-20">
-
-      {/* Purchase Modal */}
-      {modalTier && (
-        <PurchaseModal
-          event={event}
-          tier={modalTier}
-          onClose={() => setModalTier(null)}
-          onConfirm={handleConfirmPurchase}
-        />
-      )}
-
-      {/* Back Button Overlay */}
-      <div className="absolute z-10 top-[88px] left-4 md:left-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full text-on-surface-variant hover:text-coral-red transition-all shadow-sm group font-label-md text-sm"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Kembali
-        </button>
-      </div>
-
+    <div className="w-full pb-20">
       {/* Hero Section */}
-      <section className="w-full relative aspect-video md:aspect-[21/9] lg:aspect-[3/1] bg-surface-variant overflow-hidden">
-        <img
-          src={event.image}
-          alt={event.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      <section className="w-full relative h-[250px] md:h-[350px] lg:h-[450px] bg-black overflow-hidden flex items-center justify-center">
+        {/* Blurred background to fill any empty space beautifully */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-40 blur-2xl scale-110" 
+          style={{ backgroundImage: `url(${bannerSrc})` }}
+        ></div>
+        
+        {/* Actual image, contained without cropping */}
+        <img className="w-full h-full object-contain relative z-10 drop-shadow-2xl" src={bannerSrc} alt={event.title} />
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent z-20 pointer-events-none"></div>
       </section>
 
-      <div className="max-w-[1280px] mx-auto px-container-padding mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gap-default">
-
-          {/* ── Left Column ──────────────────────────────────────── */}
-          <div className="lg:col-span-8 flex flex-col gap-gap-default">
-
-            {/* Header Info */}
+      <div className="max-w-[1280px] mx-auto px-6 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* Left Column: Info & Details */}
+          <div className="lg:col-span-8 flex flex-col gap-8">
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="bg-coral-light text-coral-dark px-3 py-1 rounded-[10px] font-label-md text-[11px] uppercase tracking-wider">
-                  {event.category}
+                <span className="bg-[#FFF0EE] text-[#B83020] px-3 py-1 rounded-[10px] font-label-md text-[11px] uppercase tracking-wider">
+                  {event.category || 'Event'}
                 </span>
-                {event.featured && (
-                  <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-[10px] font-label-md text-[11px] uppercase tracking-wider">
-                    Featured
-                  </span>
-                )}
               </div>
-              <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-                {event.title}
-              </h1>
+              <h1 className="font-headline-lg text-3xl md:text-4xl font-bold text-on-surface">{event.title}</h1>
+              
               <div className="flex flex-wrap items-center gap-6 text-on-surface-variant py-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <span className="font-body-md text-body-md">{formatDate(event.date)}</span>
+                  <span className="material-symbols-outlined text-[20px]">calendar_today</span>
+                  <span className="font-body-md">{formatDate(event.start_date)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  <span className="font-body-md text-body-md">{event.city}, Indonesia</span>
+                  <span className="material-symbols-outlined text-[20px]">location_on</span>
+                  <span className="font-body-md">{event.location_type === 'online' ? 'Online Event' : (event.city || 'Indonesia')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-body-md text-body-md">{event.time} - {event.endTime} WIB</span>
+                  <span className="material-symbols-outlined text-[20px]">schedule</span>
+                  <span className="font-body-md">{formatTime(event.start_time)} - {formatTime(event.end_time)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Description */}
-            <div className="bg-surface-container-lowest border border-divider rounded-[14px] p-6 flex flex-col gap-4">
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Tentang Event</h2>
-              <div className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed whitespace-pre-line">
+            <div className="bg-surface-container-lowest border border-[#EBEBEB] rounded-[14px] p-6 flex flex-col gap-4">
+              <h2 className="font-headline-sm text-lg font-bold text-on-surface">Tentang Event</h2>
+              <div className="font-body-lg text-on-surface-variant leading-relaxed whitespace-pre-line">
                 {event.description}
               </div>
             </div>
 
-            {/* Map */}
             <div className="flex flex-col gap-4">
-              <h2 className="font-headline-sm text-headline-sm text-on-surface px-1">Lokasi</h2>
-              <div className="w-full h-64 bg-surface-f5 border border-divider rounded-[14px] overflow-hidden group relative cursor-pointer">
-                <img
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  alt="Map Location"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTpLoBD7bSlhLcc89k37gzncITVRHqH7XhzFNNAioxPiclrOnaVKOGOHVlJPwXKE_t7FNTCkT9j7iSI-nW82NB81pULsbt8A2nwJVc3Vv_xUFbfudNUYBki2b72ezWiFe7xSCJ4cXtHMDNV7U60D8myQPj7nWunO9gGLoZ3bXfNj8Fysz1poOORgPjWbLXIYCUpLGikyV3u_GeJNK2m95ukyDnERZ0CgZteKdV2w4TcXV9Wx6i30wZLunoqG4q-FO2usN4838mDz4"
-                />
-                <div className="absolute bottom-4 left-4 bg-white/80 backdrop-blur-md px-4 py-2 rounded-[14px] border border-divider flex items-center gap-2">
-                  <Navigation className="w-5 h-5 text-coral-red fill-coral-red" />
-                  <span className="font-label-md text-label-md">Buka di Maps</span>
-                </div>
+              <h2 className="font-headline-sm text-lg font-bold text-on-surface px-1">Lokasi</h2>
+              <div className="w-full h-[320px] bg-[#1a1a1a] border border-[#EBEBEB] rounded-[14px] overflow-hidden relative group">
+                {(() => {
+                  if (event.location_type === 'online') {
+                    return (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-surface-container-low text-secondary">
+                        <span className="material-symbols-outlined text-[48px] mb-2 opacity-50">public</span>
+                        <p className="font-body-sm">Acara diselenggarakan secara Online</p>
+                      </div>
+                    );
+                  }
+                  
+                  const coords = extractCoordinates(event.maps_link) || { longitude: 106.8016, latitude: -6.2183 }; // Fallback Gelora Bung Karno
+                  
+                  return (
+                    <Map
+                      initialViewState={{
+                        longitude: coords.longitude,
+                        latitude: coords.latitude,
+                        zoom: 14
+                      }}
+                      mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+                      interactive={true}
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      <NavigationControl position="bottom-right" />
+                      <Marker longitude={coords.longitude} latitude={coords.latitude} anchor="bottom">
+                        <div className="relative flex items-center justify-center cursor-pointer transform transition-transform hover:scale-110 group-marker">
+                          <div className="absolute w-8 h-8 bg-[#F04E37]/30 rounded-full animate-ping"></div>
+                          <div className="relative w-4 h-4 bg-[#F04E37] border-2 border-[#1a1a1a] rounded-full shadow-[0_0_15px_rgba(240,78,55,0.8)]"></div>
+                          
+                          {/* Sleek Tooltip */}
+                          <div className="absolute bottom-full mb-3 bg-[#1e1e1e] border border-white/10 text-white px-4 py-2 rounded-xl shadow-2xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                            {event.location_details || event.city || 'Lokasi Event'}
+                            <div className="text-[10px] font-normal text-white/50 mt-0.5">{event.city || 'Indonesia'}</div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1e1e1e]"></div>
+                          </div>
+                        </div>
+                      </Marker>
+                    </Map>
+                  );
+                })()}
+
+                {event.location_type !== 'online' && (
+                  <div className="absolute top-4 left-4 z-10 pointer-events-none">
+                    <div className="bg-[#1e1e1e]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-xl">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"></div>
+                      <span className="font-caption text-white text-[10px] font-bold tracking-widest opacity-80">MAPCN.DEV</span>
+                    </div>
+                  </div>
+                )}
+                
+                {event.maps_link && (
+                  <div className="absolute bottom-4 left-4 z-10 pointer-events-auto">
+                    <a 
+                      href={
+                        (() => {
+                          const c = extractCoordinates(event.maps_link);
+                          if (c) return `https://www.google.com/maps?q=${c.latitude},${c.longitude}`;
+                          const srcMatch = event.maps_link.match(/src="([^"]+)"/);
+                          return srcMatch ? srcMatch[1] : (event.maps_link.startsWith('http') ? event.maps_link : '#');
+                        })()
+                      } 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="bg-white/90 hover:bg-white backdrop-blur-md px-4 py-2 rounded-[14px] border border-[#EBEBEB] flex items-center gap-2 transition-colors cursor-pointer shadow-lg text-on-surface"
+                    >
+                      <span className="material-symbols-outlined text-[#F04E37] text-[18px]">directions</span>
+                      <span className="font-label-md text-sm font-bold">Buka di Maps</span>
+                    </a>
+                  </div>
+                )}
               </div>
-              <p className="text-on-surface-variant font-body-md text-body-md px-1">
-                {event.location}, {event.city}.
-              </p>
+              <p className="text-on-surface-variant font-body-md px-1">{event.location_type === 'online' ? 'Tautan akan diberikan di E-Ticket' : event.location_details}</p>
             </div>
           </div>
 
-          {/* ── Right Column: Ticket Tiers ────────────────────────── */}
+          {/* Right Column: Tiers */}
           <div className="lg:col-span-4">
-            <div className="sticky top-24 flex flex-col gap-gap-tight">
-              <h2 className="font-headline-sm text-headline-sm text-on-surface px-1">Pilih Tiket</h2>
+            <div className="sticky top-24 flex flex-col gap-4">
+              <h2 className="font-headline-sm text-lg font-bold text-on-surface px-1">Pilih Tiket</h2>
+              
+              {(event.ticket_tiers || []).map(tier => {
+                const isSoldOut = !tier.is_unlimited && tier.remaining_seats <= 0;
+                const isVip = tier.tier_name?.toLowerCase().includes('vip');
 
-              {ticketTiers.map((tier, idx) => (
-                <div
-                  key={idx}
-                  className={`${tier.disabled
-                    ? 'bg-surface-f5 opacity-70'
-                    : 'bg-white hover:border-coral-red/40 hover:shadow-sm'
-                    } border border-divider rounded-[14px] p-card-padding flex flex-col gap-3 transition-all duration-200`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className={`font-headline-sm text-headline-sm ${tier.disabled ? 'text-on-surface-variant' : 'text-on-surface'}`}>
-                        {tier.name}
-                      </h3>
-                      <p className={`font-caption text-caption text-on-surface-variant mt-0.5 ${tier.disabled ? 'line-through' : ''}`}>
-                        {tier.disabled ? 'Habis Terjual' : tier.description}
-                      </p>
+                return (
+                  <div key={tier.id_tier || tier.id} className={`bg-white border border-[#EBEBEB] rounded-[14px] p-4 flex flex-col gap-3 transition-all ${isSoldOut || hasPurchased ? 'opacity-70 bg-[#F5F5F7]' : 'hover:border-[#F04E37]/30'}`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className={`font-headline-sm text-base font-bold ${isSoldOut ? 'text-on-surface-variant' : 'text-on-surface'}`}>{tier.tier_name}</h3>
+                        <p className={`font-caption text-xs ${isSoldOut ? 'line-through' : ''} text-on-surface-variant`}>
+                          {isVip ? 'Akses VIP & Baris Depan' : 'Akses festival umum'}
+                        </p>
+                      </div>
+                      {isSoldOut ? (
+                        <span className="bg-[#EBEBEB] text-on-surface-variant px-2 py-0.5 rounded-[10px] font-label-md text-[10px]">SOLDOUT</span>
+                      ) : (
+                        <span className="bg-[#FFF0EE] text-[#B83020] px-2 py-0.5 rounded-[10px] font-label-md text-[10px]">TERSEDIA</span>
+                      )}
                     </div>
-                    {tier.tag && (
-                      <span className={`${tier.disabled
-                        ? 'bg-outline-variant text-on-surface-variant'
-                        : 'bg-coral-light text-coral-dark'
-                        } px-2 py-0.5 rounded-[10px] font-label-md text-[10px] shrink-0 ml-2`}>
-                        {tier.tag}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className={`font-headline-md text-xl font-bold ${isSoldOut ? 'text-on-surface-variant' : 'text-on-surface'}`}>
+                        {formatRp(tier.price)}
                       </span>
-                    )}
+                      <button 
+                        onClick={() => handleBuyClick(tier)}
+                        disabled={isSoldOut || hasPurchased || checkoutLoading}
+                        className={`px-6 py-2 rounded-[22px] font-label-md font-bold transition-all ${
+                          hasPurchased ? 'bg-secondary text-white opacity-50 cursor-not-allowed' :
+                          isSoldOut ? 'bg-secondary text-white opacity-50 cursor-not-allowed' : 
+                          'bg-[#F04E37] text-white hover:opacity-90 active:scale-95'
+                        }`}
+                      >
+                        {checkoutLoading && (selectedTier?.id_tier === tier.id_tier || selectedTier?.id === tier.id) ? 'Loading...' : hasPurchased ? 'Dimiliki' : isSoldOut ? 'Habis' : 'Beli Tiket'}
+                      </button>
+                    </div>
                   </div>
+                );
+              })}
 
-                  <div className="flex items-center justify-between mt-1">
-                    <span className={`font-headline-md text-headline-md ${tier.disabled ? 'text-on-surface-variant' : 'text-on-surface'}`}>
-                      {formatPrice(tier.price)}
-                    </span>
-                    <button
-                      onClick={() => !tier.disabled && handleBuyTicket(tier)}
-                      disabled={tier.disabled}
-                      className={`${tier.disabled
-                        ? 'bg-secondary cursor-not-allowed opacity-60'
-                        : 'bg-coral-red hover:opacity-90 active:scale-95'
-                        } text-white px-6 py-2 rounded-[22px] font-label-md text-label-md transition-all duration-200`}
-                    >
-                      {tier.disabled ? 'Habis Terjual' : 'Beli Tiket'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Info Card */}
-              <div className="mt-2 p-4 rounded-xl bg-surface-container border border-outline-variant flex gap-3">
-                <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <p className="font-caption text-caption text-on-surface-variant">
-                  Tiket bersifat digital dan akan langsung terbit di menu "My Tickets" setelah pembayaran diverifikasi secara otomatis.
+              <div className="mt-4 p-4 rounded-xl bg-surface-container border border-outline-variant flex gap-3">
+                <span className="material-symbols-outlined text-primary">info</span>
+                <p className="font-caption text-xs text-on-surface-variant leading-relaxed">
+                  Tiket bersifat digital dan akan langsung terbit di menu "My Tickets" setelah pembayaran berhasil diverifikasi secara otomatis.
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
+
+      {/* 1. KYC Webcam Modal */}
+      {showKycModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-[20px] shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center">
+              <h2 className="font-headline-sm font-bold">Keamanan Identitas (KYC)</h2>
+              <button onClick={() => { setShowKycModal(false); stopCamera(); }} className="text-on-surface-variant hover:text-primary"><span className="material-symbols-outlined">close</span></button>
+            </div>
+            <div className="p-6 flex flex-col items-center gap-4">
+              <p className="text-sm text-center text-secondary mb-2">Sebagai pengguna baru atau pembaruan 3 bulan, kami mewajibkan scan wajah Anda untuk anti-calo dan keamanan tiket.</p>
+              <div className="relative w-[280px] h-[280px] rounded-full overflow-hidden border-[6px] border-[#F04E37] shadow-inner bg-black flex items-center justify-center">
+                {!cameraStream && !kycLoading && <span className="text-white text-xs">Memuat kamera...</span>}
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
+                <canvas ref={canvasRef} width="400" height="400" className="hidden" />
+              </div>
+              <button 
+                onClick={captureFace} 
+                disabled={kycLoading || !cameraStream}
+                className="w-full mt-4 bg-[#F04E37] text-white py-3 rounded-[22px] font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined">photo_camera</span>
+                {kycLoading ? 'Memproses Wajah...' : 'Ambil Foto & Lanjutkan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Seat Selection Modal */}
+      {showSeatModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-lg rounded-[20px] shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center">
+              <h2 className="font-headline-sm font-bold">Pilih Kursi</h2>
+              <button onClick={() => setShowSeatModal(false)} className="text-on-surface-variant hover:text-primary"><span className="material-symbols-outlined">close</span></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4">
+              <p className="text-sm text-secondary">Silakan pilih nomor kursi yang tersedia.</p>
+              <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-4 border border-[#EBEBEB] rounded-[14px] bg-[#F5F5F7]">
+                {(event.seat_numbers || []).map((seat) => {
+                  const isTaken = takenSeats.includes(seat);
+                  return (
+                    <button
+                      key={seat}
+                      disabled={isTaken}
+                      onClick={() => setSelectedSeat(seat)}
+                      className={`px-4 py-2 border rounded-lg text-sm font-bold transition-all ${
+                        isTaken 
+                          ? 'bg-[#EBEBEB] text-on-surface-variant cursor-not-allowed opacity-50' 
+                          : selectedSeat === seat 
+                            ? 'bg-[#F04E37] text-white border-[#F04E37] shadow-md' 
+                            : 'bg-white border-[#EBEBEB] hover:border-[#F04E37] hover:text-[#F04E37]'
+                      }`}
+                    >
+                      {seat}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button onClick={() => setShowSeatModal(false)} className="flex-1 py-3 border border-[#EBEBEB] text-on-surface rounded-[22px] font-bold">Batal</button>
+                <button 
+                  onClick={() => { setShowSeatModal(false); proceedAfterSeat(); }} 
+                  disabled={!selectedSeat}
+                  className="flex-1 py-3 bg-[#F04E37] text-white rounded-[22px] font-bold disabled:opacity-50"
+                >
+                  Lanjut
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Custom Questions Modal */}
+      {showQuestionsModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-[20px] shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-[#EBEBEB] flex justify-between items-center">
+              <h2 className="font-headline-sm font-bold">Pertanyaan Tambahan</h2>
+              <button onClick={() => setShowQuestionsModal(false)} className="text-on-surface-variant hover:text-primary"><span className="material-symbols-outlined">close</span></button>
+            </div>
+            <div className="p-6 flex flex-col gap-4">
+              {(event.custom_questions || []).map((q, idx) => (
+                <div key={idx} className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-on-surface">{q}</label>
+                  <input 
+                    type="text" 
+                    value={answers[idx] || ''}
+                    onChange={(e) => setAnswers({...answers, [idx]: e.target.value})}
+                    placeholder="Jawaban Anda..."
+                    className="w-full px-4 py-2 border border-[#EBEBEB] rounded-[10px] focus:outline-none focus:border-[#F04E37]"
+                  />
+                </div>
+              ))}
+              <div className="flex gap-3 mt-4">
+                <button onClick={() => setShowQuestionsModal(false)} className="flex-1 py-3 border border-[#EBEBEB] text-on-surface rounded-[22px] font-bold">Batal</button>
+                <button 
+                  onClick={() => { setShowQuestionsModal(false); setShowConfirmModal(true); }} 
+                  className="flex-1 py-3 bg-[#F04E37] text-white rounded-[22px] font-bold flex items-center justify-center gap-2"
+                >
+                  Lanjut ke Pembayaran
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Error / Insufficient Balance Modal */}
+      {errorModal.show && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+          <div 
+            className="bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden flex flex-col items-center text-center p-8 transition-transform duration-300 transform scale-100"
+            style={{ animation: 'popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+          >
+            <style>{`
+              @keyframes popIn {
+                0% { opacity: 0; transform: scale(0.9); }
+                100% { opacity: 1; transform: scale(1); }
+              }
+            `}</style>
+
+            {errorModal.data?.status === 'insufficient_balance' ? (
+              <>
+                <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <span className="material-symbols-outlined text-[40px]">account_balance_wallet</span>
+                </div>
+                <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Saldo Tidak Cukup</h2>
+                <p className="text-on-surface-variant font-body-md mb-6 text-sm">
+                  {errorModal.message}
+                </p>
+                <div className="w-full bg-[#F5F5F7] rounded-xl p-4 mb-6 text-left">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-on-surface-variant">Saldo Saat Ini:</span>
+                    <span className="text-sm font-bold text-on-surface">{formatRp(errorModal.data.current_balance)}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-on-surface-variant">Harga Tiket:</span>
+                    <span className="text-sm font-bold text-on-surface">{formatRp(errorModal.data.required_amount)}</span>
+                  </div>
+                  <div className="h-px w-full bg-[#EBEBEB] my-2"></div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-[#F04E37] font-bold">Kekurangan:</span>
+                    <span className="text-sm font-bold text-[#F04E37]">{formatRp(errorModal.data.required_amount - errorModal.data.current_balance)}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <span className="material-symbols-outlined text-[40px]">error</span>
+                </div>
+                <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Transaksi Gagal</h2>
+                <p className="text-on-surface-variant font-body-md mb-8">
+                  {errorModal.message}
+                </p>
+              </>
+            )}
+
+            <div className="w-full flex flex-col gap-3">
+              {(errorModal.data?.status === 'insufficient_balance' || errorModal.message.toLowerCase().includes('saldo') || errorModal.message.toLowerCase().includes('balance')) ? (
+                <button 
+                  onClick={() => navigate('/user/wallet')} 
+                  className="w-full py-3 bg-[#F04E37] text-white rounded-[22px] font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">add_card</span>
+                  Isi Saldo Wallet
+                </button>
+              ) : null}
+              <button 
+                onClick={() => setErrorModal({ show: false, message: '', data: null })} 
+                className="w-full py-3 bg-[#F5F5F7] text-on-surface rounded-[22px] font-bold hover:bg-[#EBEBEB] active:scale-95 transition-all"
+              >
+                Kembali
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+          <div 
+            className="bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden flex flex-col items-center text-center p-8 transition-transform duration-300 transform scale-100"
+            style={{ animation: 'popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+          >
+            <div className="w-20 h-20 bg-[#FFF0EE] text-[#F04E37] rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <span className="material-symbols-outlined text-[40px]">confirmation_number</span>
+            </div>
+            <h2 className="font-headline-sm font-bold text-on-surface mb-2 text-xl">Konfirmasi Pembelian</h2>
+            <p className="text-on-surface-variant font-body-md mb-8">
+              Anda akan membeli tiket <strong>{selectedTier?.tier_name}</strong> seharga <strong>{formatRp(selectedTier?.price)}</strong>. Saldo wallet Anda akan terpotong secara otomatis. Lanjutkan?
+            </p>
+            <div className="w-full flex gap-3">
+              <button 
+                onClick={() => setShowConfirmModal(false)} 
+                className="flex-1 py-3 bg-[#F5F5F7] text-on-surface rounded-[22px] font-bold hover:bg-[#EBEBEB] active:scale-95 transition-all"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={() => { setShowConfirmModal(false); handleCheckout(); }} 
+                className="flex-1 py-3 bg-[#F04E37] text-white rounded-[22px] font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                Ya, Beli
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

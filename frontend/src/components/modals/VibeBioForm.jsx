@@ -1,8 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../../lib/api';
 
-export default function VibeBioForm({ isOpen, onClose }) {
+export default function VibeBioForm({ isOpen, onClose, onSave, ticketId, initialData }) {
   const [isFocused, setIsFocused] = useState(false);
   const [bioText, setBioText] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && initialData?.vibe_bio) {
+      setBioText(initialData.vibe_bio);
+    } else if (isOpen && !initialData?.vibe_bio) {
+      setBioText('');
+    }
+  }, [isOpen, initialData]);
+
+  const handleSave = async () => {
+    if (!bioText.trim() || !ticketId) return;
+    
+    setIsSaving(true);
+    try {
+      const res = await api.post(`/tickets/${ticketId}/vibe`, { vibe_bio: bioText });
+      if (res.data.success) {
+        if (onSave) onSave();
+        onClose(); // Just close, TicketDetail will handle refetch via onSave if provided
+      } else {
+        alert(res.data.message || 'Gagal menyimpan Vibe Bio');
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -52,18 +82,19 @@ export default function VibeBioForm({ isOpen, onClose }) {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button 
-              className="flex-1 bg-[#F04E37] text-white py-[10px] px-[22px] rounded-full font-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-              onClick={() => {
-                // Here you would typically save the data
-                onClose();
-              }}
+              type="button"
+              className={`flex-1 bg-[#F04E37] text-white py-[10px] px-[22px] rounded-full font-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleSave}
+              disabled={isSaving || !bioText.trim()}
             >
-              <span>Simpan</span>
-              <span className="material-symbols-outlined text-[18px]">check</span>
+              <span>{isSaving ? 'Menyimpan...' : 'Simpan'}</span>
+              {!isSaving && <span className="material-symbols-outlined text-[18px]">check</span>}
             </button>
             <button 
+              type="button"
               className="flex-1 bg-transparent border border-[#F04E37] text-[#F04E37] py-[10px] px-[22px] rounded-full font-body-md font-medium hover:bg-[#FFF0EE] active:scale-[0.98] transition-all" 
               onClick={onClose}
+              disabled={isSaving}
             >
               Batal
             </button>

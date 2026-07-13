@@ -25,9 +25,9 @@ export default function OrganizerLogin() {
         throw new Error(response.data?.message || 'Respons autentikasi tidak valid dari server.')
       }
 
-      // Verifikasi keamanan khusus organizer (DB role 'admin')
-      if (user.role !== 'admin') {
-        setError('Keamanan Portal: Akses ditolak. Akun Anda bukan akun Organizer. Silakan masuk melalui portal pengguna biasa.')
+      // Verifikasi keamanan khusus organizer (DB role 'admin') dan tenant
+      if (user.role !== 'admin' && user.role !== 'tenant') {
+        setError('Keamanan Portal: Akses ditolak. Akun Anda bukan akun Organizer atau Tenant. Silakan masuk melalui portal pengguna biasa.')
         setLoading(false)
         return
       }
@@ -35,7 +35,11 @@ export default function OrganizerLogin() {
       localStorage.setItem('token', authToken)
       localStorage.setItem('user', JSON.stringify(user))
 
-      navigate('/organizer/dashboard')
+      if (user.role === 'tenant') {
+        navigate('/tenant/dashboard')
+      } else {
+        navigate('/organizer/dashboard')
+      }
     } catch (err) {
       console.warn('Backend API tidak terjangkau atau gagal, memeriksa kredensial fallback offline organizer...')
       if (email === 'organizer@gatemate.com' && password === 'password123') {

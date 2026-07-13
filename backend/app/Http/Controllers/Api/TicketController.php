@@ -53,7 +53,7 @@ class TicketController extends Controller
     /**
      * GET /api/tickets/{id}
      */
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         try {
             $detail = $this->ticketService->getTicketDetail(Auth::id(), $id);
@@ -77,7 +77,7 @@ class TicketController extends Controller
     /**
      * POST /api/tickets/{id}/vibe
      */
-    public function updateVibe(UpdateVibeRequest $request, int $id): JsonResponse
+    public function updateVibe(UpdateVibeRequest $request, string $id): JsonResponse
     {
         try {
             $attendee = $this->ticketService->updateTicketVibe(Auth::id(), $id, $request->validated());

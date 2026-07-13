@@ -1,29 +1,80 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
+import api from '../../lib/api';
 
 export default function Profile() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const fileInputRef = useRef(null);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [faceVerifiedAt, setFaceVerifiedAt] = useState(null);
+  const [originalAvatar, setOriginalAvatar] = useState('');
   const [avatarSrc, setAvatarSrc] = useState(
     'https://lh3.googleusercontent.com/aida-public/AB6AXuBIzE_vnXaV1jDXsMtrnybIiDmvUurdy0R_DASaQkRMpqa0SeIYTS6basGwLluhXnATH70jDgGauoCMl9e4FkdJazgXK-pOTn8O9yApWtfVAEmBGvC2-9rWO47BXCF65AJwP_U3rnIX-Ke6g0JojCVSAXWvU3GSM9UVapjx9YB_Q5b-v9pORBmqr3G0ic-U2Cw-P45LpFvNngM2PneOqSvkgjVKwdKX2x69cnpFvAFIrpTz1WIqn9aWqFOxX1EjF9F-gYlzEuZyVrg'
   );
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get('/auth/me');
+        const userData = res.data.data || res.data;
+        setFullName(userData.full_name || userData.name || '');
+        setEmail(userData.email || '');
+        setFaceVerifiedAt(userData.face_verified_at || null);
+        
+        const pic = userData.profile_picture_url || userData.profile_picture;
+        if (pic) {
+          const avatarUrl = pic.startsWith('http') 
+            ? pic 
+            : `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}/Media/uploads/${pic}`;
+          setAvatarSrc(avatarUrl);
+          setOriginalAvatar(avatarUrl);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user', err);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     setIsSaved(false);
 
-    setTimeout(() => {
-      setIsSaving(false);
-      setIsSaved(true);
+    try {
+      const payload = { full_name: fullName };
+      if (avatarSrc !== originalAvatar && avatarSrc.startsWith('data:image')) {
+        payload.image = avatarSrc;
+      }
+      
+      const res = await api.post('/account/profile', payload);
+      if (res.data.success) {
+        setIsSaved(true);
+        // Update local storage user data
+        const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+        localUser.name = res.data.data.full_name;
+        localUser.full_name = res.data.data.full_name;
+        if (res.data.data.profile_picture) {
+           localUser.profile_picture = res.data.data.profile_picture.split('/').pop();
+           localUser.profile_picture_url = res.data.data.profile_picture;
+           
+           // Langsung update state dengan gambar terbaru dari server
+           setAvatarSrc(res.data.data.profile_picture);
+           setOriginalAvatar(res.data.data.profile_picture);
+        }
+        localStorage.setItem('user', JSON.stringify(localUser));
 
-      setTimeout(() => {
-        setIsSaved(false);
-      }, 2000);
-    }, 1500);
+        setTimeout(() => setIsSaved(false), 2000);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menyimpan profil');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = () => {
@@ -107,14 +158,21 @@ export default function Profile() {
               {/* Full Name */}
               <div className="flex flex-col gap-2">
                 <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="full-name">Nama Lengkap</label>
-                <input className="bg-surface-container-low flat-border border-outline-variant rounded-[10px] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-0 transition-colors outline-none" id="full-name" type="text" defaultValue="Ahmad Wijaya" />
+                <input 
+                  className="bg-surface-container-low flat-border border-outline-variant rounded-[10px] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-0 transition-colors outline-none" 
+                  id="full-name" 
+                  type="text" 
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required 
+                />
               </div>
               
               {/* Email (Read Only) */}
               <div className="flex flex-col gap-2">
                 <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="email">Email</label>
                 <div className="relative">
-                  <input className="w-full bg-surface-container-highest/30 flat-border border-outline-variant rounded-[10px] px-4 py-3 font-body-md text-body-md text-secondary cursor-not-allowed outline-none" id="email" readOnly type="email" defaultValue="ahmad.wijaya@corporate.com" />
+                  <input className="w-full bg-surface-container-highest/30 flat-border border-outline-variant rounded-[10px] px-4 py-3 font-body-md text-body-md text-secondary cursor-not-allowed outline-none" id="email" readOnly type="email" value={email} />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-on-surface-variant">lock</span>
                 </div>
               </div>
@@ -125,10 +183,17 @@ export default function Profile() {
                   <span className="material-symbols-outlined text-primary">face</span>
                   <span className="font-body-md text-body-md font-medium">Status Verifikasi Wajah</span>
                 </div>
-                <span className="inline-flex items-center px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] text-caption font-medium rounded-full gap-1">
-                  <span className="material-symbols-outlined text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
-                  Terverifikasi
-                </span>
+                {faceVerifiedAt ? (
+                  <span className="inline-flex items-center px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] text-caption font-medium rounded-full gap-1">
+                    <span className="material-symbols-outlined text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
+                    Terverifikasi
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-3 py-1 bg-[#FFEBEE] text-[#C62828] text-caption font-medium rounded-full gap-1">
+                    <span className="material-symbols-outlined text-[14px]" style={{fontVariationSettings: "'FILL' 1"}}>error</span>
+                    Belum Terverifikasi
+                  </span>
+                )}
               </div>
 
               {/* Action Button */}

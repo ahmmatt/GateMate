@@ -38,7 +38,7 @@ class ChatController extends Controller
             return [
                 'id_user' => $user->id_user,
                 'name' => $user->full_name,
-                'avatar' => $user->profile_picture ? asset('Media/uploads/' . $user->profile_picture) : null,
+                'avatar' => $user->profile_picture ? (str_starts_with($user->profile_picture, 'http') ? $user->profile_picture : asset('Media/uploads/' . $user->profile_picture)) : null,
                 'last_message' => $lastMessage->content ?? '',
                 'time' => $lastMessage->created_at ?? '',
                 'unread' => 0
@@ -79,7 +79,7 @@ class ChatController extends Controller
             'contact' => [
                 'id_user' => $contact->id_user,
                 'name' => $contact->full_name,
-                'avatar' => $contact->profile_picture ? asset('Media/uploads/' . $contact->profile_picture) : null
+                'avatar' => $contact->profile_picture ? (str_starts_with($contact->profile_picture, 'http') ? $contact->profile_picture : asset('Media/uploads/' . $contact->profile_picture)) : null
             ],
             'messages' => $messages
         ]);

@@ -1,16 +1,43 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Ticket } from 'lucide-react'
 import TicketCard from '../../components/TicketCard'
+import api from '../../lib/api'
 
 export default function MyTickets() {
   const [filter, setFilter] = useState('active') // Default to 'active' for Upcoming
+  const [upcoming, setUpcoming] = useState([])
+  const [past, setPast] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const res = await api.get('/my-tickets')
+        
+        const mapTicket = (t, statusOverride) => ({
+          id: t.order_id || t.id,
+          status: statusOverride,
+          eventDate: t.event?.start_date,
+          eventTime: t.event?.start_time,
+          eventTitle: t.event?.title,
+          eventImage: t.event?.banner_image_url || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400',
+          eventLocation: t.event?.city || t.event?.venue_name || 'Lokasi tidak diketahui',
+          price: t.gross_amount || 0
+        })
+
+        setUpcoming((res.data.data.upcoming || []).map(t => mapTicket(t, 'active')))
+        setPast((res.data.data.past || []).map(t => mapTicket(t, 'used')))
+      } catch (err) {
+        console.error('Failed to fetch tickets:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTickets()
+  }, [])
   
-  // TODO: Ganti dengan fetch dari API → ticketService.getMyTickets()
-  // const allTickets = [] // diisi dari response API backend
-  const allTickets = []
-  
-  const filtered = allTickets.filter(t => t.status === filter)
-  const activeCount = allTickets.filter(t => t.status === 'active').length
+  const filtered = filter === 'active' ? upcoming : past
+  const activeCount = upcoming.length
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">

@@ -65,6 +65,27 @@ export default function OrganizerSidebar({ activeNav }) {
           <span className="material-symbols-outlined text-primary">menu</span>
         </button>
       </header>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="fixed bottom-0 w-full z-50 md:hidden bg-surface border-t border-outline-variant flex justify-around items-center h-16 pb-safe" style={{ borderTopWidth: '0.5px' }}>
+        {NAV.map(({ key, icon, label, to }) => {
+          const isActive = activeNav === key;
+          const shortLabel = label === 'Event Saya' ? 'Events' : (label === 'Keuangan' ? 'Finance' : (label === 'Pengaturan' ? 'Settings' : label));
+          return key === 'scanner' ? (
+            <Link key={key} to={to} className="flex flex-col items-center text-secondary px-4 py-1">
+              <div className="bg-primary -mt-8 p-3 rounded-full text-on-primary shadow-lg active:scale-90 transition-transform">
+                <span className="material-symbols-outlined">center_focus_weak</span>
+              </div>
+              <span className="font-label-md text-label-md mt-1">Scan</span>
+            </Link>
+          ) : (
+            <Link key={key} to={to} className={`flex flex-col items-center px-4 py-1 transition-colors font-label-md text-label-md ${isActive ? 'text-primary font-bold' : 'text-secondary'}`}>
+              <span className="material-symbols-outlined">{icon === 'dashboard' ? 'grid_view' : (icon === 'event' ? 'confirmation_number' : (icon === 'payments' ? 'account_balance_wallet' : icon))}</span>
+              <span>{shortLabel}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </>
   );
 }

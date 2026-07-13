@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import api from '../../services/api';
+import api from '../../lib/api';
 import useAuthStore from '../../store/useAuthStore';
 
 const MIDTRANS_CLIENT_KEY = import.meta.env.VITE_MIDTRANS_CLIENT_KEY || 'Mid-client-tagqO0YtUtBkIEIA';
@@ -41,9 +41,13 @@ export default function WalletPage() {
   const fetchWallet = async () => {
     try {
       const res = await api.get('/wallet');
-      setWalletData(res.data.data);
-      setTransactions(res.data.data?.transactions || []);
-    } catch (_) {}
+      const data = res.data.data;
+      setWalletData(data);
+      // In Laravel, JsonResource::collection inside an array might have an extra 'data' wrapper
+      setTransactions(data?.transactions?.data || data?.transactions || []);
+    } catch (err) {
+      console.error('Failed to fetch wallet:', err);
+    }
     finally { setLoading(false); }
   };
 
@@ -68,12 +72,28 @@ export default function WalletPage() {
 
   const handleQrSuccess = async (decodedText) => {
     try {
-      const res = await api.get(`/wallet/tenant/${decodedText}`);
-      setTenantInfo({ id: decodedText, ...res.data.data });
+      let tenantId = decodedText;
+      let prefilledAmount = '';
+      
+      try {
+        const payload = JSON.parse(decodedText);
+        if (payload && payload.id) {
+          tenantId = payload.id;
+          if (payload.amount) prefilledAmount = payload.amount.toString();
+        }
+      } catch (e) {
+        // Bukan JSON, biarkan tenantId = decodedText
+      }
+
+      const res = await api.get(`/wallet/tenant/${tenantId}`);
+      setTenantInfo({ id: tenantId, ...res.data.data });
       setShowScanModal(false);
       setShowPaymentModal(true);
       setScanError('');
       setTenantIdInput('');
+      if (prefilledAmount) {
+         setPaymentAmount(prefilledAmount);
+      }
     } catch (err) {
       setScanError('Tenant tidak ditemukan atau ID salah.');
     }
@@ -136,7 +156,7 @@ export default function WalletPage() {
     setPaymentLoading(true);
     try {
       const res = await api.post(`/wallet/pay/${tenantInfo.id}`, { amount });
-      setToast(`Pembayaran Rp ${amount.toLocaleString('id-ID')} ke ${tenantInfo.full_name} berhasil!`);
+      setToast(`Pembayaran Rp ${amount.toLocaleString('id-ID')} ke ${tenantInfo.name || tenantInfo.full_name} berhasil!`);
       setShowPaymentModal(false);
       setPaymentAmount('');
       fetchWallet();
@@ -354,11 +374,11 @@ export default function WalletPage() {
             <div className="p-6 flex flex-col gap-6">
               <div className="flex items-center gap-4 p-4 border border-outline-variant rounded-xl bg-surface-container-low">
                 <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl">
-                  {tenantInfo.full_name?.[0]?.toUpperCase()}
+                  {(tenantInfo.name || tenantInfo.full_name || 'T')[0]?.toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-headline-sm text-on-surface">{tenantInfo.full_name}</h3>
-                  <p className="font-caption text-secondary text-sm">Tenant di {tenantInfo.event?.title}</p>
+                  <h3 className="font-headline-sm text-on-surface">{tenantInfo.name || tenantInfo.full_name}</h3>
+                  <p className="font-caption text-secondary text-sm">Tenant di {tenantInfo.event_name || tenantInfo.event?.title || '-'}</p>
                 </div>
               </div>
               <form onSubmit={handlePaymentSubmit} className="w-full flex flex-col gap-4">

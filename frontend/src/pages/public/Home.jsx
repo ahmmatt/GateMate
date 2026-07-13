@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ArrowRight,
   BarChart2, ShieldCheck, CreditCard,
@@ -46,15 +46,42 @@ const formatDate = (dateStr) => {
   return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-const sisa = (event) => event.maxAttendees - event.soldTickets
+const sisa = (event) => {
+  if (!event.ticket_tiers || event.ticket_tiers.length === 0) return 0;
+  let total = 0;
+  for (const tier of event.ticket_tiers) {
+    if (tier.is_unlimited) return '∞';
+    total += tier.remaining_seats;
+  }
+  return total;
+}
+
+const getLowestPrice = (event) => {
+  if (!event.ticket_tiers || event.ticket_tiers.length === 0) return 0;
+  return Math.min(...event.ticket_tiers.map(t => t.price));
+}
+
+import api from '../../lib/api'
 
 /* ── Component ─────────────────────────────────────── */
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [events, setEvents] = useState([])
 
-  // TODO: Ganti dengan fetch dari API → eventService.getAll({ category: selectedCategory })
-  // useEffect(() => { eventService.getAll().then(res => setEvents(res.data.data)) }, [selectedCategory])
-  const trendingEvents = []
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await api.get('/events', { params: { category: selectedCategory || '' } })
+        setEvents(res.data.data || [])
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchEvents()
+  }, [selectedCategory])
+
+  // Get most recent / trending (Paling baru dibuat)
+  const trendingEvents = [...events].sort((a, b) => b.id - a.id).slice(0, 8)
 
   return (
     <div className="bg-[#fff8f6] text-[#271815]">
@@ -157,7 +184,7 @@ export default function Home() {
                   {/* Image */}
                   <div className="h-48 relative overflow-hidden">
                     <img
-                      src={event.image}
+                      src={event.banner_image_url || event.poster_image_url || 'https://via.placeholder.com/600x400'}
                       alt={event.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -178,14 +205,14 @@ export default function Home() {
                     </div>
                     <div className="flex items-center gap-1 text-[#5f5e5e]">
                       <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{formatDate(event.date)}</span>
+                      <span className="text-sm">{formatDate(event.start_date)}</span>
                     </div>
                     <div
                       className="mt-2 pt-2 flex justify-between items-center"
                       style={{ borderTop: '0.5px solid rgba(227,190,184,0.3)' }}
                     >
                       <span className="text-base font-semibold text-[#b22110]">
-                        {formatPrice(event.price)}
+                        {formatPrice(getLowestPrice(event))}
                       </span>
                       <span
                         className="px-2 py-1 rounded-[10px] text-[11px] font-medium text-[#b22110]"
