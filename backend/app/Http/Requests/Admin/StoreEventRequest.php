@@ -17,6 +17,20 @@ class StoreEventRequest extends FormRequest
         return Auth::check();
     }
 
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+        if ($this->has('start_time') && strlen($this->start_time) > 5) {
+            $merge['start_time'] = substr($this->start_time, 0, 5);
+        }
+        if ($this->has('end_time') && strlen($this->end_time) > 5) {
+            $merge['end_time'] = substr($this->end_time, 0, 5);
+        }
+        if (!empty($merge)) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -40,6 +54,7 @@ class StoreEventRequest extends FormRequest
             'require_approval'   => ['sometimes', 'boolean'],
             'banner_image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'poster_image'       => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'space_3d_file'      => ['nullable', 'file', 'mimes:mp4,webm,mov,avi,zip,cif,mmcif,pdb', 'max:51200'],
             'custom_questions'   => ['nullable', 'array'],
             'custom_questions.*' => ['string', 'max:255'],
             // Tier tiket pertama

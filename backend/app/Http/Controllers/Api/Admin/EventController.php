@@ -77,7 +77,15 @@ class EventController extends Controller
             $posterPath = $pfilename;
         }
 
-        $event = $this->eventService->createEvent(Auth::id(), $request->validated(), $bannerPath, $posterPath);
+        $space3dPath = null;
+        if ($request->hasFile('space_3d_file')) {
+            $sfile       = $request->file('space_3d_file');
+            $sfilename   = uniqid('space3d_') . '.' . $sfile->getClientOriginalExtension();
+            $sfile->move(public_path('Media/uploads'), $sfilename);
+            $space3dPath = $sfilename;
+        }
+
+        $event = $this->eventService->createEvent(Auth::id(), $request->validated(), $bannerPath, $posterPath, $space3dPath);
         $event->load('ticketTiers');
 
         return response()->json([

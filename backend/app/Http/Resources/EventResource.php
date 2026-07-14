@@ -41,6 +41,10 @@ class EventResource extends JsonResource
             'poster_image_url' => $this->poster_path
                 ? asset('Media/uploads/' . $this->poster_path)
                 : null,
+            'space_3d_file'    => $this->space_3d_file,
+            'space_3d_file_url'=> $this->space_3d_file
+                ? asset('Media/uploads/' . $this->space_3d_file)
+                : null,
             'created_at'       => $this->created_at?->toIso8601String(),
 
             // Relasi opsional (hanya ada jika di-load)

@@ -47,11 +47,11 @@ class EventManagementService
     /**
      * Membuat event baru beserta tier tiket pertama dalam DB transaction.
      */
-    public function createEvent(int $adminId, array $validated, ?string $bannerPath, ?string $posterPath): Event
+    public function createEvent(int $adminId, array $validated, ?string $bannerPath, ?string $posterPath, ?string $space3dPath = null): Event
     {
         $bannerPath = $bannerPath ?? 'default-banner.jpg';
 
-        return DB::transaction(function () use ($adminId, $validated, $bannerPath, $posterPath) {
+        return DB::transaction(function () use ($adminId, $validated, $bannerPath, $posterPath, $space3dPath) {
             $questions = null;
             if (!empty($validated['custom_questions'])) {
                 $questions = array_values(array_filter($validated['custom_questions']));
@@ -62,6 +62,7 @@ class EventManagementService
                 'title'            => $validated['title'],
                 'banner_image'     => $bannerPath,
                 'poster_path'      => $posterPath,
+                'space_3d_file'    => $space3dPath,
                 'category'         => $validated['category'],
                 'location_type'    => $validated['location_type'],
                 'location_details' => $validated['location_details'],
@@ -85,7 +86,7 @@ class EventManagementService
                 'status'           => 'active',
             ]);
 
-            $isUnlimited = filter_var($validated['is_unlimited'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $isUnlimited = filter_var($validated['is_unlimited'] ?? ($validated['capacity_type'] === 'unlimited'), FILTER_VALIDATE_BOOLEAN);
             $capacity    = $isUnlimited ? 0 : ($validated['quota'] ?? 0);
 
             TicketTier::create([

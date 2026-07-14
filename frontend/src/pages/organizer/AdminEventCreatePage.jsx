@@ -100,8 +100,49 @@ export default function AdminEventCreatePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    // Frontend validation across tabs
+    if (!formData.title.trim() || !formData.category.trim() || !bannerFile) {
+      setActiveTab('tab-info');
+      setStatusModal({
+        show: true,
+        type: 'error',
+        message: !bannerFile
+          ? 'Poster/Banner event wajib diunggah pada tab Informasi Dasar.'
+          : 'Judul dan Kategori event wajib diisi pada tab Informasi Dasar.'
+      });
+      return;
+    }
+    if (!formData.start_date || !formData.start_time || !formData.end_date || !formData.end_time) {
+      setActiveTab('tab-jadwal');
+      setStatusModal({
+        show: true,
+        type: 'error',
+        message: 'Jadwal (Tanggal dan Waktu mulai & selesai) wajib diisi lengkap.'
+      });
+      return;
+    }
+    if (formData.location_type === 'offline' && !formData.location_details.trim() && !formData.venue_name.trim()) {
+      setActiveTab('tab-jadwal');
+      setStatusModal({
+        show: true,
+        type: 'error',
+        message: 'Alamat lengkap atau nama venue wajib diisi untuk event offline.'
+      });
+      return;
+    }
+    if (!formData.tier_name.trim() || !formData.price) {
+      setActiveTab('tab-tiket');
+      setStatusModal({
+        show: true,
+        type: 'error',
+        message: 'Nama dan harga tiket wajib diisi pada tab Manajemen Tiket.'
+      });
+      return;
+    }
+
+    setLoading(true);
 
     const payload = new FormData();
     Object.keys(formData).forEach(key => {
@@ -111,6 +152,17 @@ export default function AdminEventCreatePage() {
         payload.append(key, formData[key]);
       }
     });
+
+    if (formData.capacity_type === 'unlimited') {
+      payload.append('is_unlimited', '1');
+    } else {
+      payload.append('is_unlimited', '0');
+    }
+
+    if (formData.location_type === 'offline' && !formData.location_details.trim() && formData.venue_name.trim()) {
+      payload.append('location_details', `${formData.venue_name}${formData.city ? ', ' + formData.city : ''}`);
+    }
+
     if (bannerFile) payload.append('banner_image', bannerFile);
     if (space3dFile) payload.append('space_3d_file', space3dFile);
     
