@@ -21,7 +21,81 @@ Dalam Laravel konvensional, sering kali developer menulis seluruh logika (valida
 
 ---
 
-## 2. Alur Kerja Request di Backend (Request Lifecycle)
+## 2. Bagaimana Backend Menyediakan & Mengamankan API (`routes/api.php` & Middleware)
+
+Bagaimana tepatnya backend menyediakan (*expose*) endpoint agar bisa diakses oleh React Frontend? Seluruh pendaftaran dan pengaturan jalur API GateMate dipusatkan di dalam file **`routes/api.php`**. 
+
+Secara default, Laravel otomatis menambahkan awalan (*URL prefix*) `/api` untuk semua rute di file ini. Contohnya, rute `/events` akan dapat diakses pada URL `http://localhost:8000/api/events`.
+
+### A. Pengelompokan Rute & Pemetaan Method (`HTTP Methods`)
+Backend memetakan setiap jenis aksi berdasarkan metode HTTP ke Controller yang sesuai:
+* **`GET`**: Membaca/menarik data (contoh: mengambil daftar event).
+* **`POST`**: Mengirim/membuat data baru (contoh: login, buat event baru).
+* **`PUT / PATCH`**: Memperbarui data yang sudah ada.
+* **`DELETE`**: Menghapus data.
+
+Agar kode rapi dan terstruktur, rute dikelompokkan menggunakan **`Route::prefix`** dan **`Route::group`**:
+
+```php
+// 1. Rute Publik (Bisa diakses tanpa login)
+Route::prefix('events')->name('api.events.')->group(function () {
+    Route::get('/', [EventController::class, 'index'])->name('index'); // GET /api/events
+    Route::get('/{id}', [EventController::class, 'show'])->name('show'); // GET /api/events/1
+});
+```
+
+---
+
+### B. Pengamanan & Pembatasan Akses (`Middleware`)
+Untuk menjaga keamanan sistem dari akses ilegal maupun serangan siber, GateMate menerapkan 3 lapisan **Middleware** di dalam `routes/api.php`:
+
+1. **Rate Limiting (`throttle:X,Y`) — Pencegah Serangan Brute Force & DDoS**
+   Membatasi jumlah request dari IP yang sama dalam jangka waktu tertentu. Khusus untuk endpoint sensitif seperti Login dan OTP:
+   ```php
+   Route::prefix('auth')->name('api.auth.')->group(function () {
+       // Maksimal 10 percobaan login per 1 menit per IP
+       Route::post('/login', [AuthController::class, 'login'])
+           ->middleware('throttle:10,1')
+           ->name('login');
+
+       // Pengiriman OTP maksimal 3 kali dalam 5 menit
+       Route::post('/otp/send', [OtpController::class, 'send'])
+           ->middleware('throttle:3,5');
+   });
+   ```
+
+2. **Autentikasi Token (`auth:sanctum`)**
+   Middleware ini memeriksa apakah request dari React membawa header **`Authorization: Bearer <token>`**. Jika token tidak ada, kedaluwarsa, atau palsu, Laravel langsung menolak request dengan status **`401 Unauthorized`** tanpa pernah memanggil Controller.
+   ```php
+   Route::middleware('auth:sanctum')->group(function () {
+       Route::post('/auth/logout', [AuthController::class, 'logout']);
+       Route::get('/auth/me', [AuthController::class, 'me']);
+   });
+   ```
+
+3. **Verifikasi Peran / Role (`api.organizer.verified`, `api.user.role`, `api.superadmin`)**
+   Setelah token dinyatakan sah, middleware khusus bertugas mengecek peran pengguna di database. Contohnya, pada rute pembuatan event di bawah ini, sistem memastikan **hanya pengguna dengan role Organizer DAN status KTP/akunnya sudah diverifikasi oleh Superadmin** yang diizinkan masuk:
+   ```php
+   Route::middleware(['auth:sanctum', 'api.organizer.verified'])
+       ->prefix('admin')
+       ->group(function () {
+           // GET /api/admin/events
+           Route::get('/events', [AdminEventController::class, 'index']);
+           
+           // POST /api/admin/events (Buat event baru)
+           Route::post('/events', [AdminEventController::class, 'store']);
+           
+           // PUT /api/admin/events/{id} (Update event)
+           Route::put('/events/{id}', [AdminEventController::class, 'update']);
+           
+           // DELETE /api/admin/events/{id} (Hapus event)
+           Route::delete('/events/{id}', [AdminEventController::class, 'destroy']);
+       });
+   ```
+
+---
+
+## 3. Alur Kerja Request di Backend (Request Lifecycle)
 
 Ketika Frontend mengirim request HTTP (contoh: `POST /api/admin/events`), berikut adalah urutan pasti bagaimana kode backend mengeksekusinya:
 
@@ -38,7 +112,7 @@ sequenceDiagram
     participant Resource as EventResource
 
     React->>Route: POST /api/admin/events (Headers: Bearer Token + FormData)
-    Route->>Request: Jalankan Middleware & Validasi Input
+    Route->>Request: Jalankan Middleware (Sanctum + Verified) & Validasi Input
     note over Request: Cek aturan (rules): title required, start_time H:i, dll.<br/>Jika salah, langsung tolak dengan HTTP 422 (Tanpa ke Controller).
     Request->>Controller: Lolos Validasi! Kirim $request->validated()
     Controller->>Service: $this->eventService->createEvent(adminId, data, files)
@@ -57,7 +131,7 @@ sequenceDiagram
 
 ---
 
-## 3. Hubungan Teknis: Dari Controller ke Service Layer (Code Deep-Dive)
+## 4. Hubungan Teknis: Dari Controller ke Service Layer (Code Deep-Dive)
 
 Bagaimana tepatnya Controller bisa terhubung dengan Service? Jawabannya adalah **Dependency Injection (DI)** pada constructor PHP/Laravel.
 
@@ -239,7 +313,7 @@ class EventResource extends JsonResource
 
 ---
 
-## 4. Bagaimana Frontend Menarik dan Mengirim Data? (REST API & Token Auth)
+## 5. Bagaimana Frontend Menarik dan Mengirim Data? (REST API & Token Auth)
 
 ### Apa itu REST API?
 Frontend (React) dan Backend (Laravel) adalah dua aplikasi terpisah yang berkomunikasi melalui protokol HTTP.
@@ -344,19 +418,22 @@ const handleSubmit = async (e) => {
 
 ---
 
-## 5. Pertanyaan Kunci & Jawaban Siap Pakai untuk Ujian
+## 6. Pertanyaan Kunci & Jawaban Siap Pakai untuk Ujian
 
 ### Q1: Mengapa menggunakan arsitektur Headless API + React SPA, bukan langsung Blade?
 > **Jawaban:** "Untuk memisahkan beban kerja (*Decoupling*). Backend fokus 100% pada keamanan, performa database, dan logika bisnis, sedangkan Frontend fokus pada interaktivitas antarmuka (*User Experience*). Selain itu, dengan Headless API (`routes/api.php`), backend kita siap digunakan untuk berbagai klien sekaligus: baik Web React saat ini, maupun jika nantinya kita membuat aplikasi Mobile Android/iOS tanpa perlu merombak ulang kode backend."
 
-### Q2: Apa keuntungan utama memisahkan Controller dan Service Layer?
+### Q2: Bagaimana cara backend menyediakan dan mengamankan API yang diakses Frontend?
+> **Jawaban:** "Seluruh endpoint dipusatkan pada file `routes/api.php` dengan awalan URL `/api`. Untuk pengamanannya, kami menerapkan 3 lapis Middleware: pertama **`throttle:X,Y`** untuk membatasi laju request agar kebal serangan Brute Force/DDoS; kedua **`auth:sanctum`** untuk memvalidasi sah/tidaknya Bearer Token JWT; dan ketiga **Role & Verification Check (`api.organizer.verified` atau `api.superadmin`)** untuk memastikan hanya pengguna dengan peran yang tepat dan sudah terverifikasi KTP/Admin yang diizinkan mengakses fitur sensitif."
+
+### Q3: Apa keuntungan utama memisahkan Controller dan Service Layer?
 > **Jawaban:** "Menjaga prinsip **Single Responsibility Principle (SRP)** dan kemudahan pemeliharaan (*Maintainability*). Jika kode pembuatan event atau pemotongan saldo e-wallet ditaruh di Controller, maka saat kita butuh memanggil logika yang sama dari fitur lain (misal dari *Cron Job* otomatis atau *Command Line Artisan*), kita harus menduplikasi kode. Dengan menaruhnya di `Service`, Controller kita tetap ringkas (*Slim*) dan logika bisnis bisa dipanggil dari mana saja (*Reusable*)."
 
-### Q3: Bagaimana cara sistem mencegah data cacat/rusak jika error terjadi di tengah proses penyimpanan ke database?
+### Q4: Bagaimana cara sistem mencegah data cacat/rusak jika error terjadi di tengah proses penyimpanan ke database?
 > **Jawaban:** "Kami menggunakan **Database Transaction (`DB::transaction()`)** pada Service Layer. Misalnya saat membuat event, sistem harus menyimpan ke tabel `events` DAN tabel `ticket_tiers`. Jika saat menyimpan tabel `ticket_tiers` terjadi error (misalnya koneksi putus atau tipe data salah), maka perintah SQL `Event::create` yang sudah sempat dieksekusi sebelumnya akan dibatalkan secara otomatis (`rollback`), sehingga tidak menyisakan data event yang tanpa tiket di dalam database."
 
-### Q4: Apa fungsi `Form Request` (`StoreEventRequest`) dan kenapa tidak divalidasi saja di Controller?
+### Q5: Apa fungsi `Form Request` (`StoreEventRequest`) dan kenapa tidak divalidasi saja di Controller?
 > **Jawaban:** "`Form Request` berfungsi sebagai gerbang keamanan awal sebelum kode di dalam Controller dieksekusi. Jika kita menaruh `$request->validate()` di Controller, method Controller akan menjadi sangat panjang dan kotor. Dengan Form Request, kita juga dapat memanfaatkan method `prepareForValidation()` untuk menormalisasi input terlebih dahulu—sebagai contoh, memotong format jam `14:30:00` dari browser menjadi `14:30` agar sesuai dengan format validasi database."
 
-### Q5: Bagaimana mekanisme komunikasi antara Frontend React dan Backend Laravel?
+### Q6: Bagaimana mekanisme komunikasi antara Frontend React dan Backend Laravel?
 > **Jawaban:** "Komunikasi dilakukan secara asinkron menggunakan library HTTP **Axios** via format REST API. Setiap kali user berhasil login, Laravel menerbitkan **Sanctum Bearer Token** yang kemudian disimpan oleh React di `localStorage`. Saat React meminta atau mengirim data ke endpoint yang terproteksi, Axios Interceptor secara otomatis menempelkan header `Authorization: Bearer <token>`. Untuk pengiriman data bergambar/file seperti saat membuat event, React membungkus data dalam objek `FormData` dengan tipe konten `multipart/form-data`."
