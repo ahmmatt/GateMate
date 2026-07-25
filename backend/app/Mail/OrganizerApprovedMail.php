@@ -25,7 +25,7 @@ class OrganizerApprovedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎉 Akun Penyelenggara GateMate Anda Telah Disetujui!',
+            subject: '🎉 Akun Penyelenggara SecureGate Anda Telah Disetujui!',
         );
     }
 

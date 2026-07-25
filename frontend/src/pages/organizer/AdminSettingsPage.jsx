@@ -468,7 +468,7 @@ export default function AdminSettingsPage() {
                         </div>
                       </div>
                       <div className="mt-4 p-3 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-start gap-3"> <span className="material-symbols-outlined text-tertiary text-[18px] mt-0.5">info</span>
-                        <p className="font-caption text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim GateMate selama maksimal 2×24 jam.</p>
+                        <p className="font-caption text-caption text-secondary">Perubahan pada nama organisasi akan memerlukan proses verifikasi ulang oleh tim SecureGate selama maksimal 2×24 jam.</p>
                       </div>
                     </section>
                   </div>

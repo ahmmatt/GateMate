@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 /**
  * ApiResponse Trait
  * ─────────────────────────────────────────────────────────────────────────────
- * Standarisasi format JSON response untuk semua API controller GateMate.
+ * Standarisasi format JSON response untuk semua API controller SecureGate.
  *
  * Format standar:
  * {

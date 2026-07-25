@@ -127,15 +127,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        // ─── GateMate Custom Channels ─────────────────────────────────────────
+        // ─── SecureGate Custom Channels ─────────────────────────────────────────
 
         /**
-         * Channel utama GateMate — log aktivitas bisnis (checkout, wallet, OTP, dll.)
-         * Gunakan: Log::channel('gatemate')->info(...)
+         * Channel utama SecureGate — log aktivitas bisnis (checkout, wallet, OTP, dll.)
+         * Gunakan: Log::channel('securegate')->info(...)
          */
-        'gatemate' => [
+        'securegate' => [
             'driver'              => 'daily',
-            'path'                => storage_path('logs/gatemate.log'),
+            'path'                => storage_path('logs/securegate.log'),
             'level'               => 'info',
             'days'                => 30,
             'replace_placeholders' => true,

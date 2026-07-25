@@ -16,7 +16,7 @@ class UserFactory extends Factory
 
     /**
      * Define the model's default state.
-     * Disesuaikan dengan skema tabel users GateMate (full_name, gender, phone, role, dll.)
+     * Disesuaikan dengan skema tabel users SecureGate (full_name, gender, phone, role, dll.)
      *
      * @return array<string, mixed>
      */

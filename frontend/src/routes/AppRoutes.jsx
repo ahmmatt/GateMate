@@ -6,8 +6,8 @@ import UserLayout from '../layouts/UserLayout'
 import AdminLayout from '../layouts/AdminLayout'
 
 // Public Pages
-import Home from '../pages/public/Home'
-import Events from '../pages/public/Events'
+import LandingPage from '../pages/public/LandingPage'
+import DiscoverPage from '../pages/public/DiscoverPage'
 import EventDetail from '../pages/public/EventDetail'
 import CityEventsPage from '../pages/public/CityEventsPage'
 import UserLogin from '../pages/auth/UserLogin'
@@ -107,8 +107,8 @@ export default function AppRoutes() {
 
       {/* ── Public Routes ── */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/events" element={<Events />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/events/city/:cityName" element={<CityEventsPage />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/login" element={<UserLogin />} />

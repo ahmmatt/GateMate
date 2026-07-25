@@ -245,8 +245,8 @@ export default function Profile() {
       <footer className="bg-surface-container-low w-full mt-auto border-t border-outline-variant flat no-shadows">
         <div className="flex flex-col md:flex-row justify-between items-center py-8 px-container-padding max-w-[1280px] mx-auto gap-6 md:gap-0">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary">GateMate</span>
-            <span className="font-caption text-caption text-on-surface-variant">© 2024 GateMate. All rights reserved.</span>
+            <span className="font-headline-sm text-headline-sm font-bold text-primary">SecureGate</span>
+            <span className="font-caption text-caption text-on-surface-variant">© 2024 SecureGate. All rights reserved.</span>
           </div>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
             <span className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Terms of Service</span>

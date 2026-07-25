@@ -128,7 +128,7 @@ export default function AdminLayout({ children }) {
         <div className="flex flex-col gap-8">
           <div className="px-6 flex justify-between items-center">
             <div>
-              <span className="font-headline-md text-headline-md font-bold text-primary">GateMate</span>
+              <span className="font-headline-md text-headline-md font-bold text-primary">SecureGate</span>
               <p className="text-secondary font-label-sm mt-1">{isSuperadmin ? 'Superadmin Portal' : 'Admin Portal'}</p>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-secondary hover:text-primary">

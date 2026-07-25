@@ -29,7 +29,7 @@ export default function FeaturesSection() {
               Kelola Event dengan Lebih Aman & Transparan
             </h2>
             <p className="font-body-lg text-body-lg text-secondary">
-              Bergabunglah sebagai mitra penyelenggara GateMate dan nikmati kemudahan manajemen tiket 
+              Bergabunglah sebagai mitra penyelenggara SecureGate dan nikmati kemudahan manajemen tiket 
               dengan sistem keamanan berlapis.
             </p>
           </div>

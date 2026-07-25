@@ -42,9 +42,9 @@ export default function AdminLogin() {
     } catch (err) {
       console.warn('Backend login tidak terjangkau atau gagal, memeriksa kredensial fallback offline...')
       // Graceful fallback offline khusus untuk superadmin demo saat API offline
-      if (email === 'superadmin@gatemate.com' && password === 'password123') {
+      if (email === 'superadmin@securegate.com' && password === 'password123') {
         const mockRole = 'superadmin'
-        const mockUser = { id: 1, name: 'Superadmin GateMate', email, role: mockRole }
+        const mockUser = { id: 1, name: 'Superadmin SecureGate', email, role: mockRole }
         localStorage.setItem('token', 'mock-superadmin-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         
@@ -66,7 +66,7 @@ export default function AdminLogin() {
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-[#271815] text-xl font-bold mb-2">Portal Superadmin</h1>
-          <p className="text-[#5f5e5e] text-sm">Masuk ke akun Anda untuk mengelola platform GateMate.</p>
+          <p className="text-[#5f5e5e] text-sm">Masuk ke akun Anda untuk mengelola platform SecureGate.</p>
         </div>
 
         {/* Form */}
@@ -88,7 +88,7 @@ export default function AdminLogin() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@gatemate.com"
+                placeholder="admin@securegate.com"
                 required
                 className="w-full bg-[#F5F5F7] border border-[#EBEBEB] rounded-[10px] pl-10 pr-4 py-3 text-sm focus:border-[#b22110] transition-colors text-[#271815] outline-none"
                 onFocus={() => setFocusedField('email')}

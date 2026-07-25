@@ -77,7 +77,7 @@ export default function OrganizerRegister() {
       
       {/* Title Outside Card */}
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-[#b22110] tracking-tight mb-1">GateMate</h1>
+        <h1 className="text-3xl font-bold text-[#b22110] tracking-tight mb-1">SecureGate</h1>
         <p className="text-gray-400 text-sm font-medium">Daftar sebagai Penyelenggara Event</p>
       </div>
 

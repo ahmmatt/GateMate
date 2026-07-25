@@ -25,7 +25,7 @@ export default function DashboardHeader({ user = {}, notifCount = 0 }) {
           {greeting()}, {firstName}! 👋
         </h1>
         <p className="text-[#5f5e5e] text-sm mt-1">
-          Selamat datang kembali di GateMate
+          Selamat datang kembali di SecureGate
         </p>
       </div>
 

@@ -42,8 +42,8 @@ export default function OrganizerLogin() {
       }
     } catch (err) {
       console.warn('Backend API tidak terjangkau atau gagal, memeriksa kredensial fallback offline organizer...')
-      if (email === 'organizer@gatemate.com' && password === 'password123') {
-        const mockUser = { id: 2, name: 'Organizer Demo GateMate', email, role: 'admin', organizer_id: 'GM-9921' }
+      if (email === 'organizer@securegate.com' && password === 'password123') {
+        const mockUser = { id: 2, name: 'Organizer Demo SecureGate', email, role: 'admin', organizer_id: 'GM-9921' }
         localStorage.setItem('token', 'mock-organizer-token-123')
         localStorage.setItem('user', JSON.stringify(mockUser))
         navigate('/organizer/dashboard')
@@ -107,7 +107,7 @@ export default function OrganizerLogin() {
                 Manajemen Event Masa Depan, Lebih Aman &amp; Transparan.
               </h1>
               <p className="text-[15px] text-[#5b403c] leading-relaxed max-w-[440px]">
-                Kelola penjualan tiket, check-in peserta dengan scanner QR super-cepat, dan penarikan dana real-time dalam satu dashboard profesional GateMate.
+                Kelola penjualan tiket, check-in peserta dengan scanner QR super-cepat, dan penarikan dana real-time dalam satu dashboard profesional SecureGate.
               </p>
             </div>
             {/* Organizer Illustration Card */}
@@ -273,7 +273,7 @@ export default function OrganizerLogin() {
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
                     required
-                    placeholder="organizer@gatemate.com" 
+                    placeholder="organizer@securegate.com" 
                     className="w-full h-12 px-4 input-base text-[14px] text-[#271815]"
                   />
                 </div>
@@ -288,7 +288,7 @@ export default function OrganizerLogin() {
                     >
                       Password
                     </label>
-                    <a href="#" onClick={(e) => { e.preventDefault(); alert('Hubungi tim dukungan mitra GateMate untuk pemulihan akses.'); }} className="text-[12px] font-medium text-[#b22110] hover:underline">
+                    <a href="#" onClick={(e) => { e.preventDefault(); alert('Hubungi tim dukungan mitra SecureGate untuk pemulihan akses.'); }} className="text-[12px] font-medium text-[#b22110] hover:underline">
                       Lupa Password?
                     </a>
                   </div>

@@ -148,7 +148,7 @@ class AuthService
     {
         try {
             $normalizedPhone = FonnteService::normalizePhone($user->phone);
-            $appName         = config('app.name', 'GateMate');
+            $appName         = config('app.name', 'SecureGate');
             $message         = "🔐 *Kode Verifikasi {$appName}*\n\nKode OTP Anda adalah:\n\n*{$otp}*\n\nKode ini berlaku selama 5 menit. Jangan berikan kode ini kepada siapapun.\n\n_Tim {$appName}_";
 
             $this->fonnte->send($normalizedPhone, $message);

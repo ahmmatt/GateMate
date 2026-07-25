@@ -19,7 +19,7 @@ class LoginTest extends TestCase
     private function createUser(array $attributes = []): User
     {
         return User::factory()->create(array_merge([
-            'email'    => 'user@gatemate.test',
+            'email'    => 'user@securegate.test',
             'password' => bcrypt('password123'),
             'role'     => 'user',
         ], $attributes));
@@ -31,7 +31,7 @@ class LoginTest extends TestCase
         $this->createUser();
 
         $response = $this->postJson('/api/auth/login', [
-            'email'    => 'user@gatemate.test',
+            'email'    => 'user@securegate.test',
             'password' => 'password123',
         ]);
 
@@ -54,7 +54,7 @@ class LoginTest extends TestCase
         $this->createUser();
 
         $response = $this->postJson('/api/auth/login', [
-            'email'    => 'user@gatemate.test',
+            'email'    => 'user@securegate.test',
             'password' => 'wrongpassword',
         ]);
 
@@ -66,7 +66,7 @@ class LoginTest extends TestCase
     public function login_fails_with_unregistered_email(): void
     {
         $response = $this->postJson('/api/auth/login', [
-            'email'    => 'notexist@gatemate.test',
+            'email'    => 'notexist@securegate.test',
             'password' => 'password123',
         ]);
 

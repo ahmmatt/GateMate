@@ -11,7 +11,7 @@ export default function TopNavBar() {
       <div className="flex justify-between items-center px-container-padding py-3 max-w-[1280px] mx-auto">
         <div className="flex items-center gap-gap-default">
           <Link to="/" className="font-headline-md text-headline-md font-bold text-primary hover:opacity-80 transition-opacity">
-            GateMate
+            SecureGate
           </Link>
           <div className="hidden md:flex gap-6 ml-8">
             <Link

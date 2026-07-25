@@ -26,7 +26,7 @@ export default function Sidebar({ navItems, title, onClose }) {
             <Ticket className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-base font-bold text-[#b22110]">GateMate</span>
+            <span className="text-base font-bold text-[#b22110]">SecureGate</span>
             <p className="text-[#5f5e5e] text-xs">{title}</p>
           </div>
         </div>

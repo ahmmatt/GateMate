@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Hash;
 class AdminSeeder extends Seeder
 {
     /**
-     * Seed akun Super Admin dan Admin Event untuk aplikasi GateMate.
+     * Seed akun Super Admin dan Admin Event untuk aplikasi SecureGate.
      */
     public function run(): void
     {
         // ── 1. Super Admin ────────────────────────────────────────────────────
         User::firstOrCreate(
-            ['email' => 'superadmin@gatemate.com'],
+            ['email' => 'superadmin@securegate.com'],
             [
-                'full_name' => 'Super Admin GateMate',
+                'full_name' => 'Super Admin SecureGate',
                 'password'  => Hash::make('password123'),
                 'role'      => 'superadmin',
             ]
@@ -25,7 +25,7 @@ class AdminSeeder extends Seeder
 
         // ── 2. Admin Event ────────────────────────────────────────────────────
         User::firstOrCreate(
-            ['email' => 'admin@gatemate.com'],
+            ['email' => 'admin@securegate.com'],
             [
                 'full_name' => 'Admin Event',
                 'password'  => Hash::make('password123'),

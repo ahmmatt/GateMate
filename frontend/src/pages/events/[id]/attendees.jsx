@@ -59,7 +59,7 @@ export default function AttendeeList() {
       <nav className="w-full top-0 sticky bg-surface border-b border-outline-variant z-50">
         <div className="flex justify-between items-center h-16 px-container-padding max-w-[1280px] mx-auto">
           <div className="font-headline-md text-headline-md font-bold text-primary cursor-pointer active:opacity-80" onClick={() => navigate('/')}>
-            GateMate
+            SecureGate
           </div>
           <div className="hidden md:flex gap-8 items-center">
             <span className="text-secondary font-body-md text-body-md hover:text-primary transition-colors cursor-pointer active:opacity-80">Explore</span>
@@ -150,7 +150,7 @@ export default function AttendeeList() {
       <footer className="w-full mt-auto bg-surface-container-low border-t border-outline-variant">
         <div className="flex flex-col md:flex-row justify-between items-center py-8 px-container-padding max-w-[1280px] mx-auto gap-6">
           <div className="mb-6 md:mb-0 text-center md:text-left">
-            <div className="font-headline-sm text-headline-sm font-bold text-primary mb-2">GateMate</div>
+            <div className="font-headline-sm text-headline-sm font-bold text-primary mb-2">SecureGate</div>
             <p className="font-caption text-caption text-on-surface-variant max-w-xs mx-auto md:mx-0">Solusi manajemen akses digital terintegrasi dengan standar keamanan tertinggi.</p>
           </div>
           <div className="flex flex-col items-center md:items-end gap-4">
@@ -160,7 +160,7 @@ export default function AttendeeList() {
               <span className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Security Standards</span>
               <span className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Contact Us</span>
             </div>
-            <p className="font-caption text-caption text-on-surface-variant">© 2024 GateMate. All rights reserved.</p>
+            <p className="font-caption text-caption text-on-surface-variant">© 2024 SecureGate. All rights reserved.</p>
           </div>
         </div>
       </footer>

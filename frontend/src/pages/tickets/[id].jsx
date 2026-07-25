@@ -275,7 +275,7 @@ export default function Register() {
         {/* Terms check */}
         <div className="mt-8 pt-6 border-t border-[#EBEBEB] text-center">
           <p className="text-[11px] text-[#5f5e5e] px-4 leading-relaxed">
-            Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> GateMate.
+            Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> SecureGate.
           </p>
         </div>
       </div>
