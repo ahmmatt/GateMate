@@ -29,7 +29,7 @@ Route::fallback(function () {
     }
     
     return response()->json([
-        'message' => 'GateMate Headless API Server. Please use the React frontend.',
+        'message' => 'SecureGate Headless API Server. Please use the React frontend.',
         'status'  => 'active'
     ], 200);
 });

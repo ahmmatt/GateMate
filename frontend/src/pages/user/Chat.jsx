@@ -149,7 +149,7 @@ export default function Chat() {
       {/* TopAppBar Execution */}
       <header className="bg-surface border-b-[0.5px] border-outline-variant flex justify-between items-center w-full px-container-padding h-16 sticky top-0 z-50">
         <div className="flex items-center gap-8">
-          <span className="font-headline-md text-headline-md font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>GateMate</span>
+          <span className="font-headline-md text-headline-md font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>SecureGate</span>
           <nav className="hidden md:flex gap-6 items-center">
             <a className="font-body-md text-body-md text-secondary hover:text-primary transition-colors cursor-pointer" onClick={() => navigate('/events')}>Explore</a>
             <a className="font-body-md text-body-md text-secondary hover:text-primary transition-colors cursor-pointer" onClick={() => navigate('/user/tickets')}>My Tickets</a>
@@ -305,7 +305,7 @@ export default function Chat() {
                     <span className="material-symbols-outlined text-xl" style={{fontVariationSettings: "'FILL' 1"}}>send</span>
                   </button>
                 </div>
-                <p className="text-[11px] text-center text-outline mt-3 font-medium">End-to-end encrypted by GateMate Protocol</p>
+                <p className="text-[11px] text-center text-outline mt-3 font-medium">End-to-end encrypted by SecureGate Protocol</p>
               </footer>
             </>
           )}

@@ -57,7 +57,7 @@ export default function UserLogin() {
 
       navigate('/events')
     } catch (err) {
-      if (email === 'user@gatemate.com' && password === 'password123') {
+      if (email === 'user@securegate.com' && password === 'password123') {
         console.warn('Menggunakan fallback offline dengan role user...')
         const mockUser = { id: 1, name: 'User Demo', email, role: 'user' }
         localStorage.setItem('token', 'mock-token-offline')
@@ -154,7 +154,7 @@ export default function UserLogin() {
             <div className="relative w-full aspect-square max-w-[400px] rounded-[32px] overflow-hidden border border-[#e3beb8]/50 shadow-md">
               <img 
                 className="w-full h-full object-cover" 
-                alt="GateMate Ticket Verification" 
+                alt="SecureGate Ticket Verification" 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEgk-WSEpYTR3uBfPtKdaPaGrqMg-IVapxI5irFNLrds4_d7RL2Z_OvCMxNgWZZdhI3CYR8z6iwu5vXp-03VcfR5se3MhTyzrk_J0PePqKXuBrfuQaYw7DNiqk06-RtWzka8yHWeAn9xRX1LKxys15MKjReUsdVr7bwWN3nWMSXdXO8_DQSLNvRibBpUeyWQ-ReGrfVrh22A3tB7FXdUzDKepTWUwWScZEsPOGX_35Q9j8Lnjmj8TUGyMROdSkrwfCXBYNgPuzfM" 
               />
             </div>
@@ -243,7 +243,7 @@ export default function UserLogin() {
                         <span>Memproses...</span>
                       </>
                     ) : (
-                      <span>Masuk ke GateMate</span>
+                      <span>Masuk ke SecureGate</span>
                     )}
                   </button>
                 </div>

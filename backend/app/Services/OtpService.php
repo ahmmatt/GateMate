@@ -63,7 +63,7 @@ class OtpService
 
         // Kirim via WhatsApp
         $normalizedPhone = FonnteService::normalizePhone($user->phone);
-        $appName         = config('app.name', 'GateMate');
+        $appName         = config('app.name', 'SecureGate');
         $message         = "🔐 *Kode Verifikasi {$appName}*\n\nKode OTP Anda adalah:\n\n*{$otp}*\n\nKode ini berlaku selama " . self::EXPIRES_MINUTES . " menit. Jangan berikan kode ini kepada siapapun.\n\n_Tim {$appName}_";
 
         $sent = $this->fonnte->send($normalizedPhone, $message);

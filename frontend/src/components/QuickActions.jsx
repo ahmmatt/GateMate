@@ -42,7 +42,7 @@ const quickActions = [
   {
     id: 'help',
     label: 'Bantuan',
-    description: 'Pusat bantuan GateMate',
+    description: 'Pusat bantuan SecureGate',
     icon: HelpCircle,
     to: '/help',
     type: 'secondary',

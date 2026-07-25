@@ -115,7 +115,7 @@ export default function UserRegister() {
             Portal Pengguna
           </span>
           <h1 className="text-[#271815] text-xl font-bold mb-2">Buat Akun Pengguna</h1>
-          <p className="text-[#5f5e5e] text-sm">Lengkapi data diri untuk mulai membeli tiket & mengikuti event GateMate.</p>
+          <p className="text-[#5f5e5e] text-sm">Lengkapi data diri untuk mulai membeli tiket & mengikuti event SecureGate.</p>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
@@ -314,7 +314,7 @@ export default function UserRegister() {
 
         <div className="mt-6 pt-4 border-t border-[#EBEBEB]/60 text-center">
           <p className="text-[11px] text-[#5f5e5e] px-4 leading-relaxed">
-            Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> GateMate.
+            Dengan mendaftar, Anda menyetujui <a className="underline hover:text-[#271815]" href="#">Syarat & Ketentuan</a> serta <a className="underline hover:text-[#271815]" href="#">Kebijakan Privasi</a> SecureGate.
           </p>
         </div>
       </div>

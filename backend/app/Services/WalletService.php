@@ -106,14 +106,14 @@ class WalletService
             ],
             'customer_details' => [
                 'first_name' => $user->full_name ?? 'User',
-                'email'      => $user->email ?? 'user@gatemate.id',
+                'email'      => $user->email ?? 'user@securegate.id',
             ],
             'item_details' => [
                 [
                     'id'       => 'TOPUP',
                     'price'    => $amount,
                     'quantity' => 1,
-                    'name'     => 'Top-up Saldo GateMate',
+                    'name'     => 'Top-up Saldo SecureGate',
                 ],
             ],
         ];

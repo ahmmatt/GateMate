@@ -36,7 +36,7 @@ class MidtransIrisService
                         'beneficiary_bank'    => $bank,
                         'beneficiary_email'   => $transaction->user->email,
                         'amount'              => $amount,
-                        'notes'               => 'Pencairan Dana GateMate',
+                        'notes'               => 'Pencairan Dana SecureGate',
                     ]
                 ]
             ];

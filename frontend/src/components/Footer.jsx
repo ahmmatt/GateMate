@@ -10,8 +10,8 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-8 max-w-[1280px] mx-auto">
         {/* Brand */}
         <div className="flex flex-col gap-1 items-center md:items-start">
-          <span className="text-base font-bold text-[#b22110]">GateMate</span>
-          <p className="text-[11px] text-[#5f5e5e]">© 2026 GateMate. All rights reserved.</p>
+          <span className="text-base font-bold text-[#b22110]">SecureGate</span>
+          <p className="text-[11px] text-[#5f5e5e]">© 2026 SecureGate. All rights reserved.</p>
         </div>
 
         {/* Links */}

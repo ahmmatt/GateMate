@@ -190,7 +190,7 @@ export default function FaceVerification() {
               className="font-headline-md text-headline-md font-bold text-primary cursor-pointer"
               onClick={() => navigate('/')}
             >
-              GateMate
+              SecureGate
             </div>
             <div className="font-label-md text-label-md bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant">
               Step 1 of 2
@@ -202,7 +202,7 @@ export default function FaceVerification() {
       {step === 'scanning' && (
         <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding py-4 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30">
           <div className="flex flex-col cursor-pointer" onClick={cancel}>
-            <h1 className="text-headline-sm font-headline-sm font-bold text-on-surface">GateMate</h1>
+            <h1 className="text-headline-sm font-headline-sm font-bold text-on-surface">SecureGate</h1>
             <p className="text-label-md font-label-md text-secondary">Verifikasi Identitas</p>
           </div>
           <div className="text-right">
@@ -218,7 +218,7 @@ export default function FaceVerification() {
       {(step === 'success' || step === 'failed') && (
         <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding py-4 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30">
           <div className="flex items-center gap-2">
-            <span className="text-headline-sm font-headline-sm font-bold text-on-surface">GateMate</span>
+            <span className="text-headline-sm font-headline-sm font-bold text-on-surface">SecureGate</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
@@ -289,7 +289,7 @@ export default function FaceVerification() {
                 )}
               </button>
               <p className="text-center font-caption text-caption text-on-surface-variant px-4">
-                Dengan melanjutkan, kamu menyetujui <a className="text-primary hover:underline underline-offset-4" href="#">Kebijakan Privasi GateMate</a>
+                Dengan melanjutkan, kamu menyetujui <a className="text-primary hover:underline underline-offset-4" href="#">Kebijakan Privasi SecureGate</a>
               </p>
             </div>
           </div>

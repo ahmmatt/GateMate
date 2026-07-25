@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * CheckoutService
  * ─────────────────────────────────────────────────────────────────────────────
- * Mengelola seluruh logika proses pembelian tiket via wallet GateMate.
+ * Mengelola seluruh logika proses pembelian tiket via wallet SecureGate.
  * Termasuk: KYC check, seat check, anti-calo, potong saldo, kirim e-ticket.
  */
 class CheckoutService

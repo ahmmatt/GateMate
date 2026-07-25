@@ -20,13 +20,13 @@ use Exception;
 /**
  * SuperadminService
  * ─────────────────────────────────────────────────────────────────────────────
- * Menangani seluruh business logic untuk panel Superadmin GateMate:
+ * Menangani seluruh business logic untuk panel Superadmin SecureGate:
  * statistik global, penarikan dana organizer/tenant, serta approval verifikasi organizer.
  */
 class SuperadminService
 {
     /**
-     * Mengambil statistik global platform GateMate.
+     * Mengambil statistik global platform SecureGate.
      */
     public function getDashboardStats(): array
     {

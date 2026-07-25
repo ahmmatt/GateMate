@@ -19,7 +19,7 @@ class RegisterTest extends TestCase
     private array $validPayload = [
         'full_name'             => 'Budi Santoso',
         'gender'                => 'Male',
-        'email'                 => 'budi@gatemate.test',
+        'email'                 => 'budi@securegate.test',
         'phone'                 => '081234567890',
         'password'              => 'password123',
         'password_confirmation' => 'password123',
@@ -43,7 +43,7 @@ class RegisterTest extends TestCase
             ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('users', [
-            'email'     => 'budi@gatemate.test',
+            'email'     => 'budi@securegate.test',
             'full_name' => 'Budi Santoso',
             'role'      => 'user',
         ]);
@@ -52,7 +52,7 @@ class RegisterTest extends TestCase
     #[Test]
     public function register_fails_with_duplicate_email(): void
     {
-        User::factory()->create(['email' => 'budi@gatemate.test']);
+        User::factory()->create(['email' => 'budi@securegate.test']);
 
         $response = $this->postJson('/api/auth/register', $this->validPayload);
 
@@ -116,7 +116,7 @@ class RegisterTest extends TestCase
         $this->postJson('/api/auth/register', $this->validPayload)->assertStatus(201);
 
         $loginResponse = $this->postJson('/api/auth/login', [
-            'email'    => 'budi@gatemate.test',
+            'email'    => 'budi@securegate.test',
             'password' => 'password123',
         ]);
 
