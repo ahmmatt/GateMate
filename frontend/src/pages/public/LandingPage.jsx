@@ -95,7 +95,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── MAIN ─────────────────────────────────────────────────────────── */}
-      <main className="pt-20 pb-16 space-y-12">
+      <main className="pt-4 pb-16 space-y-12">
 
         {/* Section 1: Hero Banner */}
         <section className="w-full overflow-hidden max-w-[1280px] mx-auto px-container-padding">
@@ -281,7 +281,7 @@ export default function LandingPage() {
               { name: 'Medan',      count: '38+',  img: '/icon_medan_istana_maimun.png',     alt: 'Medan Istana Maimun' },
               { name: 'Semarang',   count: '52+',  img: '/icon_semarang_lawang_sewu.png',    alt: 'Semarang Lawang Sewu' },
             ].map(({ name, count, img, alt }) => (
-              <div key={name} className="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform h-40" onClick={() => navigate('/city/' + name)}>
+              <div key={name} className="bg-white rounded-[14px] border-[0.5px] border-outline-variant p-4 flex flex-col items-center justify-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform h-40" onClick={() => navigate('/events/city/' + name)}>
                 <div className="w-16 h-16 flex items-center justify-center">
                   <img alt={alt} className="w-full h-full object-contain" src={img} />
                 </div>
@@ -344,57 +344,6 @@ export default function LandingPage() {
         </section>
 
       </main>
-
-      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-      <footer className="w-full py-16 bg-[#F9F9F9] border-t border-border-light">
-        <div className="max-w-[1280px] mx-auto px-container-padding">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="space-y-6">
-              <span className="font-bold text-headline-sm text-secondary">SecureGate</span>
-              <p className="text-on-surface-variant text-body-md leading-relaxed">Platform terpercaya untuk pembelian tiket digital dengan keamanan berlapis dan transparansi total.</p>
-              <div className="flex gap-4">
-                {['public', 'share', 'mail'].map((icon) => (
-                  <a key={icon} href="#" className="w-10 h-10 rounded-full bg-white border border-border-light flex items-center justify-center text-on-surface-variant hover:text-coral-red transition-all">
-                    <span className="material-symbols-outlined text-lg">{icon}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-6">
-              <h4 className="font-bold text-on-surface">Tentang Kami</h4>
-              <ul className="space-y-3 text-on-surface-variant text-body-md">
-                {['Profil Perusahaan', 'Karir', 'Blog', 'Terms of Service'].map((l) => (
-                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
-                ))}
-              </ul>
-            </div>
-            <div className="space-y-6">
-              <h4 className="font-bold text-on-surface">Informasi</h4>
-              <ul className="space-y-3 text-on-surface-variant text-body-md">
-                {['Pusat Bantuan', 'Panduan Keamanan', 'Privacy Policy', 'FAQ'].map((l) => (
-                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
-                ))}
-              </ul>
-            </div>
-            <div className="space-y-6">
-              <h4 className="font-bold text-on-surface">Kategori Event</h4>
-              <ul className="space-y-3 text-on-surface-variant text-body-md">
-                {['Konser Musik', 'Olahraga & Fitness', 'Pameran Seni', 'Workshop & Seminar'].map((l) => (
-                  <li key={l}><a href="#" className="hover:text-coral-red transition-colors">{l}</a></li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="pt-8 border-t border-border-light flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-caption text-on-surface-variant">© 2024 SecureGate. Utilitarian Clarity. All rights reserved.</p>
-            <div className="flex gap-8 text-caption font-medium text-on-surface-variant">
-              {['Instagram', 'X / Twitter', 'TikTok'].map((s) => (
-                <a key={s} href="#" className="hover:text-on-surface transition-colors">{s}</a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
 
       {/* ── BOTTOM NAV (mobile) ──────────────────────────────────────────── */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white border-t border-border-light flex justify-around items-center px-2 py-3">

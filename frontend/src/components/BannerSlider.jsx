@@ -30,7 +30,7 @@ export default function BannerSlider() {
   };
 
   return (
-    <div className="w-full mt-8 pt-2 pb-4 group">
+    <div className="w-full mt-2 pb-4 group">
       
       {/* Area Slider (Track + Efek Awan + Panah) */}
       <div className="relative w-full overflow-hidden">
